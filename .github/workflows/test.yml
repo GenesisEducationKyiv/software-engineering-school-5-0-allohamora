@@ -1,0 +1,32 @@
+name: test
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - "**"
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    env:
+      CI: true
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install node
+        uses: actions/setup-node@v4
+        with:
+          cache: "npm"
+
+      - name: Start services
+        run: docker compose up -d pg
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run Test
+        run: npm run test
