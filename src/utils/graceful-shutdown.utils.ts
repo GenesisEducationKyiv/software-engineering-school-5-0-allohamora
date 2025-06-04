@@ -5,7 +5,8 @@ const TIME_TO_CLOSE_BEFORE_EXIT_IN_MS = 15_000;
 const logger = createLogger('graceful-shutdown');
 
 export const onGracefulShutdown = (fn: () => Promise<void>) => {
-  process.on('SIGTERM', async (signal) => {
+  // expects sync function that returns void
+  process.on('SIGTERM', (signal) => {
     logger.info({ msg: 'started', signal });
 
     // aws doesn't kill application after SIGTERM, because of that we need to kill it
@@ -15,13 +16,13 @@ export const onGracefulShutdown = (fn: () => Promise<void>) => {
       process.exit(1);
     }, TIME_TO_CLOSE_BEFORE_EXIT_IN_MS);
 
-    await fn();
+    fn().then(() => {
+      clearTimeout(timeout);
 
-    clearTimeout(timeout);
+      logger.info({ msg: 'finished', signal });
 
-    logger.info({ msg: 'finished', signal });
-
-    // we need it because we can have unpredictable timers during the graceful shutdown
-    process.exit(0);
+      // we need it because we can have unpredictable timers during the graceful shutdown
+      process.exit(0);
+    });
   });
 };
