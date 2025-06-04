@@ -5,7 +5,7 @@ const TIME_TO_CLOSE_BEFORE_EXIT_IN_MS = 15_000;
 const logger = createLogger('graceful-shutdown');
 
 export const onGracefulShutdown = (fn: () => Promise<void>) => {
-  // expects sync function that returns void
+  // expects sync listener that returns void
   process.on('SIGTERM', (signal) => {
     logger.info({ msg: 'started', signal });
 
@@ -16,13 +16,20 @@ export const onGracefulShutdown = (fn: () => Promise<void>) => {
       process.exit(1);
     }, TIME_TO_CLOSE_BEFORE_EXIT_IN_MS);
 
-    fn().then(() => {
-      clearTimeout(timeout);
+    const handler = async () => {
+      try {
+        await fn();
 
-      logger.info({ msg: 'finished', signal });
+        clearTimeout(timeout);
+        process.exit(0);
+      } catch (err) {
+        logger.error({ err, signal });
 
-      // we need it because we can have unpredictable timers during the graceful shutdown
-      process.exit(0);
-    });
+        clearTimeout(timeout);
+        process.exit(1);
+      }
+    };
+
+    void handler();
   });
 };
