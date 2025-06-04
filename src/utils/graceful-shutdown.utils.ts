@@ -6,7 +6,7 @@ const logger = createLogger('graceful-shutdown');
 
 export const onGracefulShutdown = (fn: () => Promise<void>) => {
   // expects sync listener that returns void
-  process.on('SIGTERM', (signal) => {
+  process.once('SIGTERM', (signal) => {
     logger.info({ msg: 'started', signal });
 
     // aws doesn't kill application after SIGTERM, because of that we need to kill it
