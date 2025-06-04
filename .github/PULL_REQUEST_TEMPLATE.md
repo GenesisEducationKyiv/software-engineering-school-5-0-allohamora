@@ -1,7 +1,7 @@
 ### Task
 
 <!--
-Please provide a checkbox of steps that you have completed for this task.
+Please provide a checkbox list of steps that you have completed for this task.
 -->
 
 ### Description
