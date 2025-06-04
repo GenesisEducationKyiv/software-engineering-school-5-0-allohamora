@@ -19,6 +19,7 @@ export const onGracefulShutdown = (fn: () => Promise<void>) => {
     const handler = async () => {
       try {
         await fn();
+        logger.info({ msg: 'finished', signal });
 
         clearTimeout(timeout);
         process.exit(0);
