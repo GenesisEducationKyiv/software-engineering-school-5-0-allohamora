@@ -1,11 +1,11 @@
-name: test
+name: lint
 
 on:
   workflow_dispatch:
   push:
 
 jobs:
-  test:
+  lint:
     runs-on: ubuntu-latest
 
     env:
@@ -15,11 +15,8 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Start services
-        run: docker compose up -d pg
-
       - name: Set up Node.js and dependencies
         uses: ./.github/actions/setup-node
 
-      - name: Run Test
-        run: npm run test
+      - name: Run lint
+        run: npm run lint
