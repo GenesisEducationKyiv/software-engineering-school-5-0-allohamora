@@ -63,8 +63,8 @@ flowchart TD
     Client <--> NodeApp
     Scheduler --> NodeApp
     NodeApp <--> DB
-    NodeApp --> Email
-    NodeApp --> Weather
+    NodeApp <--> Email
+    NodeApp <--> Weather
 ```
 
 ## 4. Detailed Components Design
