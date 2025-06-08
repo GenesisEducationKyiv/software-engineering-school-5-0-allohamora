@@ -26,7 +26,7 @@
 - **Budget:** Minimal cost, preferably using free or low-cost services
 - **External API rate limits:** Under 1000 requests per day
 - **Testing:** Automated E2E tests for the API endpoints
-- **Technologies:** `Node.js` or `PHP` or `Golang` and `PostgreSQL`
+- **Technologies:** `Node.js` and `PostgreSQL`
 
 ## 2. Expected load
 
