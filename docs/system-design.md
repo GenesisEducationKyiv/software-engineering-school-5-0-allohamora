@@ -60,11 +60,11 @@ flowchart TD
     Weather[Weather API]
     Scheduler[Croner Scheduler]
 
-    Client <--> NodeApp
-    Scheduler --> NodeApp
-    NodeApp <--> DB
-    NodeApp <--> Email
-    NodeApp <--> Weather
+    Client <-->|HTTP/HTTPS| NodeApp
+    Scheduler -->|In-Memory| NodeApp
+    NodeApp <-->|SQL/TCP| DB
+    NodeApp <-->|HTTP/HTTPS API| Email
+    NodeApp <-->|HTTP/HTTPS API| Weather
 ```
 
 ## 4. Detailed Components Design
