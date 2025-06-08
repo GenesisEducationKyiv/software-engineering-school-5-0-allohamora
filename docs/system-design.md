@@ -21,7 +21,7 @@
 - **Performance:** Response time under 200ms for API requests
 - **Reliability:** Ensure reliable email delivery
 
-### Technical Requirements:
+### Constraints:
 
 - **Budget:** Minimal cost, preferably using free or low-cost services
 - **External API rate limits:** Under 1000 requests per day
