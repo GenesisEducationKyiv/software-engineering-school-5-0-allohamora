@@ -1,0 +1,31 @@
+services:
+  pg:
+    image: postgres:17.4
+    environment:
+      - POSTGRES_HOST=localhost
+      - POSTGRES_PORT=5432
+      - POSTGRES_USER=app
+      - POSTGRES_PASSWORD=example
+      - POSTGRES_DB=app
+    ports:
+      - 5432:5432
+    volumes:
+      - pg-data:/var/lib/postgresql/data
+      - ./scripts/postgres-init.sql:/docker-entrypoint-initdb.d/postgres-init.sql
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      - POSTGRES_URL=postgresql://app:example@pg:5432/app
+      - PORT=3000
+    env_file:
+      - .env
+    ports:
+      - 3000:3000
+    depends_on:
+      - pg
+
+volumes:
+  pg-data:
