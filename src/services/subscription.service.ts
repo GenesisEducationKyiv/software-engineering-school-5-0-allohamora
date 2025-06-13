@@ -5,7 +5,7 @@ import { APP_URL } from 'src/config.js';
 import { Exception, ExceptionCode } from 'src/exception.js';
 import { WeatherService } from './weather.service.js';
 import { EmailService } from './email.service.js';
-import { Logger, LoggerService } from './logger.service.js';
+import { Logger } from './logger.service.js';
 
 export type SubscribeOptions = {
   email: string;
@@ -21,17 +21,13 @@ export type SubscriptionService = {
 };
 
 export class WeatherSubscriptionService implements SubscriptionService {
-  private logger: Logger;
-
   constructor(
     private jwtService: JwtService,
     private subscriptionRepository: SubscriptionRepository,
     private weatherService: WeatherService,
     private emailService: EmailService,
-    loggerService: LoggerService,
-  ) {
-    this.logger = loggerService.createLogger('WeatherSubscriptionService');
-  }
+    private logger: Logger,
+  ) {}
 
   private async checkIsSubscriptionExists(email: string) {
     if (await this.subscriptionRepository.isSubscriptionExists(email)) {

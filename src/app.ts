@@ -33,7 +33,7 @@ export class CronServerApp implements App {
       await this.dbService.disconnectFromDb();
       await this.cronService.stopCron();
     };
-    onGracefulShutdown(gracefulShutdown, this.loggerService);
+    onGracefulShutdown(gracefulShutdown, this.loggerService.createLogger('GracefulShutdown'));
 
     const handleError = (errorName: string) => async (cause: unknown) => {
       this.logger.error({ err: new Error(errorName, { cause }) });

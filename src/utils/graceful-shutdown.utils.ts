@@ -1,10 +1,8 @@
-import { LoggerService } from 'src/services/logger.service.js';
+import { Logger } from 'src/services/logger.service.js';
 
 const TIME_TO_CLOSE_BEFORE_EXIT_IN_MS = 15_000;
 
-export const onGracefulShutdown = (fn: () => Promise<void>, loggerService: LoggerService) => {
-  const logger = loggerService.createLogger('graceful-shutdown');
-
+export const onGracefulShutdown = (fn: () => Promise<void>, logger: Logger) => {
   // expects sync listener that returns void
   process.once('SIGTERM', (signal) => {
     logger.info({ msg: 'started', signal });

@@ -15,13 +15,13 @@ export const makeDeps = () => {
   const subscriptionRepository: SubscriptionRepository = new DrizzleSubscriptionRepository(dbService.getDb());
   const jwtService: JwtService = new FastJwtService();
   const weatherService: WeatherService = new ApiWeatherService();
-  const emailService: EmailService = new ResendEmailService(loggerService);
+  const emailService: EmailService = new ResendEmailService(loggerService.createLogger('ResendEmailService'));
   const subscriptionService: SubscriptionService = new WeatherSubscriptionService(
     jwtService,
     subscriptionRepository,
     weatherService,
     emailService,
-    loggerService,
+    loggerService.createLogger('WeatherSubscriptionService'),
   );
   const cronService: CronService = new CronerCronService(subscriptionService);
 
