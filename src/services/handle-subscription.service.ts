@@ -1,6 +1,5 @@
 import { Frequency } from 'src/db.schema.js';
 import { SubscriptionRepository } from 'src/repositories/subscription.repository.js';
-import { APP_URL } from 'src/config.js';
 import { WeatherService } from './weather.service.js';
 import { SendEmailTemplateService } from './send-email-template.service.js';
 import { Logger } from './logger.service.js';
@@ -15,6 +14,7 @@ export class WeatherHandleSubscriptionService implements HandleSubscriptionServi
     private weatherService: WeatherService,
     private sendEmailTemplateService: SendEmailTemplateService,
     private logger: Logger,
+    private appUrl: string,
   ) {}
 
   public handleWeatherSubscription(frequency: Frequency) {
@@ -24,7 +24,7 @@ export class WeatherHandleSubscriptionService implements HandleSubscriptionServi
       for await (const subscriptions of this.subscriptionRepository.iterateSubscriptions(frequency)) {
         for (const { id, email, city } of subscriptions) {
           const weather = await this.weatherService.getWeather(city);
-          const unsubscribeLink = `${APP_URL}/api/unsubscribe/${id}`;
+          const unsubscribeLink = `${this.appUrl}/api/unsubscribe/${id}`;
 
           await this.sendEmailTemplateService.sendWeatherUpdateEmail({
             to: email,

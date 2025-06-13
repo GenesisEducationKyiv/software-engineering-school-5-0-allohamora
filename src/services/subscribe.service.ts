@@ -1,7 +1,6 @@
 import { Frequency } from 'src/db.schema.js';
 import { JwtService } from './jwt.service.js';
 import { SubscriptionRepository } from 'src/repositories/subscription.repository.js';
-import { APP_URL } from 'src/config.js';
 import { Exception, ExceptionCode } from 'src/exception.js';
 import { WeatherService } from './weather.service.js';
 import { SendEmailTemplateService } from './send-email-template.service.js';
@@ -24,6 +23,7 @@ export class WeatherSubscribeService implements SubscribeService {
     private subscriptionRepository: SubscriptionRepository,
     private weatherService: WeatherService,
     private sendEmailTemplateService: SendEmailTemplateService,
+    private appUrl: string,
   ) {}
 
   private async checkIsSubscriptionExists(email: string) {
@@ -38,7 +38,7 @@ export class WeatherSubscribeService implements SubscribeService {
     await this.weatherService.validateCity(options.city);
 
     const token = await this.jwtService.sign(options);
-    const confirmationLink = `${APP_URL}/api/confirm/${token}`;
+    const confirmationLink = `${this.appUrl}/api/confirm/${token}`;
 
     await this.sendEmailTemplateService.sendSubscribeEmail({
       to: options.email,

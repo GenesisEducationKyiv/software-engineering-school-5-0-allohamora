@@ -1,4 +1,3 @@
-import { WEATHER_API_KEY } from 'src/config.js';
 import { Exception, ExceptionCode } from 'src/exception.js';
 
 const API_URL = 'https://api.weatherapi.com/v1';
@@ -74,9 +73,11 @@ export type WeatherService = {
 };
 
 export class ApiWeatherService implements WeatherService {
+  constructor(private weatherApiKey: string) {}
+
   public async getWeather(city: string): Promise<Weather> {
     const query = new URLSearchParams({
-      key: WEATHER_API_KEY,
+      key: this.weatherApiKey,
       q: city,
     });
 

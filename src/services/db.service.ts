@@ -2,7 +2,6 @@ import * as schema from '../db.schema.js';
 import path from 'node:path';
 import postgres from 'postgres';
 import { drizzle, PostgresJsDatabase } from 'drizzle-orm/postgres-js';
-import { DRIZZLE_DEBUG, POSTGRES_URL } from '../config.js';
 import { migrate } from 'drizzle-orm/node-postgres/migrator';
 import { sql } from 'drizzle-orm';
 
@@ -19,8 +18,13 @@ export type DrizzleDb = PostgresJsDatabase<typeof schema> & {
 };
 
 export class DrizzleDbService implements DbService {
-  private client = postgres(POSTGRES_URL);
-  private db: DrizzleDb = drizzle(this.client, { schema, logger: DRIZZLE_DEBUG, casing: 'snake_case' });
+  private client: postgres.Sql;
+  private db: DrizzleDb;
+
+  constructor(postgresUrl: string, drizzleDebug: boolean) {
+    this.client = postgres(postgresUrl);
+    this.db = drizzle(this.client, { schema, logger: drizzleDebug, casing: 'snake_case' });
+  }
 
   public getDb() {
     return this.db;

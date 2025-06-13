@@ -1,6 +1,5 @@
 import closeWithGrace, { CloseWithGraceAsyncCallback } from 'close-with-grace';
 import { ServerType } from '@hono/node-server';
-import { NODE_ENV, PORT } from './config.js';
 import { Server } from './server.js';
 import { CronService } from './services/cron.service.js';
 import { Logger } from './services/logger.service.js';
@@ -18,6 +17,8 @@ export class CronServerApp implements App {
     private cronService: CronService,
     private dbService: DbService,
     private logger: Logger,
+    private nodeEnv: 'development' | 'test' | 'production',
+    private port: number,
   ) {}
 
   private setupGracefulShutdown(server: ServerType) {
@@ -46,14 +47,14 @@ export class CronServerApp implements App {
 
       const parts = ['Server has been started'];
 
-      if (NODE_ENV === 'development') {
+      if (this.nodeEnv === 'development') {
         parts.push(`at http://localhost:${info.port}`);
       }
 
       this.logger.info({
         msg: parts.join(' '),
-        NODE_ENV,
+        NODE_ENV: this.nodeEnv,
       });
-    }, PORT);
+    }, this.port);
   }
 }
