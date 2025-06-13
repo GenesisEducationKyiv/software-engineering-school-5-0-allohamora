@@ -1,18 +1,7 @@
-import { Resend } from 'resend';
-import { RESEND_API_KEY, EMAIL_FROM, EMAIL_NAME } from 'src/config.js';
-import { Exception, ExceptionCode } from 'src/exception.js';
-import { JSX } from 'hono/jsx/jsx-runtime';
 import { SubscribeTemplate, SubscribeTemplateText } from 'src/templates/subscribe.template.js';
 import { WeatherUpdateTemplate, WeatherUpdateTemplateText } from 'src/templates/weather-update.template.js';
 import { Logger } from './logger.service.js';
-
-type SendEmailOptions = {
-  to: string[];
-  title: string;
-  html?: string;
-  text?: string;
-  react?: JSX.Element;
-};
+import { SendEmailService } from './send-email.service.js';
 
 type SubscribeEmailOptions = {
   to: string;
@@ -29,37 +18,16 @@ type WeatherUpdateEmailOptions = {
   description: string;
 };
 
-export interface SendEmailService {
-  sendEmail: (options: SendEmailOptions) => Promise<void>;
-}
-
 export interface SendEmailTemplateService {
   sendSubscribeEmail: (options: SubscribeEmailOptions) => Promise<void>;
   sendWeatherUpdateEmail: (options: WeatherUpdateEmailOptions) => Promise<void>;
 }
 
-export type EmailService = SendEmailService & SendEmailTemplateService;
-
-export class ResendEmailService implements EmailService {
-  private resend = new Resend(RESEND_API_KEY);
-
-  constructor(private logger: Logger) {}
-
-  public async sendEmail({ to, title, html, text, react }: SendEmailOptions) {
-    const { error } = await this.resend.emails.send({
-      from: `${EMAIL_NAME} <${EMAIL_FROM}>`,
-      to,
-      subject: title,
-      html,
-      text,
-      react,
-    });
-
-    if (error) {
-      this.logger.error({ err: error });
-      throw new Exception(ExceptionCode.INTERNAL_SERVER_ERROR, error.message);
-    }
-  };
+export class JsxSendEmailTemplateService implements SendEmailTemplateService {
+  constructor(
+    private sendEmailService: SendEmailService,
+    private logger: Logger
+  ) {}
 
   public async sendSubscribeEmail({
     to,
@@ -67,7 +35,7 @@ export class ResendEmailService implements EmailService {
   }: SubscribeEmailOptions) {
     const template = <SubscribeTemplate {...props} />;
 
-    await this.sendEmail({
+    await this.sendEmailService.sendEmail({
       to: [to],
       title: `Confirm your weather subscription for ${props.city}`,
       html: template.toString(),
@@ -83,7 +51,7 @@ export class ResendEmailService implements EmailService {
   }: WeatherUpdateEmailOptions) {
     const template = <WeatherUpdateTemplate {...props} />;
 
-    await this.sendEmail({
+    await this.sendEmailService.sendEmail({
       to: [to],
       title: `Weather update for ${props.city}`,
       html: template.toString(),

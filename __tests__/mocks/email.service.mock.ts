@@ -1,5 +1,5 @@
 vitest.mock('src/services/email.service.js', async (importOriginal) => {
-  const { ResendEmailService } = await importOriginal<typeof import('src/services/email.service.js')>();
+  const { ResendEmailService } = await importOriginal<typeof import('src/services/send-email-template.service.js')>();
 
   class MockResendEmailService extends ResendEmailService {
     public override sendEmail = vitest.fn();

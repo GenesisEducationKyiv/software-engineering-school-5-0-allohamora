@@ -8,15 +8,15 @@ import { createSigner } from 'fast-jwt';
 import { WeatherService } from 'src/services/weather.service.js';
 import { SubscriptionRepository } from 'src/repositories/subscription.repository.js';
 import { JwtService } from 'src/services/jwt.service.js';
-import { EmailService } from 'src/services/email.service.js';
 import { Server } from 'src/server.js';
 import { DrizzleDb } from 'src/services/db.service.js';
+import { SendEmailService } from 'src/services/send-email.service.js';
 
 describe('subscription controller (e2e)', () => {
   let weatherService: WeatherService;
   let subscriptionRepository: SubscriptionRepository;
   let jwtService: JwtService;
-  let emailService: EmailService;
+  let sendEmailService: SendEmailService;
   let server: Server;
   let db: DrizzleDb;
 
@@ -24,12 +24,12 @@ describe('subscription controller (e2e)', () => {
   let sendEmailSpy: MockInstance;
 
   beforeAll(() => {
-    ({ weatherService, subscriptionRepository, jwtService, emailService, server, db } = ctx);
+    ({ weatherService, subscriptionRepository, jwtService, sendEmailService, server, db } = ctx);
   });
 
   beforeEach(async () => {
     validateCitySpy = vitest.spyOn(weatherService, 'validateCity').mockImplementation(vitest.fn());
-    sendEmailSpy = vitest.spyOn(emailService, 'sendEmail').mockImplementation(vitest.fn());
+    sendEmailSpy = vitest.spyOn(sendEmailService, 'sendEmail').mockImplementation(vitest.fn());
   });
 
   afterEach(() => {

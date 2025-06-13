@@ -4,7 +4,7 @@ import { SubscriptionRepository } from 'src/repositories/subscription.repository
 import { APP_URL } from 'src/config.js';
 import { Exception, ExceptionCode } from 'src/exception.js';
 import { WeatherService } from './weather.service.js';
-import { SendEmailTemplateService } from './email.service.js';
+import { SendEmailTemplateService } from './send-email-template.service.js';
 import { Logger } from './logger.service.js';
 
 export type SubscribeOptions = {
@@ -30,7 +30,7 @@ export class WeatherSubscriptionService implements SubscriptionService {
     private jwtService: JwtService,
     private subscriptionRepository: SubscriptionRepository,
     private weatherService: WeatherService,
-    private emailService: SendEmailTemplateService,
+    private sendEmailTemplateService: SendEmailTemplateService,
     private logger: Logger,
   ) {}
 
@@ -48,7 +48,7 @@ export class WeatherSubscriptionService implements SubscriptionService {
     const token = await this.jwtService.sign(options);
     const confirmationLink = `${APP_URL}/api/confirm/${token}`;
 
-    await this.emailService.sendSubscribeEmail({
+    await this.sendEmailTemplateService.sendSubscribeEmail({
       to: options.email,
       city: options.city,
       confirmationLink,
@@ -76,7 +76,7 @@ export class WeatherSubscriptionService implements SubscriptionService {
           const weather = await this.weatherService.getWeather(city);
           const unsubscribeLink = `${APP_URL}/api/unsubscribe/${id}`;
 
-          await this.emailService.sendWeatherUpdateEmail({
+          await this.sendEmailTemplateService.sendWeatherUpdateEmail({
             to: email,
             city,
             unsubscribeLink,
