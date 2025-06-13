@@ -19,6 +19,7 @@ export default defineConfig({
         maxForks: 1,
       },
     },
+    include: ['**/__tests__/integration/**/*.spec.ts'],
     setupFiles: ['./__tests__/setup-integration-context.ts'],
   },
   plugins: [tsconfigPathsPlugin()],
