@@ -36,12 +36,12 @@ export const makeWeatherRoutes = (app: OpenAPIHono, weatherService: WeatherServi
         },
       },
     }),
-    async (c) => {
-      const { city } = c.req.valid('query');
+    async (ctx) => {
+      const { city } = ctx.req.valid('query');
 
       const weather = await weatherService.getWeather(city);
 
-      return c.json(weather);
+      return ctx.json(weather);
     },
   );
 };

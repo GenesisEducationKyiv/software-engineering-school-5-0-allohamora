@@ -38,7 +38,7 @@ export class HonoServer implements Server {
     // if you specify the 200 schema as a string, you cannot be able to use c.html because of type issues
     this.httpServer.openapi(
       createRoute({ method: 'get', path: '/', responses: { 200: { description: 'the root page' } } }),
-      async (c) => await c.html(<Root />),
+      async (ctx) => await ctx.html(<Root />),
     );
 
     this.httpServer.doc('/swagger.json', {
