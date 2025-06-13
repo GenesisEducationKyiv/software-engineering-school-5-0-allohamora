@@ -23,7 +23,7 @@ export class DrizzleDbService implements DbService<DrizzleDb> {
   private db: DrizzleDb;
 
   constructor(postgresUrl: string, drizzleDebug: boolean) {
-    this.client = postgres(postgresUrl);
+    this.client = postgres(postgresUrl, { onnotice: () => {} });
     this.db = drizzle(this.client, { schema, logger: drizzleDebug, casing: 'snake_case' });
   }
 
