@@ -4,7 +4,7 @@ import { SubscriptionRepository } from 'src/repositories/subscription.repository
 import { APP_URL } from 'src/config.js';
 import { Exception, ExceptionCode } from 'src/exception.js';
 import { WeatherService } from './weather.service.js';
-import { EmailService } from './email.service.js';
+import { SendEmailTemplateService } from './email.service.js';
 import { Logger } from './logger.service.js';
 
 export type SubscribeOptions = {
@@ -13,19 +13,24 @@ export type SubscribeOptions = {
   frequency: Frequency;
 };
 
-export type SubscriptionService = {
+export type SubscribeService = {
   subscribe: (options: SubscribeOptions) => Promise<void>;
   confirm: (token: string) => Promise<void>;
   unsubscribe: (subscriptionId: string) => Promise<void>;
+};
+
+export type HandleSubscriptionService = {
   handleWeatherSubscription: (frequency: Frequency) => () => Promise<void>;
 };
+
+export type SubscriptionService = SubscribeService & HandleSubscriptionService;
 
 export class WeatherSubscriptionService implements SubscriptionService {
   constructor(
     private jwtService: JwtService,
     private subscriptionRepository: SubscriptionRepository,
     private weatherService: WeatherService,
-    private emailService: EmailService,
+    private emailService: SendEmailTemplateService,
     private logger: Logger,
   ) {}
 

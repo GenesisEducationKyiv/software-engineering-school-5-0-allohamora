@@ -1,10 +1,10 @@
 import { OpenAPIHono, createRoute } from '@hono/zod-openapi';
 import { z } from 'zod';
-import { SubscriptionService } from 'src/services/subscription.service.js';
+import { SubscribeService } from 'src/services/subscription.service.js';
 import { Frequency } from 'src/db.schema.js';
 import { Exception, ExceptionCode } from 'src/exception.js';
 
-export const makeSubscriptionRoutes = (app: OpenAPIHono, subscriptionService: SubscriptionService) => {
+export const makeSubscriptionRoutes = (app: OpenAPIHono, subscriptionService: SubscribeService) => {
   const subscribeSchema = z.object({
     email: z.string().email().describe('Email address to subscribe'),
     city: z.string().min(1).describe('City for weather updates'),

@@ -1,5 +1,5 @@
 import { Cron } from 'croner';
-import { SubscriptionService } from './subscription.service.js';
+import { HandleSubscriptionService } from './subscription.service.js';
 import { Frequency } from 'src/db.schema.js';
 
 const enum CronExpression {
@@ -15,7 +15,7 @@ export type CronService = {
 export class CronerCronService implements CronService {
   private crons: Cron[] = [];
 
-  constructor(private subscriptionService: SubscriptionService) {}
+  constructor(private subscriptionService: HandleSubscriptionService) {}
 
   public async startCron() {
     this.crons.push(

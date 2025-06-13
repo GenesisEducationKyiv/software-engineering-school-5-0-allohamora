@@ -29,11 +29,16 @@ type WeatherUpdateEmailOptions = {
   description: string;
 };
 
-export interface EmailService {
+export interface SendEmailService {
   sendEmail: (options: SendEmailOptions) => Promise<void>;
+}
+
+export interface SendEmailTemplateService {
   sendSubscribeEmail: (options: SubscribeEmailOptions) => Promise<void>;
   sendWeatherUpdateEmail: (options: WeatherUpdateEmailOptions) => Promise<void>;
-};
+}
+
+export type EmailService = SendEmailService & SendEmailTemplateService;
 
 export class ResendEmailService implements EmailService {
   private resend = new Resend(RESEND_API_KEY);
