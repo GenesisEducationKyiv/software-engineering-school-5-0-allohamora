@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, vi, Mock } from 'vitest';
+import { Mock } from 'vitest';
 import { JsxSendEmailTemplateService, SendEmailTemplateService } from 'src/services/send-email-template.service.js';
 
 describe('JsxSendEmailTemplateService (unit)', () => {

@@ -1,4 +1,3 @@
-import { describe, it, expect, beforeEach } from 'vitest';
 import { FastJwtService, JwtService } from 'src/services/jwt.service.js';
 
 describe('FastJwtService (unit)', () => {
