@@ -1,14 +1,24 @@
 import './mocks';
-import { clearDb, disconnectFromDb, runMigrations } from 'src/db.js';
+import { DrizzleDb } from 'src/services/db.service.js';
+import { makeDeps } from 'src/deps.js';
+
+/* eslint-disable no-var */
+declare global {
+  var ctx: ReturnType<typeof makeDeps> & { db: DrizzleDb };
+}
+/* eslint-enable no-var */
 
 beforeAll(async () => {
-  await runMigrations();
+  const deps = makeDeps();
+  globalThis.ctx = { ...deps, db: deps.dbService.getDb() };
+
+  await ctx.dbService.runMigrations();
 });
 
 afterEach(async () => {
-  await clearDb();
+  await ctx.dbService.clearDb();
 });
 
 afterAll(async () => {
-  await disconnectFromDb();
+  await ctx.dbService.disconnectFromDb();
 });

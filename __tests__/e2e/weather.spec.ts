@@ -1,12 +1,18 @@
 import { HttpStatus } from 'src/types/http.types.js';
 import { MockInstance } from 'vitest';
 import { Exception, ExceptionCode } from 'src/exception.js';
-import { makeDeps } from 'src/deps.js';
+import { Server } from 'src/server.js';
+import { WeatherService } from 'src/services/weather.service.js';
 
 describe('weather controller (e2e)', () => {
-  const { weatherService, server } = makeDeps();
+  let server: Server;
+  let weatherService: WeatherService;
 
   let getWeatherSpy: MockInstance;
+
+  beforeAll(() => {
+    ({ weatherService, server } = ctx);
+  });
 
   beforeEach(async () => {
     getWeatherSpy = vitest.spyOn(weatherService, 'getWeather');

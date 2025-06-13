@@ -1,10 +1,10 @@
 import { ServerType } from '@hono/node-server';
 import { NODE_ENV, PORT } from './config.js';
-import { disconnectFromDb, runMigrations } from './db.js';
 import { onGracefulShutdown } from './utils/graceful-shutdown.utils.js';
 import { Server } from './server.js';
 import { CronService } from './services/cron.service.js';
 import { Logger, LoggerService } from './services/logger.service.js';
+import { DbService } from './services/db.service.js';
 
 const TIME_TO_CLOSE_BEFORE_EXIT_IN_MS = 15_000;
 
@@ -19,6 +19,7 @@ export class CronServerApp implements App {
     private server: Server,
     private cronService: CronService,
     private loggerService: LoggerService,
+    private dbService: DbService,
   ) {
     this.logger = loggerService.createLogger('App');
   }
@@ -29,7 +30,7 @@ export class CronServerApp implements App {
         server.close((err) => (!err ? res(null) : rej(err)));
       });
 
-      await disconnectFromDb();
+      await this.dbService.disconnectFromDb();
       await this.cronService.stopCron();
     };
     onGracefulShutdown(gracefulShutdown, this.loggerService);
@@ -54,7 +55,7 @@ export class CronServerApp implements App {
 
   public start() {
     this.server.serve(async (info, server) => {
-      await runMigrations();
+      await this.dbService.runMigrations();
       await this.cronService.startCron();
 
       this.setupGracefulShutdown(server);
