@@ -10,7 +10,7 @@ declare global {
 
 beforeAll(async () => {
   const deps = makeDeps();
-  globalThis.ctx = { ...deps, db: deps.dbService.getDb() };
+  globalThis.ctx = { ...deps, db: deps.dbService.getConnection() };
 
   await ctx.dbService.runMigrations();
 });

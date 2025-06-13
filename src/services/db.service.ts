@@ -7,17 +7,18 @@ import { sql } from 'drizzle-orm';
 
 const MIGRATIONS_DIR = path.join(import.meta.dirname, '..', '..', 'migrations');
 
-export type DbService = {
+export type DbService<T> = {
   runMigrations(): Promise<void>;
   disconnectFromDb(): Promise<void>;
   clearDb(): Promise<void>;
+  getConnection(): T;
 };
 
 export type DrizzleDb = PostgresJsDatabase<typeof schema> & {
   $client: postgres.Sql;
 };
 
-export class DrizzleDbService implements DbService {
+export class DrizzleDbService implements DbService<DrizzleDb> {
   private client: postgres.Sql;
   private db: DrizzleDb;
 
@@ -26,7 +27,7 @@ export class DrizzleDbService implements DbService {
     this.db = drizzle(this.client, { schema, logger: drizzleDebug, casing: 'snake_case' });
   }
 
-  public getDb() {
+  public getConnection() {
     return this.db;
   }
 

@@ -22,7 +22,7 @@ export const makeDeps = () => {
 
   const dbService = new DrizzleDbService(configService.get('POSTGRES_URL'), configService.get('DRIZZLE_DEBUG'));
 
-  const subscriptionRepository: SubscriptionRepository = new DrizzleSubscriptionRepository(dbService.getDb());
+  const subscriptionRepository: SubscriptionRepository = new DrizzleSubscriptionRepository(dbService.getConnection());
 
   const jwtService: JwtService = new FastJwtService(
     configService.get('JWT_SECRET'),
