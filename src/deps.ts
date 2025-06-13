@@ -26,7 +26,7 @@ export const makeDeps = () => {
   const cronService: CronService = new CronerCronService(subscriptionService);
 
   const server: Server = new HonoServer(weatherService, subscriptionService);
-  const app: App = new CronServerApp(server, cronService, loggerService, dbService);
+  const app: App = new CronServerApp(server, cronService, dbService, loggerService.createLogger('CronServerApp'));
 
   return {
     app,

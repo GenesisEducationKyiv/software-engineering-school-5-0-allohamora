@@ -1,9 +1,9 @@
+import closeWithGrace, { Signals } from 'close-with-grace';
 import { ServerType } from '@hono/node-server';
 import { NODE_ENV, PORT } from './config.js';
-import { onGracefulShutdown } from './utils/graceful-shutdown.utils.js';
 import { Server } from './server.js';
 import { CronService } from './services/cron.service.js';
-import { Logger, LoggerService } from './services/logger.service.js';
+import { Logger } from './services/logger.service.js';
 import { DbService } from './services/db.service.js';
 
 const TIME_TO_CLOSE_BEFORE_EXIT_IN_MS = 15_000;
@@ -13,27 +13,28 @@ export type App = {
 };
 
 export class CronServerApp implements App {
-  private logger: Logger;
-
   constructor(
     private server: Server,
     private cronService: CronService,
-    private loggerService: LoggerService,
     private dbService: DbService,
-  ) {
-    this.logger = loggerService.createLogger('App');
-  }
+    private logger: Logger,
+  ) {}
 
   private setupGracefulShutdown(server: ServerType) {
-    const gracefulShutdown = async () => {
+    const gracefulShutdown = async (signal?: Signals | 'ERROR') => {
+      this.logger.info({ msg: 'Graceful shutdown has been started', signal });
+
       await new Promise((res, rej) => {
         server.close((err) => (!err ? res(null) : rej(err)));
       });
 
       await this.dbService.disconnectFromDb();
       await this.cronService.stopCron();
+
+      this.logger.info({ msg: 'Graceful shutdown has been finished', signal });
     };
-    onGracefulShutdown(gracefulShutdown, this.loggerService.createLogger('GracefulShutdown'));
+
+    closeWithGrace({ delay: TIME_TO_CLOSE_BEFORE_EXIT_IN_MS }, ({ signal }) => gracefulShutdown(signal));
 
     const handleError = (errorName: string) => async (cause: unknown) => {
       this.logger.error({ err: new Error(errorName, { cause }) });
@@ -44,7 +45,7 @@ export class CronServerApp implements App {
         process.exit(1);
       }, TIME_TO_CLOSE_BEFORE_EXIT_IN_MS);
 
-      await gracefulShutdown();
+      await gracefulShutdown('ERROR');
       clearTimeout(timeout);
 
       process.exit(1);
