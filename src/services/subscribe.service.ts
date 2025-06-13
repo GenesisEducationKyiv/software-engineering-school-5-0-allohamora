@@ -32,13 +32,17 @@ export class WeatherSubscribeService implements SubscribeService {
     }
   }
 
+  private makeConfirmationLink(token: string) {
+    return `${this.appUrl}/api/confirm/${token}`;
+  }
+
   public async subscribe(options: SubscribeOptions) {
     await this.checkIsSubscriptionExists(options.email);
 
     await this.weatherService.validateCity(options.city);
 
     const token = await this.jwtService.sign(options);
-    const confirmationLink = `${this.appUrl}/api/confirm/${token}`;
+    const confirmationLink = this.makeConfirmationLink(token);
 
     await this.sendEmailTemplateService.sendSubscribeEmail({
       to: options.email,
