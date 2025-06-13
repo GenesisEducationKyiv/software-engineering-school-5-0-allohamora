@@ -1,18 +1,17 @@
 import * as emailLib from 'src/libs/email.lib.js';
-import * as weatherService from 'src/services/weather.service.js';
-import { app } from 'src/app.js';
 import { Frequency } from 'src/db.schema.js';
 import { SubscribeOptions } from 'src/services/subscription.service.js';
 import { HttpStatus } from 'src/types/http.types.js';
 import { MockInstance } from 'vitest';
 import { Exception, ExceptionCode } from 'src/exception.js';
-import { sign } from 'src/services/jwt.service.js';
 import { randomUUID } from 'node:crypto';
-import { createSubscription } from 'src/repositories/subscription.repository.js';
 import { db } from 'src/db.js';
 import { createSigner } from 'fast-jwt';
+import { makeDeps } from 'src/deps.js';
 
 describe('subscription controller (e2e)', () => {
+  const { weatherService, subscriptionRepository, jwtService, server } = makeDeps();
+
   let validateCitySpy: MockInstance;
   let sendEmailSpy: MockInstance;
 
@@ -27,7 +26,7 @@ describe('subscription controller (e2e)', () => {
   });
 
   const subscribe = async (options: SubscribeOptions, status: HttpStatus) => {
-    const res = await app.request('/api/subscribe', {
+    const res = await server.request('/api/subscribe', {
       method: 'POST',
       body: JSON.stringify(options),
       headers: {
@@ -46,7 +45,7 @@ describe('subscription controller (e2e)', () => {
     formData.append('email', email);
     formData.append('frequency', frequency);
 
-    const res = await app.request('/api/subscribe', {
+    const res = await server.request('/api/subscribe', {
       method: 'POST',
       body: formData.toString(),
       headers: {
@@ -60,7 +59,7 @@ describe('subscription controller (e2e)', () => {
   };
 
   const confirm = async (token: string, status: HttpStatus) => {
-    const res = await app.request(`/api/confirm/${token}`, {
+    const res = await server.request(`/api/confirm/${token}`, {
       method: 'GET',
     });
     expect(res.status).toBe(status);
@@ -70,7 +69,7 @@ describe('subscription controller (e2e)', () => {
   };
 
   const unsubscribe = async (token: string, status: HttpStatus) => {
-    const res = await app.request(`/api/unsubscribe/${token}`, {
+    const res = await server.request(`/api/unsubscribe/${token}`, {
       method: 'GET',
     });
     expect(res.status).toBe(status);
@@ -123,7 +122,11 @@ describe('subscription controller (e2e)', () => {
     });
 
     it('returns 409 when subscription already exists', async () => {
-      await createSubscription({ email: 'test@example.com', city: 'London', frequency: Frequency.Daily });
+      await subscriptionRepository.createSubscription({
+        email: 'test@example.com',
+        city: 'London',
+        frequency: Frequency.Daily,
+      });
 
       await subscribe(
         {
@@ -241,7 +244,11 @@ describe('subscription controller (e2e)', () => {
     });
 
     it('returns 409 when subscription already exists', async () => {
-      await createSubscription({ email: 'test@example.com', city: 'London', frequency: Frequency.Daily });
+      await subscriptionRepository.createSubscription({
+        email: 'test@example.com',
+        city: 'London',
+        frequency: Frequency.Daily,
+      });
 
       await subscribeForm(
         {
@@ -323,7 +330,7 @@ describe('subscription controller (e2e)', () => {
         frequency: Frequency.Daily,
       };
 
-      const token = await sign(subscribeData);
+      const token = await jwtService.sign(subscribeData);
       const { message } = await confirm(token, HttpStatus.OK);
       expect(message).toBe('Subscription confirmed successfully');
 
@@ -356,13 +363,13 @@ describe('subscription controller (e2e)', () => {
     });
 
     it('returns 409 when subscription already exists', async () => {
-      await createSubscription({
+      await subscriptionRepository.createSubscription({
         email: 'test@example.com',
         city: 'London',
         frequency: Frequency.Daily,
       });
 
-      const token = await sign({
+      const token = await jwtService.sign({
         email: 'test@example.com',
         city: 'Berlin',
         frequency: Frequency.Hourly,
@@ -381,7 +388,7 @@ describe('subscription controller (e2e)', () => {
 
   describe('GET /api/unsubscribe/{token}', () => {
     it('unsubscribes successfully', async () => {
-      const subscription = await createSubscription({
+      const subscription = await subscriptionRepository.createSubscription({
         email: 'test@example.com',
         city: 'London',
         frequency: Frequency.Daily,

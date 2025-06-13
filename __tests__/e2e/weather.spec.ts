@@ -1,10 +1,11 @@
-import * as weatherService from 'src/services/weather.service.js';
-import { app } from 'src/app.js';
 import { HttpStatus } from 'src/types/http.types.js';
 import { MockInstance } from 'vitest';
 import { Exception, ExceptionCode } from 'src/exception.js';
+import { makeDeps } from 'src/deps.js';
 
 describe('weather controller (e2e)', () => {
+  const { weatherService, server } = makeDeps();
+
   let getWeatherSpy: MockInstance;
 
   beforeEach(async () => {
@@ -16,7 +17,7 @@ describe('weather controller (e2e)', () => {
   });
 
   const getWeather = async (city: string, status: HttpStatus) => {
-    const res = await app.request(`/api/weather?city=${encodeURIComponent(city)}`, {
+    const res = await server.request(`/api/weather?city=${encodeURIComponent(city)}`, {
       method: 'GET',
     });
     expect(res.status).toBe(status);
@@ -56,7 +57,7 @@ describe('weather controller (e2e)', () => {
     });
 
     it('returns 400 for invalid request', async () => {
-      const res = await app.request('/api/weather', {
+      const res = await server.request('/api/weather', {
         method: 'GET',
       });
 

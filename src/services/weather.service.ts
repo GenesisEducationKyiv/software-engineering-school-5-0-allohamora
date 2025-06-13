@@ -62,42 +62,55 @@ type WeatherErrorResponse = {
   };
 };
 
-export const getWeather = async (city: string) => {
-  const query = new URLSearchParams({
-    key: WEATHER_API_KEY,
-    q: city,
-  });
-
-  const res = await fetch(`${API_URL}/current.json?${query.toString()}`);
-  const data = await res.json();
-
-  if (res.ok) {
-    const { current } = data as WeatherResponse;
-
-    return {
-      temperature: current.temp_c,
-      humidity: current.humidity,
-      description: current.condition.text,
-    };
-  }
-
-  const { error } = data as WeatherErrorResponse;
-
-  if (error.code === ErrorCode.NO_MATCHING_LOCATION_FOUND) {
-    throw new Exception(ExceptionCode.NOT_FOUND, error.message);
-  }
-
-  throw new Exception(ExceptionCode.INTERNAL_SERVER_ERROR, error?.message);
+export type Weather = {
+  temperature: number; // in Celsius
+  humidity: number; // in percentage
+  description: string; // e.g., "Sunny"
 };
 
-export const validateCity = async (city: string) => {
-  try {
-    await getWeather(city);
-  } catch (error) {
-    if (error instanceof Exception && error.code === ExceptionCode.NOT_FOUND) {
-      throw new Exception(ExceptionCode.VALIDATION_ERROR, 'City not found');
+export type WeatherService = {
+  getWeather: (city: string) => Promise<Weather>;
+  validateCity: (city: string) => Promise<void>;
+};
+
+export class ApiWeatherService implements WeatherService {
+  public async getWeather(city: string): Promise<Weather> {
+    const query = new URLSearchParams({
+      key: WEATHER_API_KEY,
+      q: city,
+    });
+
+    const res = await fetch(`${API_URL}/current.json?${query.toString()}`);
+    const data = await res.json();
+
+    if (res.ok) {
+      const { current } = data as WeatherResponse;
+
+      return {
+        temperature: current.temp_c,
+        humidity: current.humidity,
+        description: current.condition.text,
+      };
     }
 
-    throw error;
+    const { error } = data as WeatherErrorResponse;
+
+    if (error.code === ErrorCode.NO_MATCHING_LOCATION_FOUND) {
+      throw new Exception(ExceptionCode.NOT_FOUND, error.message);
+    }
+
+    throw new Exception(ExceptionCode.INTERNAL_SERVER_ERROR, error?.message);
   }
-};
+
+  public async validateCity(city: string): Promise<void> {
+    try {
+      await this.getWeather(city);
+    } catch (error) {
+      if (error instanceof Exception && error.code === ExceptionCode.NOT_FOUND) {
+        throw new Exception(ExceptionCode.VALIDATION_ERROR, 'City not found');
+      }
+
+      throw error;
+    }
+  }
+}

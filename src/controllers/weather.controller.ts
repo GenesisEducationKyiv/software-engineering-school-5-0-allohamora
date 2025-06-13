@@ -1,8 +1,8 @@
 import { OpenAPIHono, createRoute } from '@hono/zod-openapi';
 import { z } from 'zod';
-import { getWeather } from 'src/services/weather.service.js';
+import { WeatherService } from 'src/services/weather.service.js';
 
-export const makeWeatherRoutes = (app: OpenAPIHono) => {
+export const makeWeatherRoutes = (app: OpenAPIHono, weatherService: WeatherService) => {
   app.openapi(
     createRoute({
       method: 'get',
@@ -39,7 +39,7 @@ export const makeWeatherRoutes = (app: OpenAPIHono) => {
     async (c) => {
       const { city } = c.req.valid('query');
 
-      const weather = await getWeather(city);
+      const weather = await weatherService.getWeather(city);
 
       return c.json(weather);
     },
