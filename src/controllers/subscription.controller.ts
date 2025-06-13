@@ -4,7 +4,7 @@ import { SubscribeService } from 'src/services/subscribe.service.js';
 import { Frequency } from 'src/db.schema.js';
 import { Exception, ExceptionCode } from 'src/exception.js';
 
-export const makeSubscriptionRoutes = (app: OpenAPIHono, subscriptionService: SubscribeService) => {
+export const makeSubscriptionRoutes = (app: OpenAPIHono, subscribeService: SubscribeService) => {
   const subscribeSchema = z.object({
     email: z.string().email().describe('Email address to subscribe'),
     city: z.string().min(1).describe('City for weather updates'),
@@ -62,7 +62,7 @@ export const makeSubscriptionRoutes = (app: OpenAPIHono, subscriptionService: Su
       };
 
       const options = getSubscribeBody();
-      await subscriptionService.subscribe(options);
+      await subscribeService.subscribe(options);
 
       return c.json({ message: 'Subscription successful. Confirmation email sent.' }, 200);
     },
@@ -100,7 +100,7 @@ export const makeSubscriptionRoutes = (app: OpenAPIHono, subscriptionService: Su
     async (c) => {
       const { token } = c.req.param();
 
-      await subscriptionService.confirm(token);
+      await subscribeService.confirm(token);
 
       return c.json({ message: 'Subscription confirmed successfully' }, 200);
     },
@@ -138,7 +138,7 @@ export const makeSubscriptionRoutes = (app: OpenAPIHono, subscriptionService: Su
     async (c) => {
       const { token } = c.req.param();
 
-      await subscriptionService.unsubscribe(token);
+      await subscribeService.unsubscribe(token);
 
       return c.json({ message: 'Unsubscribed successfully' }, 200);
     },
