@@ -13,7 +13,7 @@ export type SubscribeOptions = {
   frequency: Frequency;
 };
 
-export interface SubscriptionService {
+export type SubscriptionService = {
   subscribe: (options: SubscribeOptions) => Promise<void>;
   confirm: (token: string) => Promise<void>;
   unsubscribe: (subscriptionId: string) => Promise<void>;
@@ -37,7 +37,7 @@ export class WeatherSubscriptionService implements SubscriptionService {
     if (await this.subscriptionRepository.isSubscriptionExists(email)) {
       throw new Exception(ExceptionCode.ALREADY_EXISTS, 'Subscription already exists');
     }
-  };
+  }
 
   public async subscribe(options: SubscribeOptions) {
     await this.checkIsSubscriptionExists(options.email);
@@ -80,11 +80,11 @@ export class WeatherSubscriptionService implements SubscriptionService {
             city,
             unsubscribeLink,
             ...weather,
-          })
+          });
         }
       }
 
       this.logger.info({ msg: 'Handling weather subscription has been finished', frequency });
-    }
+    };
   }
-};
+}
