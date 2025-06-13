@@ -1,5 +1,5 @@
 import { Cron } from 'croner';
-import { HandleSubscriptionService } from './subscription.service.js';
+import { HandleSubscriptionService } from './handle-subscription.service.js';
 import { Frequency } from 'src/db.schema.js';
 
 const enum CronExpression {
@@ -15,14 +15,14 @@ export type CronService = {
 export class CronerCronService implements CronService {
   private crons: Cron[] = [];
 
-  constructor(private subscriptionService: HandleSubscriptionService) {}
+  constructor(private handleSubscriptionService: HandleSubscriptionService) {}
 
   public async startCron() {
     this.crons.push(
-      new Cron(CronExpression.DAILY, this.subscriptionService.handleWeatherSubscription(Frequency.Daily)),
+      new Cron(CronExpression.DAILY, this.handleSubscriptionService.handleWeatherSubscription(Frequency.Daily)),
     );
     this.crons.push(
-      new Cron(CronExpression.HOURLY, this.subscriptionService.handleWeatherSubscription(Frequency.Hourly)),
+      new Cron(CronExpression.HOURLY, this.handleSubscriptionService.handleWeatherSubscription(Frequency.Hourly)),
     );
   }
 

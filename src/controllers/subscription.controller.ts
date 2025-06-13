@@ -1,6 +1,6 @@
 import { OpenAPIHono, createRoute } from '@hono/zod-openapi';
 import { z } from 'zod';
-import { SubscribeService } from 'src/services/subscription.service.js';
+import { SubscribeService } from 'src/services/subscribe.service.js';
 import { Frequency } from 'src/db.schema.js';
 import { Exception, ExceptionCode } from 'src/exception.js';
 

@@ -1,5 +1,5 @@
 import { Frequency } from 'src/db.schema.js';
-import { SubscribeOptions } from 'src/services/subscription.service.js';
+import { SubscribeOptions } from 'src/services/subscribe.service.js';
 import { HttpStatus } from 'src/types/http.types.js';
 import { MockInstance } from 'vitest';
 import { Exception, ExceptionCode } from 'src/exception.js';

@@ -2,7 +2,11 @@ import { CronerCronService, CronService } from './services/cron.service.js';
 import { DrizzleSubscriptionRepository, SubscriptionRepository } from './repositories/subscription.repository.js';
 import { FastJwtService, JwtService } from './services/jwt.service.js';
 import { ApiWeatherService, WeatherService } from './services/weather.service.js';
-import { SubscriptionService, WeatherSubscriptionService } from './services/subscription.service.js';
+import {
+  HandleSubscriptionService,
+  WeatherHandleSubscriptionService,
+} from 'src/services/handle-subscription.service.js';
+import { SubscribeService, WeatherSubscribeService } from './services/subscribe.service.js';
 import { Server, HonoServer } from './server.js';
 import { App, CronServerApp } from './app.js';
 import { SendEmailService, ResendSendEmailService } from 'src/services/send-email.service.js';
@@ -23,23 +27,29 @@ export const makeDeps = () => {
     sendEmailService,
     loggerService.createLogger('JsxSendEmailTemplateService'),
   );
-  const subscriptionService: SubscriptionService = new WeatherSubscriptionService(
+  const handleSubscriptionService: HandleSubscriptionService = new WeatherHandleSubscriptionService(
+    subscriptionRepository,
+    weatherService,
+    sendEmailTemplateService,
+    loggerService.createLogger('WeatherHandleSubscriptionService'),
+  );
+  const subscribeService: SubscribeService = new WeatherSubscribeService(
     jwtService,
     subscriptionRepository,
     weatherService,
     sendEmailTemplateService,
-    loggerService.createLogger('WeatherSubscriptionService'),
   );
-  const cronService: CronService = new CronerCronService(subscriptionService);
+  const cronService: CronService = new CronerCronService(handleSubscriptionService);
 
-  const server: Server = new HonoServer(weatherService, subscriptionService);
+  const server: Server = new HonoServer(weatherService, subscribeService);
   const app: App = new CronServerApp(server, cronService, dbService, loggerService.createLogger('CronServerApp'));
 
   return {
     app,
     server,
     cronService,
-    subscriptionService,
+    handleSubscriptionService,
+    subscribeService,
     sendEmailService,
     sendEmailTemplateService,
     weatherService,
