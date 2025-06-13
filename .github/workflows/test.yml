@@ -21,5 +21,8 @@ jobs:
       - name: Set up Node.js and dependencies
         uses: ./.github/actions/setup-node
 
+      - name: Run Unit Tests
+        run: npm run test
+
       - name: Run Integration Tests
         run: npm run test:integration
