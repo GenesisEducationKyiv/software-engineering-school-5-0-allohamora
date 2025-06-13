@@ -12,7 +12,7 @@ import { serve, ServerType } from '@hono/node-server';
 import { AddressInfo } from 'node:net';
 
 export interface Server {
-  serve(callback: (info: AddressInfo, server: ServerType) => void, port: number): void;
+  serve(callback: (info: AddressInfo, server: ServerType) => Promise<void>, port: number): void;
   request(input: RequestInfo | URL, requestInit?: RequestInit): Promise<Response>;
 }
 
@@ -59,9 +59,9 @@ export class HonoServer implements Server {
     this.httpServer.get('*', serveStatic({ root: './public' }));
   }
 
-  public serve(callback: (info: AddressInfo, server: ServerType) => void, port: number) {
+  public serve(callback: (info: AddressInfo, server: ServerType) => Promise<void>, port: number) {
     const server = serve({ fetch: this.httpServer.fetch, port }, async (info) => {
-      callback(info, server);
+      await callback(info, server);
     });
   }
 
