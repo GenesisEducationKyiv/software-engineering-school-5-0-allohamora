@@ -17,6 +17,10 @@ export class WeatherHandleSubscriptionService implements HandleSubscriptionServi
     private appUrl: string,
   ) {}
 
+  private makeUnsubscribeLink(subscriptionId: string) {
+    return `${this.appUrl}/api/unsubscribe/${subscriptionId}`;
+  }
+
   public handleWeatherSubscription(frequency: Frequency) {
     return async () => {
       this.logger.info({ msg: 'Handling weather subscription has been started', frequency });
@@ -24,7 +28,7 @@ export class WeatherHandleSubscriptionService implements HandleSubscriptionServi
       for await (const subscriptions of this.subscriptionRepository.iterateSubscriptions(frequency)) {
         for (const { id, email, city } of subscriptions) {
           const weather = await this.weatherService.getWeather(city);
-          const unsubscribeLink = `${this.appUrl}/api/unsubscribe/${id}`;
+          const unsubscribeLink = this.makeUnsubscribeLink(id);
 
           await this.sendEmailTemplateService.sendWeatherUpdateEmail({
             to: email,
