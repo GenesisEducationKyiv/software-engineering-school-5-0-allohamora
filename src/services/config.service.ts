@@ -29,7 +29,7 @@ export type ConfigService = {
   get<T extends keyof Config>(key: T): Config[T];
 };
 
-export class ZnvConfigService {
+export class ZnvConfigService implements ConfigService {
   protected config: Config;
 
   constructor() {
