@@ -34,7 +34,9 @@ export class CronServerApp implements App {
       this.logger.info({ msg: 'Graceful shutdown has been finished', signal });
     };
 
-    closeWithGrace({ delay: TIME_TO_CLOSE_BEFORE_EXIT_IN_MS }, ({ signal }) => gracefulShutdown(signal));
+    closeWithGrace({ delay: TIME_TO_CLOSE_BEFORE_EXIT_IN_MS, logger: this.logger }, ({ signal }) =>
+      gracefulShutdown(signal),
+    );
 
     const handleError = (errorName: string) => async (cause: unknown) => {
       this.logger.error({ err: new Error(errorName, { cause }) });
