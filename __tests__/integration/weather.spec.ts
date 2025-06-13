@@ -4,7 +4,7 @@ import { Exception, ExceptionCode } from 'src/exception.js';
 import { Server } from 'src/server.js';
 import { WeatherService } from 'src/services/weather.service.js';
 
-describe('weather controller (e2e)', () => {
+describe('weather controller (integration)', () => {
   let server: Server;
   let weatherService: WeatherService;
 

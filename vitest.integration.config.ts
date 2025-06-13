@@ -19,7 +19,7 @@ export default defineConfig({
         maxForks: 1,
       },
     },
-    setupFiles: ['./__tests__/setup-e2e-context.ts'],
+    setupFiles: ['./__tests__/setup-integration-context.ts'],
   },
   plugins: [tsconfigPathsPlugin()],
 });

@@ -1,6 +1,6 @@
-import './mocks';
 import { DrizzleDb } from 'src/services/db.service.js';
 import { makeDeps } from 'src/deps.js';
+import './mocks/index.js';
 
 /* eslint-disable no-var */
 declare global {

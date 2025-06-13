@@ -1,1 +1,1 @@
-eval "npm run test -- -t '$4'"
+eval "npm run test:integration -- -t '$4'"
