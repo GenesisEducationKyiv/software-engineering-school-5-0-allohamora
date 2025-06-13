@@ -1,4 +1,4 @@
-import closeWithGrace, { Signals } from 'close-with-grace';
+import closeWithGrace, { CloseWithGraceAsyncCallback } from 'close-with-grace';
 import { ServerType } from '@hono/node-server';
 import { NODE_ENV, PORT } from './config.js';
 import { Server } from './server.js';
@@ -6,7 +6,7 @@ import { CronService } from './services/cron.service.js';
 import { Logger } from './services/logger.service.js';
 import { DbService } from './services/db.service.js';
 
-const TIME_TO_CLOSE_BEFORE_EXIT_IN_MS = 15_000;
+const GRACEFUL_SHUTDOWN_DELAY = 15_000;
 
 export type App = {
   start(): void;
@@ -21,8 +21,8 @@ export class CronServerApp implements App {
   ) {}
 
   private setupGracefulShutdown(server: ServerType) {
-    const gracefulShutdown = async (signal?: Signals | 'ERROR') => {
-      this.logger.info({ msg: 'Graceful shutdown has been started', signal });
+    const gracefulShutdown: CloseWithGraceAsyncCallback = async (props) => {
+      this.logger.info({ msg: 'Graceful shutdown has been started', ...props });
 
       await new Promise((res, rej) => {
         server.close((err) => (!err ? res(null) : rej(err)));
@@ -31,29 +31,10 @@ export class CronServerApp implements App {
       await this.dbService.disconnectFromDb();
       await this.cronService.stopCron();
 
-      this.logger.info({ msg: 'Graceful shutdown has been finished', signal });
+      this.logger.info({ msg: 'Graceful shutdown has been finished', ...props });
     };
 
-    closeWithGrace({ delay: TIME_TO_CLOSE_BEFORE_EXIT_IN_MS, logger: this.logger }, ({ signal }) =>
-      gracefulShutdown(signal),
-    );
-
-    const handleError = (errorName: string) => async (cause: unknown) => {
-      this.logger.error({ err: new Error(errorName, { cause }) });
-
-      const timeout = setTimeout(() => {
-        this.logger.error({ err: new Error('Graceful shutdown has been failed', { cause }) });
-
-        process.exit(1);
-      }, TIME_TO_CLOSE_BEFORE_EXIT_IN_MS);
-
-      await gracefulShutdown('ERROR');
-      clearTimeout(timeout);
-
-      process.exit(1);
-    };
-    process.on('unhandledRejection', handleError('app has received unhandledRejection'));
-    process.on('uncaughtException', handleError('app has received uncaughtException'));
+    closeWithGrace({ delay: GRACEFUL_SHUTDOWN_DELAY, logger: this.logger }, gracefulShutdown);
   }
 
   public start() {
