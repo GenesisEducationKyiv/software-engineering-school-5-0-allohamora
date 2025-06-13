@@ -1,10 +1,10 @@
-import { createLogger } from 'src/libs/pino.lib.js';
+import { LoggerService } from 'src/services/logger.service.js';
 
 const TIME_TO_CLOSE_BEFORE_EXIT_IN_MS = 15_000;
 
-const logger = createLogger('graceful-shutdown');
+export const onGracefulShutdown = (fn: () => Promise<void>, loggerService: LoggerService) => {
+  const logger = loggerService.createLogger('graceful-shutdown');
 
-export const onGracefulShutdown = (fn: () => Promise<void>) => {
   // expects sync listener that returns void
   process.once('SIGTERM', (signal) => {
     logger.info({ msg: 'started', signal });

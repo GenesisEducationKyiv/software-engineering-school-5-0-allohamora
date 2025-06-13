@@ -1,10 +1,10 @@
 import { Resend } from 'resend';
 import { RESEND_API_KEY, EMAIL_FROM, EMAIL_NAME } from 'src/config.js';
-import { createLogger } from 'src/libs/pino.lib.js';
 import { Exception, ExceptionCode } from 'src/exception.js';
 import { JSX } from 'hono/jsx/jsx-runtime';
 import { SubscribeTemplate, SubscribeTemplateText } from 'src/templates/subscribe.template.js';
 import { WeatherUpdateTemplate, WeatherUpdateTemplateText } from 'src/templates/weather-update.template.js';
+import { Logger, LoggerService } from './logger.service.js';
 
 type SendEmailOptions = {
   to: string[];
@@ -36,8 +36,12 @@ export interface EmailService {
 };
 
 export class ResendEmailService implements EmailService {
-  private logger = createLogger('ResendEmailService');
+  private logger: Logger;
   private resend = new Resend(RESEND_API_KEY);
+
+  constructor(loggerService: LoggerService) {
+    this.logger = loggerService.createLogger('ResendEmailService');
+  }
 
   public async sendEmail({ to, title, html, text, react }: SendEmailOptions) {
     const { error } = await this.resend.emails.send({

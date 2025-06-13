@@ -3,9 +3,9 @@ import { JwtService } from './jwt.service.js';
 import { SubscriptionRepository } from 'src/repositories/subscription.repository.js';
 import { APP_URL } from 'src/config.js';
 import { Exception, ExceptionCode } from 'src/exception.js';
-import { createLogger } from 'src/libs/pino.lib.js';
 import { WeatherService } from './weather.service.js';
 import { EmailService } from './email.service.js';
+import { Logger, LoggerService } from './logger.service.js';
 
 export type SubscribeOptions = {
   email: string;
@@ -21,15 +21,16 @@ export interface SubscriptionService {
 };
 
 export class WeatherSubscriptionService implements SubscriptionService {
-  private logger = createLogger('WeatherSubscriptionService');
+  private logger: Logger;
 
   constructor(
     private jwtService: JwtService,
     private subscriptionRepository: SubscriptionRepository,
     private weatherService: WeatherService,
     private emailService: EmailService,
+    loggerService: LoggerService,
   ) {
-
+    this.logger = loggerService.createLogger('WeatherSubscriptionService');
   }
 
   private async checkIsSubscriptionExists(email: string) {
