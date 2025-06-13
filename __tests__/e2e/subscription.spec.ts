@@ -1,4 +1,3 @@
-import * as emailLib from 'src/libs/email.lib.js';
 import { Frequency } from 'src/db.schema.js';
 import { SubscribeOptions } from 'src/services/subscription.service.js';
 import { HttpStatus } from 'src/types/http.types.js';
@@ -10,14 +9,14 @@ import { createSigner } from 'fast-jwt';
 import { makeDeps } from 'src/deps.js';
 
 describe('subscription controller (e2e)', () => {
-  const { weatherService, subscriptionRepository, jwtService, server } = makeDeps();
+  const { weatherService, subscriptionRepository, jwtService, emailService, server } = makeDeps();
 
   let validateCitySpy: MockInstance;
   let sendEmailSpy: MockInstance;
 
   beforeEach(async () => {
     validateCitySpy = vitest.spyOn(weatherService, 'validateCity').mockImplementation(vitest.fn());
-    sendEmailSpy = vitest.spyOn(emailLib, 'sendEmail').mockImplementation(vitest.fn());
+    sendEmailSpy = vitest.spyOn(emailService, 'sendEmail').mockImplementation(vitest.fn());
   });
 
   afterEach(() => {

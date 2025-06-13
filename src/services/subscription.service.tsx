@@ -4,10 +4,8 @@ import { SubscriptionRepository } from 'src/repositories/subscription.repository
 import { APP_URL } from 'src/config.js';
 import { Exception, ExceptionCode } from 'src/exception.js';
 import { createLogger } from 'src/libs/pino.lib.js';
-import { sendEmail } from 'src/libs/email.lib.js';
-import { SubscribeTemplate, SubscribeTemplateText } from 'src/templates/subscribe.template.js';
 import { WeatherService } from './weather.service.js';
-import { WeatherUpdateTemplate, WeatherUpdateTemplateText } from 'src/templates/weather-update.template.js';
+import { EmailService } from './email.service.js';
 
 export type SubscribeOptions = {
   email: string;
@@ -28,7 +26,8 @@ export class WeatherSubscriptionService implements SubscriptionService {
   constructor(
     private jwtService: JwtService,
     private subscriptionRepository: SubscriptionRepository,
-    private weatherService: WeatherService
+    private weatherService: WeatherService,
+    private emailService: EmailService,
   ) {
 
   }
@@ -47,16 +46,11 @@ export class WeatherSubscriptionService implements SubscriptionService {
     const token = await this.jwtService.sign(options);
     const confirmationLink = `${APP_URL}/api/confirm/${token}`;
 
-    const template = <SubscribeTemplate {...options} confirmationLink={confirmationLink} />;
-
-    await sendEmail({
-      to: [options.email],
-      title: `Confirm your weather subscription for ${options.city}`,
-      html: template.toString(),
-      text: SubscribeTemplateText({ ...options, confirmationLink }),
+    await this.emailService.sendSubscribeEmail({
+      to: options.email,
+      city: options.city,
+      confirmationLink,
     });
-
-    this.logger.info({ email: options.email, city: options.city }, 'Confirmation email sent');
   }
 
   public async confirm(token: string) {
@@ -80,20 +74,12 @@ export class WeatherSubscriptionService implements SubscriptionService {
           const weather = await this.weatherService.getWeather(city);
           const unsubscribeLink = `${APP_URL}/api/unsubscribe/${id}`;
 
-          const props = {
+          await this.emailService.sendWeatherUpdateEmail({
+            to: email,
             city,
             unsubscribeLink,
             ...weather,
-          };
-
-          const template = <WeatherUpdateTemplate {...props} />;
-
-          await sendEmail({
-            to: [email],
-            title: `Weather update for ${city}`,
-            html: template.toString(),
-            text: WeatherUpdateTemplateText(props),
-          });
+          })
         }
       }
 
