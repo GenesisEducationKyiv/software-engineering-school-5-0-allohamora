@@ -4,6 +4,7 @@ import { Server } from './server.js';
 import { CronService } from './services/cron.service.js';
 import { Logger } from './services/logger.service.js';
 import { DbService } from './services/db.service.js';
+import { promisify } from 'node:util';
 
 const GRACEFUL_SHUTDOWN_DELAY = 15_000;
 
@@ -25,9 +26,7 @@ export class CronServerApp implements App {
     const gracefulShutdown: CloseWithGraceAsyncCallback = async (props) => {
       this.logger.info({ msg: 'Graceful shutdown has been started', ...props });
 
-      await new Promise((res, rej) => {
-        server.close((err) => (!err ? res(null) : rej(err)));
-      });
+      await promisify(server.close.bind(server))();
 
       await this.dbService.disconnectFromDb();
       await this.cronService.stopCron();

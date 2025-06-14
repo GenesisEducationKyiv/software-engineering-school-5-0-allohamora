@@ -16,7 +16,7 @@ export type ServerInfo = {
   server: ServerType;
 }
 
-export interface Server {
+export type Server = {
   serve(port: number): Promise<ServerInfo>;
   request(input: RequestInfo | URL, requestInit?: RequestInit): Promise<Response>;
 }

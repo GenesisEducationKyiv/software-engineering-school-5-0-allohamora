@@ -17,25 +17,41 @@ import { ConfigService, ZnvConfigService } from './services/config.service.js';
 
 export const makeDeps = () => {
   const configService: ConfigService = new ZnvConfigService();
+  const {
+    PINO_LEVEL,
 
-  const loggerService: LoggerService = new PinoLoggerService(configService.get('PINO_LEVEL'));
+    POSTGRES_URL,
+    DRIZZLE_DEBUG,
 
-  const dbService = new DrizzleDbService(configService.get('POSTGRES_URL'), configService.get('DRIZZLE_DEBUG'));
+    JWT_SECRET,
+    JWT_EXPIRES_IN,
+
+    WEATHER_API_KEY,
+
+    EMAIL_NAME,
+    EMAIL_FROM,
+    RESEND_API_KEY,
+
+    APP_URL,
+    NODE_ENV,
+    PORT,
+  } = configService.getConfig();
+
+  const loggerService: LoggerService = new PinoLoggerService(PINO_LEVEL);
+
+  const dbService = new DrizzleDbService(POSTGRES_URL, DRIZZLE_DEBUG);
 
   const subscriptionRepository: SubscriptionRepository = new DrizzleSubscriptionRepository(dbService.getConnection());
 
-  const jwtService: JwtService = new FastJwtService(
-    configService.get('JWT_SECRET'),
-    configService.get('JWT_EXPIRES_IN'),
-  );
+  const jwtService: JwtService = new FastJwtService(JWT_SECRET, JWT_EXPIRES_IN);
 
-  const weatherService: WeatherService = new ApiWeatherService(configService.get('WEATHER_API_KEY'));
+  const weatherService: WeatherService = new ApiWeatherService(WEATHER_API_KEY);
 
   const sendEmailService: SendEmailService = new ResendSendEmailService(
     loggerService.createLogger('ResendSendEmailService'),
-    configService.get('EMAIL_NAME'),
-    configService.get('EMAIL_FROM'),
-    configService.get('RESEND_API_KEY'),
+    EMAIL_NAME,
+    EMAIL_FROM,
+    RESEND_API_KEY,
   );
 
   const sendEmailTemplateService: SendEmailTemplateService = new JsxSendEmailTemplateService(
@@ -48,7 +64,7 @@ export const makeDeps = () => {
     weatherService,
     sendEmailTemplateService,
     loggerService.createLogger('WeatherHandleSubscriptionService'),
-    configService.get('APP_URL'),
+    APP_URL,
   );
 
   const subscribeService: SubscribeService = new WeatherSubscribeService(
@@ -56,7 +72,7 @@ export const makeDeps = () => {
     subscriptionRepository,
     weatherService,
     sendEmailTemplateService,
-    configService.get('APP_URL'),
+    APP_URL,
   );
 
   const cronService: CronService = new CronerCronService(handleSubscriptionService);
@@ -68,8 +84,8 @@ export const makeDeps = () => {
     cronService,
     dbService,
     loggerService.createLogger('CronServerApp'),
-    configService.get('NODE_ENV'),
-    configService.get('PORT'),
+    NODE_ENV,
+    PORT,
   );
 
   return {
