@@ -1,9 +1,9 @@
 import { makeDeps } from './deps.js';
 
-const main = () => {
+const main = async () => {
   const { app } = makeDeps();
 
-  app.start();
+  await app.start();
 };
 
 void main();

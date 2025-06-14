@@ -11,8 +11,13 @@ import { SubscribeService } from './services/subscribe.service.js';
 import { serve, ServerType } from '@hono/node-server';
 import { AddressInfo } from 'node:net';
 
+export type ServerInfo = {
+  info: AddressInfo;
+  server: ServerType;
+}
+
 export interface Server {
-  serve(callback: (info: AddressInfo, server: ServerType) => Promise<void>, port: number): void;
+  serve(port: number): Promise<ServerInfo>;
   request(input: RequestInfo | URL, requestInit?: RequestInit): Promise<Response>;
 }
 
@@ -59,10 +64,14 @@ export class HonoServer implements Server {
     this.httpServer.get('*', serveStatic({ root: './public' }));
   }
 
-  public serve(callback: (info: AddressInfo, server: ServerType) => Promise<void>, port: number) {
+  public async serve(port: number) {
+    const { resolve, promise } = Promise.withResolvers<ServerInfo>();
+
     const server = serve({ fetch: this.httpServer.fetch, port }, async (info) => {
-      await callback(info, server);
+      resolve({ info, server });
     });
+
+    return await promise;
   }
 
   public async request(input: RequestInfo | URL, requestInit?: RequestInit) {

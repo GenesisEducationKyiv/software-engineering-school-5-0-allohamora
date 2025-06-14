@@ -8,7 +8,7 @@ import { DbService } from './services/db.service.js';
 const GRACEFUL_SHUTDOWN_DELAY = 15_000;
 
 export type App = {
-  start(): void;
+  start(): Promise<void>;
 };
 
 export class CronServerApp implements App {
@@ -38,23 +38,23 @@ export class CronServerApp implements App {
     closeWithGrace({ delay: GRACEFUL_SHUTDOWN_DELAY, logger: this.logger }, gracefulShutdown);
   }
 
-  public start() {
-    this.server.serve(async (info, server) => {
-      await this.dbService.runMigrations();
-      await this.cronService.startCron();
+  public async start() {
+    const { info, server } = await this.server.serve(this.port);
 
-      this.setupGracefulShutdown(server);
+    await this.dbService.runMigrations();
+    await this.cronService.startCron();
 
-      const parts = ['Server has been started'];
+    this.setupGracefulShutdown(server);
 
-      if (this.nodeEnv === 'development') {
-        parts.push(`at http://localhost:${info.port}`);
-      }
+    const parts = ['Server has been started'];
 
-      this.logger.info({
-        msg: parts.join(' '),
-        NODE_ENV: this.nodeEnv,
-      });
-    }, this.port);
+    if (this.nodeEnv === 'development') {
+      parts.push(`at http://localhost:${info.port}`);
+    }
+
+    this.logger.info({
+      msg: parts.join(' '),
+      NODE_ENV: this.nodeEnv,
+    });
   }
 }
