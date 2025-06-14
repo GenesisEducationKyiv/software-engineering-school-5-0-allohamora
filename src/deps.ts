@@ -84,5 +84,7 @@ export const makeDeps = () => {
     jwtService,
     subscriptionRepository,
     dbService,
+    loggerService,
+    configService,
   };
 };
