@@ -18,7 +18,7 @@ type WeatherUpdateEmailOptions = {
   description: string;
 };
 
-export interface SendEmailTemplateService {
+export type SendEmailTemplateService = {
   sendSubscribeEmail: (options: SubscribeEmailOptions) => Promise<void>;
   sendWeatherUpdateEmail: (options: WeatherUpdateEmailOptions) => Promise<void>;
 }
