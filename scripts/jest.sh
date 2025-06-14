@@ -15,5 +15,5 @@ testScriptName() {
   fi
 }
 
-command="npm run $(testScriptName) -- $1 -t '$5'"
+command="npm run $(testScriptName) -- $1 -t '$3'"
 eval "$command"
