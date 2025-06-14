@@ -27,6 +27,7 @@ export type Config = ParsedSchema<typeof configSchema>;
 
 export type ConfigService = {
   get<T extends keyof Config>(key: T): Config[T];
+  getConfig(): Config;
 };
 
 export class ZnvConfigService implements ConfigService {
@@ -42,5 +43,9 @@ export class ZnvConfigService implements ConfigService {
 
   public get<T extends keyof Config>(key: T): Config[T] {
     return this.config[key];
+  }
+
+  public getConfig(): Config {
+    return this.config;
   }
 }
