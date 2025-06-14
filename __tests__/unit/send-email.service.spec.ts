@@ -29,6 +29,10 @@ describe('ResendSendEmailService (unit)', () => {
         to: requestBody.to,
       });
     }),
+    http.all('*', ({ request }) => {
+      console.error(`[MSW] Request not in whitelist: ${request.method} ${request.url}`);
+      return HttpResponse.error();
+    }),
   );
 
   beforeAll(() => server.listen());
