@@ -1,13 +1,24 @@
-import { createSigner, createVerifier } from 'fast-jwt';
-import { JWT_SECRET, JWT_EXPIRES_IN } from 'src/config.js';
+import { createSigner, createVerifier, SignerAsync, VerifierAsync } from 'fast-jwt';
 
-const signer = createSigner({ key: async () => JWT_SECRET, expiresIn: JWT_EXPIRES_IN });
-const verifier = createVerifier({ key: async () => JWT_SECRET });
-
-export const verify = async <T extends Record<string, unknown>>(jwt: string) => {
-  return (await verifier(jwt)) as T;
+export type JwtService = {
+  verify: <T extends Record<string, unknown>>(jwt: string) => Promise<T>;
+  sign: <T extends Record<string, unknown>>(payload: T) => Promise<string>;
 };
 
-export const sign = async <T extends Record<string, unknown>>(payload: T) => {
-  return await signer(payload);
-};
+export class FastJwtService implements JwtService {
+  private signer: typeof SignerAsync;
+  private verifier: typeof VerifierAsync;
+
+  constructor(jwtSecret: string, jwtExpiresIn: number) {
+    this.signer = createSigner({ key: async () => jwtSecret, expiresIn: jwtExpiresIn });
+    this.verifier = createVerifier({ key: async () => jwtSecret });
+  }
+
+  public async verify<T extends Record<string, unknown>>(jwt: string): Promise<T> {
+    return (await this.verifier(jwt)) as T;
+  }
+
+  public async sign<T extends Record<string, unknown>>(payload: T): Promise<string> {
+    return await this.signer(payload);
+  }
+}
