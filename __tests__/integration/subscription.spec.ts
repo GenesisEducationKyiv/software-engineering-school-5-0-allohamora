@@ -12,7 +12,7 @@ import { Server } from 'src/server.js';
 import { DrizzleDb } from 'src/services/db.service.js';
 import { SendEmailService } from 'src/services/send-email.service.js';
 
-describe('subscription controller (e2e)', () => {
+describe('subscription controller (integration)', () => {
   let weatherService: WeatherService;
   let subscriptionRepository: SubscriptionRepository;
   let jwtService: JwtService;

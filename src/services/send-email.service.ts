@@ -3,7 +3,7 @@ import { Exception, ExceptionCode } from 'src/exception.js';
 import { JSX } from 'hono/jsx/jsx-runtime';
 import { Logger } from './logger.service.js';
 
-type SendEmailOptions = {
+export type SendEmailOptions = {
   to: string[];
   title: string;
   html?: string;
