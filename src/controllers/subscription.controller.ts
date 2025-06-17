@@ -1,10 +1,10 @@
 import { OpenAPIHono, createRoute } from '@hono/zod-openapi';
 import { z } from 'zod';
-import { SubscribeService } from 'src/services/subscribe.service.js';
+import { SubscriptionService } from 'src/services/subscription.service.js';
 import { Frequency } from 'src/db.schema.js';
 import { Exception, ExceptionCode } from 'src/exception.js';
 
-export const makeSubscriptionRoutes = (app: OpenAPIHono, subscribeService: SubscribeService) => {
+export const makeSubscriptionRoutes = (app: OpenAPIHono, subscriptionService: SubscriptionService) => {
   const subscribeSchema = z.object({
     email: z.string().email().describe('Email address to subscribe'),
     city: z.string().min(1).describe('City for weather updates'),
@@ -62,7 +62,7 @@ export const makeSubscriptionRoutes = (app: OpenAPIHono, subscribeService: Subsc
       };
 
       const options = getSubscribeBody();
-      await subscribeService.subscribe(options);
+      await subscriptionService.subscribe(options);
 
       return ctx.json({ message: 'Subscription successful. Confirmation email sent.' }, 200);
     },
@@ -100,7 +100,7 @@ export const makeSubscriptionRoutes = (app: OpenAPIHono, subscribeService: Subsc
     async (ctx) => {
       const { token } = ctx.req.param();
 
-      await subscribeService.confirm(token);
+      await subscriptionService.confirm(token);
 
       return ctx.json({ message: 'Subscription confirmed successfully' }, 200);
     },
@@ -138,7 +138,7 @@ export const makeSubscriptionRoutes = (app: OpenAPIHono, subscribeService: Subsc
     async (ctx) => {
       const { token } = ctx.req.param();
 
-      await subscribeService.unsubscribe(token);
+      await subscriptionService.unsubscribe(token);
 
       return ctx.json({ message: 'Unsubscribed successfully' }, 200);
     },

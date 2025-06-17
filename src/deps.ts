@@ -6,7 +6,7 @@ import {
   HandleSubscriptionService,
   WeatherHandleSubscriptionService,
 } from 'src/services/handle-subscription.service.js';
-import { SubscribeService, WeatherSubscribeService } from './services/subscribe.service.js';
+import { SubscriptionService, WeatherSubscriptionService } from './services/subscription.service.js';
 import { Server, HonoServer } from './server.js';
 import { App, CronServerApp } from './app.js';
 import { SendEmailService, ResendSendEmailService } from 'src/services/send-email.service.js';
@@ -67,7 +67,7 @@ export const makeDeps = () => {
     APP_URL,
   );
 
-  const subscribeService: SubscribeService = new WeatherSubscribeService(
+  const subscriptionService: SubscriptionService = new WeatherSubscriptionService(
     jwtService,
     subscriptionRepository,
     weatherService,
@@ -77,7 +77,7 @@ export const makeDeps = () => {
 
   const cronService: CronService = new CronerCronService(handleSubscriptionService);
 
-  const server: Server = new HonoServer(weatherService, subscribeService);
+  const server: Server = new HonoServer(weatherService, subscriptionService);
 
   const app: App = new CronServerApp(
     server,
@@ -93,7 +93,7 @@ export const makeDeps = () => {
     server,
     cronService,
     handleSubscriptionService,
-    subscribeService,
+    subscriptionService,
     sendEmailService,
     sendEmailTemplateService,
     weatherService,
