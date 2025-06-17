@@ -1,14 +1,18 @@
 import './mocks';
-import { clearDb, disconnectFromDb, runMigrations } from 'src/db.js';
+import { DrizzleDb } from 'src/services/db.service.js';
+import { makeDeps } from 'src/deps.js';
+
+const deps = makeDeps();
+export const ctx: ReturnType<typeof makeDeps> & { db: DrizzleDb } = { ...deps, db: deps.dbService.getConnection() };
 
 beforeAll(async () => {
-  await runMigrations();
+  await ctx.dbService.runMigrations();
 });
 
 afterEach(async () => {
-  await clearDb();
+  await ctx.dbService.clearDb();
 });
 
 afterAll(async () => {
-  await disconnectFromDb();
+  await ctx.dbService.disconnectFromDb();
 });

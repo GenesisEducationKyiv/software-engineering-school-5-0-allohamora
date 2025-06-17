@@ -179,8 +179,6 @@ While this application is designed to be a focused MVP, several enhancements cou
 
 1. **LRU Cache with TTL for Weather API Calls**: Implementing a caching layer would reduce external API calls, improve response times, and reduce costs for frequently requested locations.
 
-2. **DataLoader for Subscription Processing**: Using a batching and caching library like DataLoader when processing subscriptions would optimize database queries and improve performance when sending updates to many users.
-
-3. **Rate Limiting**: Adding API rate limiting would protect the application from abuse and ensure fair resource allocation among users.
+2. **Rate Limiting**: Adding API rate limiting would protect the application from abuse and ensure fair resource allocation among users.
 
 These improvements would enhance scalability and performance but are deliberately omitted from the current implementation to maintain simplicity and focus on core functionality in this MVP.

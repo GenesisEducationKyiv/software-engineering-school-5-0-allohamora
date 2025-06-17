@@ -1,5 +1,5 @@
 import { Cron } from 'croner';
-import { handleWeatherSubscription } from './subscription.service.js';
+import { HandleSubscriptionService } from './handle-subscription.service.js';
 import { Frequency } from 'src/db.schema.js';
 
 const enum CronExpression {
@@ -7,15 +7,32 @@ const enum CronExpression {
   HOURLY = '0 * * * *',
 }
 
-const crons: Cron[] = [];
+export interface CronService {
+  startCron: () => Promise<void>;
+  stopCron: () => Promise<void>;
+}
 
-export const startCron = async () => {
-  crons.push(new Cron(CronExpression.DAILY, handleWeatherSubscription(Frequency.Daily)));
-  crons.push(new Cron(CronExpression.HOURLY, handleWeatherSubscription(Frequency.Hourly)));
-};
+export class CronerCronService implements CronService {
+  private crons: Cron[] = [];
 
-export const stopCron = async () => {
-  for (const cron of crons) {
-    cron.stop();
+  constructor(private handleSubscriptionService: HandleSubscriptionService) {}
+
+  public async startCron() {
+    this.crons.push(
+      new Cron(CronExpression.DAILY, this.handleSubscriptionService.createWeatherSubscriptionHandler(Frequency.Daily)),
+    );
+    this.crons.push(
+      new Cron(
+        CronExpression.HOURLY,
+        this.handleSubscriptionService.createWeatherSubscriptionHandler(Frequency.Hourly),
+      ),
+    );
   }
-};
+
+  public async stopCron() {
+    for (const cron of this.crons) {
+      cron.stop();
+    }
+    this.crons = [];
+  }
+}

@@ -1,11 +1,19 @@
-import * as weatherService from 'src/services/weather.service.js';
-import { app } from 'src/app.js';
+import { ctx } from '__tests__/setup-e2e-context.js';
 import { HttpStatus } from 'src/types/http.types.js';
 import { MockInstance } from 'vitest';
 import { Exception, ExceptionCode } from 'src/exception.js';
+import { Server } from 'src/server.js';
+import { WeatherService } from 'src/services/weather.service.js';
 
 describe('weather controller (e2e)', () => {
+  let server: Server;
+  let weatherService: WeatherService;
+
   let getWeatherSpy: MockInstance;
+
+  beforeAll(() => {
+    ({ weatherService, server } = ctx);
+  });
 
   beforeEach(async () => {
     getWeatherSpy = vitest.spyOn(weatherService, 'getWeather');
@@ -16,7 +24,7 @@ describe('weather controller (e2e)', () => {
   });
 
   const getWeather = async (city: string, status: HttpStatus) => {
-    const res = await app.request(`/api/weather?city=${encodeURIComponent(city)}`, {
+    const res = await server.request(`/api/weather?city=${encodeURIComponent(city)}`, {
       method: 'GET',
     });
     expect(res.status).toBe(status);
@@ -56,7 +64,7 @@ describe('weather controller (e2e)', () => {
     });
 
     it('returns 400 for invalid request', async () => {
-      const res = await app.request('/api/weather', {
+      const res = await server.request('/api/weather', {
         method: 'GET',
       });
 

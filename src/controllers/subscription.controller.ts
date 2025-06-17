@@ -1,10 +1,10 @@
 import { OpenAPIHono, createRoute } from '@hono/zod-openapi';
 import { z } from 'zod';
-import { subscribe, confirm, unsubscribe } from 'src/services/subscription.service.js';
+import { SubscriptionService } from 'src/services/subscription.service.js';
 import { Frequency } from 'src/db.schema.js';
 import { Exception, ExceptionCode } from 'src/exception.js';
 
-export const makeSubscriptionRoutes = (app: OpenAPIHono) => {
+export const makeSubscriptionRoutes = (app: OpenAPIHono, subscriptionService: SubscriptionService) => {
   const subscribeSchema = z.object({
     email: z.string().email().describe('Email address to subscribe'),
     city: z.string().min(1).describe('City for weather updates'),
@@ -47,24 +47,24 @@ export const makeSubscriptionRoutes = (app: OpenAPIHono) => {
         },
       },
     }),
-    async (c) => {
+    async (ctx) => {
       // we have this function here, to preserve type safety
       const getSubscribeBody = () => {
-        const contentType = c.req.header('content-type') || '';
+        const contentType = ctx.req.header('content-type') || '';
 
         if (contentType.includes('application/json')) {
-          return c.req.valid('json');
+          return ctx.req.valid('json');
         } else if (contentType.includes('application/x-www-form-urlencoded')) {
-          return c.req.valid('form');
+          return ctx.req.valid('form');
         } else {
           throw new Exception(ExceptionCode.VALIDATION_ERROR, 'Unsupported content type');
         }
       };
 
       const options = getSubscribeBody();
-      await subscribe(options);
+      await subscriptionService.subscribe(options);
 
-      return c.json({ message: 'Subscription successful. Confirmation email sent.' }, 200);
+      return ctx.json({ message: 'Subscription successful. Confirmation email sent.' }, 200);
     },
   );
 
@@ -97,12 +97,12 @@ export const makeSubscriptionRoutes = (app: OpenAPIHono) => {
         },
       },
     }),
-    async (c) => {
-      const { token } = c.req.param();
+    async (ctx) => {
+      const { token } = ctx.req.param();
 
-      await confirm(token);
+      await subscriptionService.confirm(token);
 
-      return c.json({ message: 'Subscription confirmed successfully' }, 200);
+      return ctx.json({ message: 'Subscription confirmed successfully' }, 200);
     },
   );
 
@@ -135,12 +135,12 @@ export const makeSubscriptionRoutes = (app: OpenAPIHono) => {
         },
       },
     }),
-    async (c) => {
-      const { token } = c.req.param();
+    async (ctx) => {
+      const { token } = ctx.req.param();
 
-      await unsubscribe(token);
+      await subscriptionService.unsubscribe(token);
 
-      return c.json({ message: 'Unsubscribed successfully' }, 200);
+      return ctx.json({ message: 'Unsubscribed successfully' }, 200);
     },
   );
 };

@@ -1,6 +1,6 @@
 import { FC } from 'hono/jsx';
 
-interface SubscribeTemplateProps {
+type SubscribeTemplateProps = {
   city: string;
   confirmationLink: string;
 }

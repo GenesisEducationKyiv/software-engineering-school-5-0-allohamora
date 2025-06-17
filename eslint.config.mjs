@@ -18,7 +18,6 @@ export default tseslint.config(
       'no-use-before-define': 'error',
       'object-shorthand': 'warn',
       'no-async-promise-executor': 'warn',
-      '@typescript-eslint/consistent-type-definitions': ['error', 'type'],
       '@typescript-eslint/interface-name-prefix': 'off',
       '@typescript-eslint/explicit-function-return-type': 'off',
       '@typescript-eslint/explicit-module-boundary-types': 'off',
@@ -27,7 +26,10 @@ export default tseslint.config(
       '@typescript-eslint/no-deprecated': 'error',
       'beautiful-sort/import': [
         'error',
-        { special: ['./mocks'], order: ['special', 'namespace', 'default', 'defaultObj', 'obj', 'none'] },
+        {
+          special: ['./mocks', '/setup-.+-context.js$/'],
+          order: ['special', 'namespace', 'default', 'defaultObj', 'obj', 'none'],
+        },
       ],
     },
   },
