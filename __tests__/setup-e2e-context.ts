@@ -2,16 +2,10 @@ import './mocks';
 import { DrizzleDb } from 'src/services/db.service.js';
 import { makeDeps } from 'src/deps.js';
 
-/* eslint-disable no-var */
-declare global {
-  var ctx: ReturnType<typeof makeDeps> & { db: DrizzleDb };
-}
-/* eslint-enable no-var */
+const deps = makeDeps();
+export const ctx: ReturnType<typeof makeDeps> & { db: DrizzleDb } = { ...deps, db: deps.dbService.getConnection() };
 
 beforeAll(async () => {
-  const deps = makeDeps();
-  globalThis.ctx = { ...deps, db: deps.dbService.getConnection() };
-
   await ctx.dbService.runMigrations();
 });
 

@@ -1,3 +1,4 @@
+import { ctx } from '__tests__/setup-e2e-context.js';
 import { Frequency } from 'src/db.schema.js';
 import { SubscribeOptions } from 'src/services/subscribe.service.js';
 import { HttpStatus } from 'src/types/http.types.js';

@@ -27,7 +27,10 @@ export default tseslint.config(
       '@typescript-eslint/no-deprecated': 'error',
       'beautiful-sort/import': [
         'error',
-        { special: ['./mocks'], order: ['special', 'namespace', 'default', 'defaultObj', 'obj', 'none'] },
+        {
+          special: ['./mocks', '/setup-.+-context.js$/'],
+          order: ['special', 'namespace', 'default', 'defaultObj', 'obj', 'none'],
+        },
       ],
     },
   },
