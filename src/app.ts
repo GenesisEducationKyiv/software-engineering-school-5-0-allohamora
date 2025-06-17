@@ -26,7 +26,7 @@ export class CronServerApp implements App {
     const gracefulShutdown: CloseWithGraceAsyncCallback = async (props) => {
       this.logger.info({ msg: 'Graceful shutdown has been started', ...props });
 
-      await promisify(server.close.bind(server))();
+      await promisify<void>((cb) => server.close(cb))();
 
       await this.dbService.disconnectFromDb();
       await this.cronService.stopCron();
