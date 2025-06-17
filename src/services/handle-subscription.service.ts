@@ -1,6 +1,7 @@
+import Dataloader from 'dataloader';
 import { Frequency } from 'src/db.schema.js';
 import { SubscriptionRepository } from 'src/repositories/subscription.repository.js';
-import { WeatherService } from './weather.service.js';
+import { Weather, WeatherService } from './weather.service.js';
 import { SendEmailTemplateService } from './send-email-template.service.js';
 import { Logger } from './logger.service.js';
 import { ConfigService } from './config.service.js';
@@ -30,9 +31,17 @@ export class WeatherHandleSubscriptionService implements HandleSubscriptionServi
     return async () => {
       this.logger.info({ msg: 'Handling weather subscription has been started', frequency });
 
+      const dataloader = new Dataloader<string, Weather>(async (cities) => {
+        return await Promise.all(
+          cities.map(async (city) => {
+            return await this.weatherService.getWeather(city);
+          }),
+        );
+      });
+
       for await (const subscriptions of this.subscriptionRepository.iterateSubscriptions(frequency)) {
         for (const { id, email, city } of subscriptions) {
-          const weather = await this.weatherService.getWeather(city);
+          const weather = await dataloader.load(city);
           const unsubscribeLink = this.makeUnsubscribeLink(id);
 
           await this.sendEmailTemplateService.sendWeatherUpdateEmail({
