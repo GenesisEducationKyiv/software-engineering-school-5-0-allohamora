@@ -1,3 +1,4 @@
+import { makeConfigMock } from '__tests__/utils/config.utils.js';
 import { FastJwtService, JwtService } from 'src/services/jwt.service.js';
 
 describe('FastJwtService (unit)', () => {
@@ -7,7 +8,7 @@ describe('FastJwtService (unit)', () => {
   let jwtService: JwtService;
 
   beforeEach(() => {
-    jwtService = new FastJwtService(JWT_SECRET, JWT_EXPIRES_IN);
+    jwtService = new FastJwtService(makeConfigMock({ JWT_SECRET, JWT_EXPIRES_IN }));
   });
 
   describe('sign', () => {
@@ -52,14 +53,16 @@ describe('FastJwtService (unit)', () => {
     it('throws an error when verifying a token with wrong secret', async () => {
       const payload = { userId: '123' };
       const token = await jwtService.sign(payload);
-      const jwtServiceWithDifferentSecret = new FastJwtService('different-secret', JWT_EXPIRES_IN);
+      const jwtServiceWithDifferentSecret = new FastJwtService(
+        makeConfigMock({ JWT_SECRET: 'different-secret', JWT_EXPIRES_IN }),
+      );
 
       await expect(jwtServiceWithDifferentSecret.verify(token)).rejects.toThrow();
     });
 
     it('throws an error when verifying an expired token', async () => {
       const payload = { userId: '123' };
-      const jwtServiceWithShortExpiry = new FastJwtService(JWT_SECRET, -1);
+      const jwtServiceWithShortExpiry = new FastJwtService(makeConfigMock({ JWT_SECRET, JWT_EXPIRES_IN: -1 }));
       const token = await jwtServiceWithShortExpiry.sign(payload);
 
       await expect(jwtServiceWithShortExpiry.verify(token)).rejects.toThrow();

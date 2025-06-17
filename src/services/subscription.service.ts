@@ -4,6 +4,7 @@ import { SubscriptionRepository } from 'src/repositories/subscription.repository
 import { Exception, ExceptionCode } from 'src/exception.js';
 import { WeatherService } from './weather.service.js';
 import { SendEmailTemplateService } from './send-email-template.service.js';
+import { ConfigService } from './config.service.js';
 
 export type SubscribeOptions = {
   email: string;
@@ -11,23 +12,29 @@ export type SubscribeOptions = {
   frequency: Frequency;
 };
 
-export type SubscribeService = {
+export interface SubscriptionService {
   subscribe: (options: SubscribeOptions) => Promise<void>;
   confirm: (token: string) => Promise<void>;
   unsubscribe: (subscriptionId: string) => Promise<void>;
-};
+}
 
-export class WeatherSubscribeService implements SubscribeService {
+export class WeatherSubscriptionService implements SubscriptionService {
+  private appUrl: string;
+
   constructor(
     private jwtService: JwtService,
     private subscriptionRepository: SubscriptionRepository,
     private weatherService: WeatherService,
     private sendEmailTemplateService: SendEmailTemplateService,
-    private appUrl: string,
-  ) {}
+    configService: ConfigService,
+  ) {
+    this.appUrl = configService.get('APP_URL');
+  }
 
-  private async checkIsSubscriptionExists(email: string) {
-    if (await this.subscriptionRepository.isSubscriptionExists(email)) {
+  private async assertIsSubscriptionExists(email: string) {
+    const isSubscriptionExists = await this.subscriptionRepository.isSubscriptionExists(email);
+
+    if (isSubscriptionExists) {
       throw new Exception(ExceptionCode.ALREADY_EXISTS, 'Subscription already exists');
     }
   }
@@ -37,7 +44,7 @@ export class WeatherSubscribeService implements SubscribeService {
   }
 
   public async subscribe(options: SubscribeOptions) {
-    await this.checkIsSubscriptionExists(options.email);
+    await this.assertIsSubscriptionExists(options.email);
 
     await this.weatherService.validateCity(options.city);
 
@@ -54,7 +61,7 @@ export class WeatherSubscribeService implements SubscribeService {
   public async confirm(token: string) {
     const options = await this.jwtService.verify<SubscribeOptions>(token);
 
-    await this.checkIsSubscriptionExists(options.email);
+    await this.assertIsSubscriptionExists(options.email);
 
     await this.subscriptionRepository.createSubscription(options);
   }

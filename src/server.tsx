@@ -7,7 +7,7 @@ import { makeSubscriptionRoutes } from './controllers/subscription.controller.js
 import { makeWeatherRoutes } from './controllers/weather.controller.js';
 import { Root } from './root.js';
 import { WeatherService } from './services/weather.service.js';
-import { SubscribeService } from './services/subscribe.service.js';
+import { SubscriptionService } from './services/subscription.service.js';
 import { serve, ServerType } from '@hono/node-server';
 import { AddressInfo } from 'node:net';
 
@@ -24,7 +24,7 @@ export type Server = {
 export class HonoServer implements Server {
   constructor(
     private weatherService: WeatherService,
-    private subscribeService: SubscribeService,
+    private subscriptionService: SubscriptionService,
     private app = new OpenAPIHono(),
   ) {
     this.setup();
@@ -57,7 +57,7 @@ export class HonoServer implements Server {
 
     const apiRouter = new OpenAPIHono();
     makeWeatherRoutes(apiRouter, this.weatherService);
-    makeSubscriptionRoutes(apiRouter, this.subscribeService);
+    makeSubscriptionRoutes(apiRouter, this.subscriptionService);
 
     this.app.route('/api', apiRouter);
 

@@ -1,3 +1,4 @@
+import { ctx } from '__tests__/setup-integration-context.js';
 import { HttpStatus } from 'src/types/http.types.js';
 import { MockInstance } from 'vitest';
 import { Exception, ExceptionCode } from 'src/exception.js';

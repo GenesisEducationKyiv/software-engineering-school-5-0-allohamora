@@ -7,10 +7,10 @@ const enum CronExpression {
   HOURLY = '0 * * * *',
 }
 
-export type CronService = {
+export interface CronService {
   startCron: () => Promise<void>;
   stopCron: () => Promise<void>;
-};
+}
 
 export class CronerCronService implements CronService {
   private crons: Cron[] = [];
@@ -19,10 +19,13 @@ export class CronerCronService implements CronService {
 
   public async startCron() {
     this.crons.push(
-      new Cron(CronExpression.DAILY, this.handleSubscriptionService.handleWeatherSubscription(Frequency.Daily)),
+      new Cron(CronExpression.DAILY, this.handleSubscriptionService.createWeatherSubscriptionHandler(Frequency.Daily)),
     );
     this.crons.push(
-      new Cron(CronExpression.HOURLY, this.handleSubscriptionService.handleWeatherSubscription(Frequency.Hourly)),
+      new Cron(
+        CronExpression.HOURLY,
+        this.handleSubscriptionService.createWeatherSubscriptionHandler(Frequency.Hourly),
+      ),
     );
   }
 

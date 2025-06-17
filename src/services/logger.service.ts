@@ -1,26 +1,23 @@
-import { LevelWithSilentOrString, Logger as Pino, pino } from 'pino';
+import { Logger as Pino, pino } from 'pino';
+import { ConfigService } from './config.service.js';
 
 export type Logger = {
   info: (data: { msg: string } & Record<string, unknown>) => void;
   error: (data: { err: Error | unknown } & Record<string, unknown>) => void;
 };
 
-export type LoggerService = {
+export interface LoggerService {
   createLogger: (name: string) => Logger;
-};
+}
 
 export class PinoLoggerService implements LoggerService {
   private pino: Pino;
 
-  constructor(level: LevelWithSilentOrString) {
+  constructor(configService: ConfigService) {
     this.pino = pino({
-      level,
+      level: configService.get('PINO_LEVEL'),
       transport: {
-        targets: [
-          {
-            target: 'pino-pretty',
-          },
-        ],
+        targets: [{ target: 'pino-pretty' }],
       },
     });
   }

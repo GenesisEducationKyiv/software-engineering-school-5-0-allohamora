@@ -3,12 +3,12 @@ import { Frequency, subscriptions } from 'src/db.schema.js';
 import { Exception, ExceptionCode } from 'src/exception.js';
 import { DrizzleDb } from 'src/services/db.service.js';
 
-export type SubscriptionRepository = {
+export interface SubscriptionRepository {
   createSubscription(data: typeof subscriptions.$inferInsert): Promise<typeof subscriptions.$inferSelect>;
   isSubscriptionExists(email: string): Promise<boolean>;
   removeSubscriptionById(id: string): Promise<(typeof subscriptions.$inferSelect)[]>;
   iterateSubscriptions(frequency: Frequency, limit?: number): AsyncGenerator<(typeof subscriptions.$inferSelect)[]>;
-};
+}
 
 export class DrizzleSubscriptionRepository implements SubscriptionRepository {
   constructor(private db: DrizzleDb) {}

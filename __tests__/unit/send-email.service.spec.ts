@@ -3,6 +3,7 @@ import { http, HttpResponse } from 'msw';
 import { setupServer } from 'msw/node';
 import { ResendSendEmailService, SendEmailOptions } from 'src/services/send-email.service.js';
 import { Exception } from 'src/exception.js';
+import { makeConfigMock } from '__tests__/utils/config.utils.js';
 
 describe('ResendSendEmailService (unit)', () => {
   const EMAIL_NAME = 'Test App';
@@ -42,9 +43,7 @@ describe('ResendSendEmailService (unit)', () => {
 
     sendEmailService = new ResendSendEmailService(
       { error: errorSpy, info: vi.fn() },
-      EMAIL_NAME,
-      EMAIL_FROM,
-      RESEND_API_KEY,
+      makeConfigMock({ EMAIL_NAME, EMAIL_FROM, RESEND_API_KEY }),
     );
   });
 

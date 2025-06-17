@@ -1,3 +1,4 @@
+import { ctx } from '__tests__/setup-integration-context.js';
 import { Frequency } from 'src/db.schema.js';
 import { HandleSubscriptionService } from 'src/services/handle-subscription.service.js';
 import { WeatherService } from 'src/services/weather.service.js';
@@ -45,7 +46,7 @@ describe('WeatherHandleSubscriptionService (integration)', () => {
         await subscriptionRepository.createSubscription(subscription);
       }
 
-      await handleSubscriptionService.handleWeatherSubscription(frequency)();
+      await handleSubscriptionService.createWeatherSubscriptionHandler(frequency)();
 
       expect(getWeatherSpy).toHaveBeenCalledWith(cities[0]);
       expect(getWeatherSpy).toHaveBeenCalledWith(cities[1]);
@@ -66,7 +67,7 @@ describe('WeatherHandleSubscriptionService (integration)', () => {
     });
 
     it(`handles empty subscription list correctly`, async () => {
-      await handleSubscriptionService.handleWeatherSubscription(frequency)();
+      await handleSubscriptionService.createWeatherSubscriptionHandler(frequency)();
 
       expect(getWeatherSpy).not.toHaveBeenCalled();
       expect(sendEmailSpy).not.toHaveBeenCalled();
@@ -88,9 +89,9 @@ describe('WeatherHandleSubscriptionService (integration)', () => {
         await subscriptionRepository.createSubscription(subscription);
       }
 
-      await handleSubscriptionService.handleWeatherSubscription(frequency)();
+      await handleSubscriptionService.createWeatherSubscriptionHandler(frequency)();
 
-      expect(getWeatherSpy).toHaveBeenCalledTimes(55);
+      expect(getWeatherSpy).toHaveBeenCalledTimes(cities.length);
       expect(sendEmailSpy).toHaveBeenCalledTimes(55);
 
       const subscription10 = testSubscriptions[10] as (typeof testSubscriptions)[number];

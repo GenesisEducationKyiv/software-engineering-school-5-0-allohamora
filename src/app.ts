@@ -5,28 +5,34 @@ import { CronService } from './services/cron.service.js';
 import { Logger } from './services/logger.service.js';
 import { DbService } from './services/db.service.js';
 import { promisify } from 'node:util';
+import { ConfigService } from './services/config.service.js';
 
 const GRACEFUL_SHUTDOWN_DELAY = 15_000;
 
-export type App = {
+export interface App {
   start(): Promise<void>;
-};
+}
 
 export class CronServerApp implements App {
+  private port: number;
+  private nodeEnv: string;
+
   constructor(
     private server: Server,
     private cronService: CronService,
     private dbService: DbService,
     private logger: Logger,
-    private nodeEnv: 'development' | 'test' | 'production',
-    private port: number,
-  ) {}
+    configService: ConfigService,
+  ) {
+    this.port = configService.get('PORT');
+    this.nodeEnv = configService.get('NODE_ENV');
+  }
 
   private setupGracefulShutdown(server: ServerType) {
     const gracefulShutdown: CloseWithGraceAsyncCallback = async (props) => {
       this.logger.info({ msg: 'Graceful shutdown has been started', ...props });
 
-      await promisify(server.close.bind(server))();
+      await promisify<void>((cb) => server.close(cb))();
 
       await this.dbService.disconnectFromDb();
       await this.cronService.stopCron();
