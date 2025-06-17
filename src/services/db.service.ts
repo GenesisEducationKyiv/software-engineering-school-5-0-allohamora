@@ -4,6 +4,7 @@ import postgres from 'postgres';
 import { drizzle, PostgresJsDatabase } from 'drizzle-orm/postgres-js';
 import { migrate } from 'drizzle-orm/node-postgres/migrator';
 import { sql } from 'drizzle-orm';
+import { ConfigService } from './config.service.js';
 
 const MIGRATIONS_DIR = path.join(import.meta.dirname, '..', '..', 'migrations');
 
@@ -22,9 +23,9 @@ export class DrizzleDbService implements DbService<DrizzleDb> {
   private client: postgres.Sql;
   private db: DrizzleDb;
 
-  constructor(postgresUrl: string, drizzleDebug: boolean) {
-    this.client = postgres(postgresUrl, { onnotice: () => {} });
-    this.db = drizzle(this.client, { schema, logger: drizzleDebug, casing: 'snake_case' });
+  constructor(configService: ConfigService) {
+    this.client = postgres(configService.get('POSTGRES_URL'), { onnotice: () => {} });
+    this.db = drizzle(this.client, { schema, logger: configService.get('DRIZZLE_DEBUG'), casing: 'snake_case' });
   }
 
   public getConnection() {

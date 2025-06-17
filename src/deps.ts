@@ -17,41 +17,19 @@ import { ConfigService, ZnvConfigService } from './services/config.service.js';
 
 export const makeDeps = () => {
   const configService: ConfigService = new ZnvConfigService();
-  const {
-    PINO_LEVEL,
+  const loggerService: LoggerService = new PinoLoggerService(configService);
 
-    POSTGRES_URL,
-    DRIZZLE_DEBUG,
-
-    JWT_SECRET,
-    JWT_EXPIRES_IN,
-
-    WEATHER_API_KEY,
-
-    EMAIL_NAME,
-    EMAIL_FROM,
-    RESEND_API_KEY,
-
-    APP_URL,
-    NODE_ENV,
-    PORT,
-  } = configService.getConfig();
-
-  const loggerService: LoggerService = new PinoLoggerService(PINO_LEVEL);
-
-  const dbService = new DrizzleDbService(POSTGRES_URL, DRIZZLE_DEBUG);
+  const dbService = new DrizzleDbService(configService);
 
   const subscriptionRepository: SubscriptionRepository = new DrizzleSubscriptionRepository(dbService.getConnection());
 
-  const jwtService: JwtService = new FastJwtService(JWT_SECRET, JWT_EXPIRES_IN);
+  const jwtService: JwtService = new FastJwtService(configService);
 
-  const weatherService: WeatherService = new ApiWeatherService(WEATHER_API_KEY);
+  const weatherService: WeatherService = new ApiWeatherService(configService);
 
   const sendEmailService: SendEmailService = new ResendSendEmailService(
     loggerService.createLogger('ResendSendEmailService'),
-    EMAIL_NAME,
-    EMAIL_FROM,
-    RESEND_API_KEY,
+    configService,
   );
 
   const sendEmailTemplateService: SendEmailTemplateService = new JsxSendEmailTemplateService(
@@ -64,7 +42,7 @@ export const makeDeps = () => {
     weatherService,
     sendEmailTemplateService,
     loggerService.createLogger('WeatherHandleSubscriptionService'),
-    APP_URL,
+    configService,
   );
 
   const subscriptionService: SubscriptionService = new WeatherSubscriptionService(
@@ -72,7 +50,7 @@ export const makeDeps = () => {
     subscriptionRepository,
     weatherService,
     sendEmailTemplateService,
-    APP_URL,
+    configService,
   );
 
   const cronService: CronService = new CronerCronService(handleSubscriptionService);
@@ -84,8 +62,7 @@ export const makeDeps = () => {
     cronService,
     dbService,
     loggerService.createLogger('CronServerApp'),
-    NODE_ENV,
-    PORT,
+    configService,
   );
 
   return {

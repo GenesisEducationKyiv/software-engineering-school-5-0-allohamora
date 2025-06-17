@@ -4,6 +4,7 @@ import { SubscriptionRepository } from 'src/repositories/subscription.repository
 import { Exception, ExceptionCode } from 'src/exception.js';
 import { WeatherService } from './weather.service.js';
 import { SendEmailTemplateService } from './send-email-template.service.js';
+import { ConfigService } from './config.service.js';
 
 export type SubscribeOptions = {
   email: string;
@@ -18,13 +19,17 @@ export interface SubscriptionService {
 }
 
 export class WeatherSubscriptionService implements SubscriptionService {
+  private appUrl: string;
+
   constructor(
     private jwtService: JwtService,
     private subscriptionRepository: SubscriptionRepository,
     private weatherService: WeatherService,
     private sendEmailTemplateService: SendEmailTemplateService,
-    private appUrl: string,
-  ) {}
+    configService: ConfigService,
+  ) {
+    this.appUrl = configService.get('APP_URL');
+  }
 
   private async assertIsSubscriptionExists(email: string) {
     const isSubscriptionExists = await this.subscriptionRepository.isSubscriptionExists(email);
