@@ -16,11 +16,7 @@ export class PinoLoggerService implements LoggerService {
     this.pino = pino({
       level,
       transport: {
-        targets: [
-          {
-            target: 'pino-pretty',
-          },
-        ],
+        targets: [{ target: 'pino-pretty' }],
       },
     });
   }
