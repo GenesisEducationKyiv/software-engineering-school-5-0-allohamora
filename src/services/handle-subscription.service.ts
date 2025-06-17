@@ -5,7 +5,7 @@ import { SendEmailTemplateService } from './send-email-template.service.js';
 import { Logger } from './logger.service.js';
 
 export interface HandleSubscriptionService {
-  handleWeatherSubscription: (frequency: Frequency) => () => Promise<void>;
+  createWeatherSubscriptionHandler: (frequency: Frequency) => () => Promise<void>;
 }
 
 export class WeatherHandleSubscriptionService implements HandleSubscriptionService {
@@ -21,7 +21,7 @@ export class WeatherHandleSubscriptionService implements HandleSubscriptionServi
     return `${this.appUrl}/api/unsubscribe/${subscriptionId}`;
   }
 
-  public handleWeatherSubscription(frequency: Frequency) {
+  public createWeatherSubscriptionHandler(frequency: Frequency) {
     return async () => {
       this.logger.info({ msg: 'Handling weather subscription has been started', frequency });
 

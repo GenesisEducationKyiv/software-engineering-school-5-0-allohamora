@@ -19,10 +19,13 @@ export class CronerCronService implements CronService {
 
   public async startCron() {
     this.crons.push(
-      new Cron(CronExpression.DAILY, this.handleSubscriptionService.handleWeatherSubscription(Frequency.Daily)),
+      new Cron(CronExpression.DAILY, this.handleSubscriptionService.createWeatherSubscriptionHandler(Frequency.Daily)),
     );
     this.crons.push(
-      new Cron(CronExpression.HOURLY, this.handleSubscriptionService.handleWeatherSubscription(Frequency.Hourly)),
+      new Cron(
+        CronExpression.HOURLY,
+        this.handleSubscriptionService.createWeatherSubscriptionHandler(Frequency.Hourly),
+      ),
     );
   }
 
