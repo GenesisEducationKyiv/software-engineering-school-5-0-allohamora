@@ -221,6 +221,32 @@ describe('Root Page E2E Tests', () => {
     await expectNoSubscriptions();
   });
 
+  it.each(['daily', 'hourly'])(
+    'does not send email when invalid city is provided with %s frequency',
+    async (frequency) => {
+      await page.goto(BASE_URL);
+
+      await page.locator('#email').fill('test@example.com');
+      await page.locator('#city').fill('InvalidCity');
+      await page.locator('#frequency').selectOption(frequency);
+
+      const responsePromise = page.waitForResponse((response) => response.url().includes('/api/subscribe'));
+
+      await page.locator('button[type="submit"]').click();
+
+      const response = await responsePromise;
+      expect(response.status()).toBe(400);
+
+      const responseBody = await response.json();
+      expect(responseBody).toEqual({
+        message: 'City not found',
+      });
+
+      expect(sendEmailSpy).not.toHaveBeenCalled();
+      await expectNoSubscriptions();
+    },
+  );
+
   it('validates required fields', async () => {
     await page.goto(BASE_URL);
 
@@ -233,29 +259,6 @@ describe('Root Page E2E Tests', () => {
       return emailInput.validity.valid;
     });
     expect(emailValid).toBe(false);
-
-    expect(sendEmailSpy).not.toHaveBeenCalled();
-    await expectNoSubscriptions();
-  });
-
-  it('does not send email when invalid city is provided', async () => {
-    await page.goto(BASE_URL);
-
-    await page.locator('#email').fill('test@example.com');
-    await page.locator('#city').fill('InvalidCity');
-    await page.locator('#frequency').selectOption('daily');
-
-    const responsePromise = page.waitForResponse((response) => response.url().includes('/api/subscribe'));
-
-    await page.locator('button[type="submit"]').click();
-
-    const response = await responsePromise;
-    expect(response.status()).toBe(400);
-
-    const responseBody = await response.json();
-    expect(responseBody).toEqual({
-      message: 'City not found',
-    });
 
     expect(sendEmailSpy).not.toHaveBeenCalled();
     await expectNoSubscriptions();
