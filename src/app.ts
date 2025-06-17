@@ -8,9 +8,9 @@ import { promisify } from 'node:util';
 
 const GRACEFUL_SHUTDOWN_DELAY = 15_000;
 
-export type App = {
+export interface App {
   start(): Promise<void>;
-};
+}
 
 export class CronServerApp implements App {
   constructor(

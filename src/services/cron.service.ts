@@ -7,10 +7,10 @@ const enum CronExpression {
   HOURLY = '0 * * * *',
 }
 
-export type CronService = {
+export interface CronService {
   startCron: () => Promise<void>;
   stopCron: () => Promise<void>;
-};
+}
 
 export class CronerCronService implements CronService {
   private crons: Cron[] = [];

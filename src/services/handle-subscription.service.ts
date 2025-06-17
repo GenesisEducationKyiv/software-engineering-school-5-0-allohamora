@@ -4,9 +4,9 @@ import { WeatherService } from './weather.service.js';
 import { SendEmailTemplateService } from './send-email-template.service.js';
 import { Logger } from './logger.service.js';
 
-export type HandleSubscriptionService = {
+export interface HandleSubscriptionService {
   handleWeatherSubscription: (frequency: Frequency) => () => Promise<void>;
-};
+}
 
 export class WeatherHandleSubscriptionService implements HandleSubscriptionService {
   constructor(

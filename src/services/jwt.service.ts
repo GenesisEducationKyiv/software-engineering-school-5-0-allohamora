@@ -1,9 +1,9 @@
 import { createSigner, createVerifier, SignerAsync, VerifierAsync } from 'fast-jwt';
 
-export type JwtService = {
+export interface JwtService {
   verify: <T extends Record<string, unknown>>(jwt: string) => Promise<T>;
   sign: <T extends Record<string, unknown>>(payload: T) => Promise<string>;
-};
+}
 
 export class FastJwtService implements JwtService {
   private signer: typeof SignerAsync;

@@ -67,10 +67,10 @@ export type Weather = {
   description: string; // e.g., "Sunny"
 };
 
-export type WeatherService = {
+export interface WeatherService {
   getWeather: (city: string) => Promise<Weather>;
   validateCity: (city: string) => Promise<void>;
-};
+}
 
 export class ApiWeatherService implements WeatherService {
   constructor(private weatherApiKey: string) {}

@@ -25,10 +25,10 @@ const configSchema = {
 
 export type Config = ParsedSchema<typeof configSchema>;
 
-export type ConfigService = {
+export interface ConfigService {
   get<T extends keyof Config>(key: T): Config[T];
   getConfig(): Config;
-};
+}
 
 export class ZnvConfigService implements ConfigService {
   protected config: Config;
