@@ -26,7 +26,7 @@ export class WeatherSubscriptionService implements SubscriptionService {
     private appUrl: string,
   ) {}
 
-  private async checkIsSubscriptionExists(email: string) {
+  private async assertIsSubscriptionExists(email: string) {
     if (await this.subscriptionRepository.isSubscriptionExists(email)) {
       throw new Exception(ExceptionCode.ALREADY_EXISTS, 'Subscription already exists');
     }
@@ -37,7 +37,7 @@ export class WeatherSubscriptionService implements SubscriptionService {
   }
 
   public async subscribe(options: SubscribeOptions) {
-    await this.checkIsSubscriptionExists(options.email);
+    await this.assertIsSubscriptionExists(options.email);
 
     await this.weatherService.validateCity(options.city);
 
@@ -54,7 +54,7 @@ export class WeatherSubscriptionService implements SubscriptionService {
   public async confirm(token: string) {
     const options = await this.jwtService.verify<SubscribeOptions>(token);
 
-    await this.checkIsSubscriptionExists(options.email);
+    await this.assertIsSubscriptionExists(options.email);
 
     await this.subscriptionRepository.createSubscription(options);
   }
