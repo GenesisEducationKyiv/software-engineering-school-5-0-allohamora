@@ -81,6 +81,67 @@ describe('Root Page E2E Tests', () => {
         },
       });
     }),
+    http.get('https://geocoding-api.open-meteo.com/v1/search', ({ request }) => {
+      const url = new URL(request.url);
+      const city = url.searchParams.get('name');
+
+      if (city !== 'London') {
+        return HttpResponse.json(
+          {
+            generationtime_ms: 0.6712675,
+          },
+          { status: 400 },
+        );
+      }
+
+      return HttpResponse.json({
+        results: [
+          {
+            id: 2643743,
+            name: 'London',
+            latitude: 51.5074,
+            longitude: -0.1278,
+            elevation: 35,
+            feature_code: 'PPLC',
+            country_code: 'GB',
+            admin1_id: 2643743,
+            admin2_id: 2643743,
+            timezone: 'Europe/London',
+            population: 8982000,
+            country_id: 2643743,
+            country: 'United Kingdom',
+            admin1: 'England',
+            admin2: 'Greater London',
+          },
+        ],
+      });
+    }),
+    http.get('https://api.open-meteo.com/v1/forecast', ({ request }) => {
+      const url = new URL(request.url);
+      const city = url.searchParams.get('latitude') && url.searchParams.get('longitude');
+
+      if (!city) {
+        return HttpResponse.text('Validation error: latitude and longitude are required', { status: 400 });
+      }
+
+      return HttpResponse.json({
+        latitude: 51.5074,
+        longitude: -0.1278,
+        generationtime_ms: 0.6712675,
+        utc_offset_seconds: 3600,
+        timezone: 'Europe/London',
+        timezone_abbreviation: 'BST',
+        elevation: 35,
+        current_weather: {
+          temperature: 20.0,
+          windspeed: 5.0,
+          winddirection: 180,
+          weathercode: 1,
+          is_day: 1,
+          time: '2025-05-13T16:00:00Z',
+        },
+      });
+    }),
     http.post('https://api.resend.com/emails', async ({ request }) => {
       const requestBody = (await request.json()) as Record<string, unknown>;
 
@@ -263,4 +324,46 @@ describe('Root Page E2E Tests', () => {
     expect(sendEmailSpy).not.toHaveBeenCalled();
     await expectNoSubscriptions();
   });
+
+  it.each(['daily', 'hourly'])(
+    'falls back to open-meteo when weather API fails for %s frequency',
+    async (frequency) => {
+      mswServer.use(
+        http.get('https://api.weatherapi.com/v1/current.json', () => {
+          return HttpResponse.json({ error: { code: 500, message: 'Internal Server Error' } }, { status: 500 });
+        }),
+      );
+
+      await page.goto(BASE_URL);
+
+      await page.locator('#email').fill('test@example.com');
+      await page.locator('#city').fill('London');
+      await page.locator('#frequency').selectOption(frequency);
+
+      const responsePromise = page.waitForResponse((response) => response.url().includes('/api/subscribe'));
+
+      await page.locator('button[type="submit"]').click();
+
+      const response = await responsePromise;
+      expect(response.status()).toBe(200);
+
+      const responseBody = await response.json();
+      expect(responseBody).toEqual({
+        message: 'Subscription successful. Confirmation email sent.',
+      });
+
+      expect(sendEmailSpy).toHaveBeenCalledTimes(1);
+      expect(sendEmailSpy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          to: ['test@example.com'],
+          subject: 'Confirm your weather subscription for London',
+          from: `${configService.get('EMAIL_NAME')} <${configService.get('EMAIL_FROM')}>`,
+          html: expect.stringMatching(/http:\/\/localhost:\d+\/api\/confirm\/.+?/),
+          text: expect.stringMatching(/http:\/\/localhost:\d+\/api\/confirm\/.+?/),
+        }),
+      );
+
+      await expectNoSubscriptions();
+    },
+  );
 });
