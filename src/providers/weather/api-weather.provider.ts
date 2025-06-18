@@ -1,6 +1,7 @@
 import { Exception, ExceptionCode } from 'src/exception.js';
 import { ConfigService } from 'src/services/config.service.js';
 import { Weather, WeatherProvider } from './weather.provider.js';
+import { HttpService } from 'src/services/http.service.js';
 
 const API_URL = 'https://api.weatherapi.com/v1';
 
@@ -66,17 +67,23 @@ type WeatherErrorResponse = {
 export class ApiWeatherProvider implements WeatherProvider {
   private weatherApiKey: string;
 
-  constructor(configService: ConfigService) {
+  constructor(
+    private httpService: HttpService,
+    configService: ConfigService,
+  ) {
     this.weatherApiKey = configService.get('WEATHER_API_KEY');
   }
 
   public async getWeather(city: string): Promise<Weather> {
-    const query = new URLSearchParams({
-      key: this.weatherApiKey,
-      q: city,
+    const res = await this.httpService.get({
+      url: `${API_URL}/current.json`,
+      params: {
+        key: this.weatherApiKey,
+        q: city,
+      },
+      handleIsOk: false,
     });
 
-    const res = await fetch(`${API_URL}/current.json?${query.toString()}`);
     const data = await res.json();
 
     if (res.ok) {

@@ -19,6 +19,8 @@ vitest.mock('src/services/config.service.js', async (importOriginal) => {
         DRIZZLE_DEBUG: false,
 
         PINO_LEVEL: 'fatal',
+
+        WRITE_LOGS_TO_FILES: false,
       } as import('src/services/config.service.js').Config;
     }
   }

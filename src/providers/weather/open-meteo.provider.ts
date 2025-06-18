@@ -1,5 +1,6 @@
 import { Exception, ExceptionCode } from 'src/exception.js';
 import { Weather, WeatherProvider } from './weather.provider.js';
+import { HttpService } from 'src/services/http.service.js';
 
 const GEOCODING_API_URL = 'https://geocoding-api.open-meteo.com/v1';
 const FORECAST_API_URL = 'https://api.open-meteo.com/v1';
@@ -81,18 +82,18 @@ const weatherCodeToDescription: Record<number, string> = {
 };
 
 export class OpenMeteoProvider implements WeatherProvider {
-  private async getCity(city: string) {
-    const query = new URLSearchParams({
-      name: city,
-      count: '1',
-      language: 'en',
-      format: 'json',
-    });
+  constructor(private httpService: HttpService) {}
 
-    const res = await fetch(`${GEOCODING_API_URL}/search?${query.toString()}`);
-    if (!res.ok) {
-      throw new Exception(ExceptionCode.INTERNAL_SERVER_ERROR, 'Failed to fetch city data');
-    }
+  private async getCity(city: string) {
+    const res = await this.httpService.get({
+      url: `${GEOCODING_API_URL}/search`,
+      params: {
+        name: city,
+        count: '1',
+        language: 'en',
+        format: 'json',
+      },
+    });
 
     const data = (await res.json()) as CityResponse;
 
@@ -109,16 +110,15 @@ export class OpenMeteoProvider implements WeatherProvider {
 
   public async getWeather(city: string): Promise<Weather> {
     const { latitude, longitude } = await this.getCity(city);
-    const query = new URLSearchParams({
-      latitude: latitude.toString(),
-      longitude: longitude.toString(),
-      current: 'temperature_2m,relative_humidity_2m,weather_code',
-    });
 
-    const res = await fetch(`${FORECAST_API_URL}/forecast?${query.toString()}`);
-    if (!res.ok) {
-      throw new Exception(ExceptionCode.INTERNAL_SERVER_ERROR, 'Failed to fetch weather data');
-    }
+    const res = await this.httpService.get({
+      url: `${FORECAST_API_URL}/forecast`,
+      params: {
+        latitude: latitude.toString(),
+        longitude: longitude.toString(),
+        current: 'temperature_2m,relative_humidity_2m,weather_code',
+      },
+    });
 
     const data = (await res.json()) as WeatherResponse;
 

@@ -16,10 +16,13 @@ import { DrizzleDbService } from './services/db.service.js';
 import { ConfigService, ZnvConfigService } from './services/config.service.js';
 import { ApiWeatherProvider } from './providers/weather/api-weather.provider.js';
 import { OpenMeteoProvider } from './providers/weather/open-meteo.provider.js';
+import { FetchHttpService, HttpService } from './services/http.service.js';
+import { HttpLoggerProxy } from './proxies/http-logger.proxy.js';
 
 export const makeDeps = () => {
   const configService: ConfigService = new ZnvConfigService();
   const loggerService: LoggerService = new PinoLoggerService(configService);
+  const httpService: HttpService = new HttpLoggerProxy(new FetchHttpService(), configService);
 
   const dbService = new DrizzleDbService(configService);
 
@@ -28,7 +31,7 @@ export const makeDeps = () => {
   const jwtService: JwtService = new FastJwtService(configService);
 
   const weatherService: WeatherService = new ChainWeatherService(
-    [new ApiWeatherProvider(configService), new OpenMeteoProvider()],
+    [new ApiWeatherProvider(httpService, configService), new OpenMeteoProvider(httpService)],
     loggerService.createLogger('ChainWeatherService'),
   );
 
@@ -82,6 +85,7 @@ export const makeDeps = () => {
     jwtService,
     subscriptionRepository,
     dbService,
+    httpService,
     loggerService,
     configService,
   };

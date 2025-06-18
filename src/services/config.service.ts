@@ -21,6 +21,8 @@ const configSchema = {
 
   EMAIL_NAME: z.string(),
   EMAIL_FROM: z.string().email(),
+
+  WRITE_LOGS_TO_FILES: z.boolean().default(false),
 } as const;
 
 export type Config = ParsedSchema<typeof configSchema>;
