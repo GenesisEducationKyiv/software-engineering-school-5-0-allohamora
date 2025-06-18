@@ -1,7 +1,7 @@
 import { CronerCronService, CronService } from './services/cron.service.js';
 import { DrizzleSubscriptionRepository, SubscriptionRepository } from './repositories/subscription.repository.js';
 import { FastJwtService, JwtService } from './services/jwt.service.js';
-import { ChainWeatherService, WeatherService } from './services/weather.service.js';
+import { ProviderWeatherService, WeatherService } from './services/weather.service.js';
 import {
   HandleSubscriptionService,
   WeatherHandleSubscriptionService,
@@ -30,9 +30,8 @@ export const makeDeps = () => {
 
   const jwtService: JwtService = new FastJwtService(configService);
 
-  const weatherService: WeatherService = new ChainWeatherService(
-    [new ApiWeatherProvider(httpService, configService), new OpenMeteoProvider(httpService)],
-    loggerService.createLogger('ChainWeatherService'),
+  const weatherService: WeatherService = new ProviderWeatherService(
+    new ApiWeatherProvider(httpService, configService).setNext(new OpenMeteoProvider(httpService)),
   );
 
   const sendEmailService: SendEmailService = new ResendSendEmailService(

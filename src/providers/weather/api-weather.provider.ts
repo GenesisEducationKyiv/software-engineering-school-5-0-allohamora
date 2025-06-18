@@ -64,17 +64,19 @@ type WeatherErrorResponse = {
   };
 };
 
-export class ApiWeatherProvider implements WeatherProvider {
+export class ApiWeatherProvider extends WeatherProvider {
   private weatherApiKey: string;
 
   constructor(
     private httpService: HttpService,
     configService: ConfigService,
   ) {
+    super();
+
     this.weatherApiKey = configService.get('WEATHER_API_KEY');
   }
 
-  public async getWeather(city: string): Promise<Weather> {
+  public override async getWeather(city: string): Promise<Weather> {
     const res = await this.httpService.get({
       url: `${API_URL}/current.json`,
       params: {
@@ -102,15 +104,23 @@ export class ApiWeatherProvider implements WeatherProvider {
       throw new Exception(ExceptionCode.NOT_FOUND, error.message);
     }
 
+    if (this.next) {
+      return await this.next.getWeather(city);
+    }
+
     throw new Exception(ExceptionCode.INTERNAL_SERVER_ERROR, error?.message);
   }
 
-  public async validateCity(city: string): Promise<void> {
+  public override async validateCity(city: string): Promise<void> {
     try {
       await this.getWeather(city);
     } catch (error) {
       if (error instanceof Exception && error.code === ExceptionCode.NOT_FOUND) {
         throw new Exception(ExceptionCode.VALIDATION_ERROR, 'City not found');
+      }
+
+      if (this.next) {
+        return await this.next.validateCity(city);
       }
 
       throw error;

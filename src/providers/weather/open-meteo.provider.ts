@@ -81,8 +81,10 @@ const weatherCodeToDescription: Record<number, string> = {
   99: 'Thunderstorm with heavy hail',
 };
 
-export class OpenMeteoProvider implements WeatherProvider {
-  constructor(private httpService: HttpService) {}
+export class OpenMeteoProvider extends WeatherProvider {
+  constructor(private httpService: HttpService) {
+    super();
+  }
 
   private async getCity(city: string) {
     const res = await this.httpService.get({
@@ -109,24 +111,32 @@ export class OpenMeteoProvider implements WeatherProvider {
   }
 
   public async getWeather(city: string): Promise<Weather> {
-    const { latitude, longitude } = await this.getCity(city);
+    try {
+      const { latitude, longitude } = await this.getCity(city);
 
-    const res = await this.httpService.get({
-      url: `${FORECAST_API_URL}/forecast`,
-      params: {
-        latitude: latitude.toString(),
-        longitude: longitude.toString(),
-        current: 'temperature_2m,relative_humidity_2m,weather_code',
-      },
-    });
+      const res = await this.httpService.get({
+        url: `${FORECAST_API_URL}/forecast`,
+        params: {
+          latitude: latitude.toString(),
+          longitude: longitude.toString(),
+          current: 'temperature_2m,relative_humidity_2m,weather_code',
+        },
+      });
 
-    const data = (await res.json()) as WeatherResponse;
+      const data = (await res.json()) as WeatherResponse;
 
-    return {
-      temperature: data.current.temperature_2m,
-      humidity: data.current.relative_humidity_2m,
-      description: this.getWeatherDescription(data.current.weather_code),
-    };
+      return {
+        temperature: data.current.temperature_2m,
+        humidity: data.current.relative_humidity_2m,
+        description: this.getWeatherDescription(data.current.weather_code),
+      };
+    } catch (error) {
+      if (this.next) {
+        return await this.next.getWeather(city);
+      }
+
+      throw error;
+    }
   }
 
   public async validateCity(city: string): Promise<void> {
@@ -135,6 +145,10 @@ export class OpenMeteoProvider implements WeatherProvider {
     } catch (error) {
       if (error instanceof Exception && error.code === ExceptionCode.NOT_FOUND) {
         throw new Exception(ExceptionCode.VALIDATION_ERROR, 'City not found');
+      }
+
+      if (this.next) {
+        return await this.next.validateCity(city);
       }
 
       throw error;
