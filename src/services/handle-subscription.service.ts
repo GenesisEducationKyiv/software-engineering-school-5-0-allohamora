@@ -1,10 +1,11 @@
 import Dataloader from 'dataloader';
 import { Frequency } from 'src/db.schema.js';
 import { SubscriptionRepository } from 'src/repositories/subscription.repository.js';
-import { Weather, WeatherService } from './weather.service.js';
+import { WeatherService } from './weather.service.js';
 import { SendEmailTemplateService } from './send-email-template.service.js';
 import { Logger } from './logger.service.js';
 import { ConfigService } from './config.service.js';
+import { Weather } from 'src/providers/weather/weather.provider.js';
 
 export interface HandleSubscriptionService {
   createWeatherSubscriptionHandler: (frequency: Frequency) => () => Promise<void>;
