@@ -7,6 +7,7 @@ import { http, HttpResponse } from 'msw';
 import { setupServer } from 'msw/node';
 import { makeDeps } from 'src/deps.js';
 import { ConfigService } from 'src/services/config.service.js';
+import { Frequency } from 'src/db.schema.js';
 
 describe('Root Page E2E Tests', () => {
   let BASE_URL: string;
@@ -248,41 +249,44 @@ describe('Root Page E2E Tests', () => {
     await expectNoSubscriptions();
   });
 
-  it.each(['daily', 'hourly'])('submits form and handles successful response with %s frequency', async (frequency) => {
-    await page.goto(BASE_URL);
+  it.each([Frequency.Daily, Frequency.Hourly])(
+    'submits form and handles successful response with %s frequency',
+    async (frequency) => {
+      await page.goto(BASE_URL);
 
-    await page.locator('#email').fill('test@example.com');
-    await page.locator('#city').fill('London');
-    await page.locator('#frequency').selectOption(frequency);
+      await page.locator('#email').fill('test@example.com');
+      await page.locator('#city').fill('London');
+      await page.locator('#frequency').selectOption(frequency);
 
-    const responsePromise = page.waitForResponse((response) => response.url().includes('/api/subscribe'));
+      const responsePromise = page.waitForResponse((response) => response.url().includes('/api/subscribe'));
 
-    await page.locator('button[type="submit"]').click();
+      await page.locator('button[type="submit"]').click();
 
-    const response = await responsePromise;
-    expect(response.status()).toBe(200);
+      const response = await responsePromise;
+      expect(response.status()).toBe(200);
 
-    const responseBody = await response.json();
-    expect(responseBody).toEqual({
-      message: 'Subscription successful. Confirmation email sent.',
-    });
+      const responseBody = await response.json();
+      expect(responseBody).toEqual({
+        message: 'Subscription successful. Confirmation email sent.',
+      });
 
-    expect(sendEmailSpy).toHaveBeenCalledTimes(1);
+      expect(sendEmailSpy).toHaveBeenCalledTimes(1);
 
-    expect(sendEmailSpy).toHaveBeenCalledWith(
-      expect.objectContaining({
-        to: ['test@example.com'],
-        subject: 'Confirm your weather subscription for London',
-        from: `${configService.get('EMAIL_NAME')} <${configService.get('EMAIL_FROM')}>`,
-        html: expect.stringMatching(/http:\/\/localhost:\d+\/api\/confirm\/.+?/),
-        text: expect.stringMatching(/http:\/\/localhost:\d+\/api\/confirm\/.+?/),
-      }),
-    );
+      expect(sendEmailSpy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          to: ['test@example.com'],
+          subject: 'Confirm your weather subscription for London',
+          from: `${configService.get('EMAIL_NAME')} <${configService.get('EMAIL_FROM')}>`,
+          html: expect.stringMatching(/http:\/\/localhost:\d+\/api\/confirm\/.+?/),
+          text: expect.stringMatching(/http:\/\/localhost:\d+\/api\/confirm\/.+?/),
+        }),
+      );
 
-    await expectNoSubscriptions();
-  });
+      await expectNoSubscriptions();
+    },
+  );
 
-  it.each(['daily', 'hourly'])(
+  it.each([Frequency.Daily, Frequency.Hourly])(
     'does not send email when invalid city is provided with %s frequency',
     async (frequency) => {
       await page.goto(BASE_URL);
@@ -308,24 +312,7 @@ describe('Root Page E2E Tests', () => {
     },
   );
 
-  it('validates required fields', async () => {
-    await page.goto(BASE_URL);
-
-    await page.locator('button[type="submit"]').click();
-
-    expect(page.url()).toContain(BASE_URL.replace(/\/$/, ''));
-
-    const emailValid = await page.evaluate(() => {
-      const emailInput = document.getElementById('email') as HTMLInputElement;
-      return emailInput.validity.valid;
-    });
-    expect(emailValid).toBe(false);
-
-    expect(sendEmailSpy).not.toHaveBeenCalled();
-    await expectNoSubscriptions();
-  });
-
-  it.each(['daily', 'hourly'])(
+  it.each([Frequency.Daily, Frequency.Hourly])(
     'falls back to open-meteo when weather API fails for %s frequency',
     async (frequency) => {
       mswServer.use(
@@ -366,4 +353,21 @@ describe('Root Page E2E Tests', () => {
       await expectNoSubscriptions();
     },
   );
+
+  it('validates required fields', async () => {
+    await page.goto(BASE_URL);
+
+    await page.locator('button[type="submit"]').click();
+
+    expect(page.url()).toContain(BASE_URL.replace(/\/$/, ''));
+
+    const emailValid = await page.evaluate(() => {
+      const emailInput = document.getElementById('email') as HTMLInputElement;
+      return emailInput.validity.valid;
+    });
+    expect(emailValid).toBe(false);
+
+    expect(sendEmailSpy).not.toHaveBeenCalled();
+    await expectNoSubscriptions();
+  });
 });
