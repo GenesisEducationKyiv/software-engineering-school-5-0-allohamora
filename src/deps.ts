@@ -1,7 +1,7 @@
 import { CronerCronService, CronService } from './services/cron.service.js';
 import { DrizzleSubscriptionRepository, SubscriptionRepository } from './repositories/subscription.repository.js';
 import { FastJwtService, JwtService } from './services/jwt.service.js';
-import { ApiWeatherService, WeatherService } from './services/weather.service.js';
+import { ProviderWeatherService, WeatherService } from './services/weather.service.js';
 import {
   HandleSubscriptionService,
   WeatherHandleSubscriptionService,
@@ -14,6 +14,7 @@ import { SendEmailTemplateService, JsxSendEmailTemplateService } from './service
 import { LoggerService, PinoLoggerService } from './services/logger.service.js';
 import { DrizzleDbService } from './services/db.service.js';
 import { ConfigService, ZnvConfigService } from './services/config.service.js';
+import { ApiWeatherProvider } from './providers/weather/api-weather.provider.js';
 
 export const makeDeps = () => {
   const configService: ConfigService = new ZnvConfigService();
@@ -25,7 +26,7 @@ export const makeDeps = () => {
 
   const jwtService: JwtService = new FastJwtService(configService);
 
-  const weatherService: WeatherService = new ApiWeatherService(configService);
+  const weatherService: WeatherService = new ProviderWeatherService(new ApiWeatherProvider(configService));
 
   const sendEmailService: SendEmailService = new ResendSendEmailService(
     loggerService.createLogger('ResendSendEmailService'),
