@@ -61,7 +61,7 @@ Before running the application, you'll need:
 5. Start the required services with Docker:
 
    ```bash
-   docker compose up -d pg
+   docker compose up -d
    ```
 
 6. Run the application in development mode:
@@ -91,7 +91,7 @@ For a full production-like environment:
 4. Start the application and all services using Docker:
 
    ```bash
-   docker compose up -d
+   docker compose --profile production up -d
    ```
 
 5. Access the application:

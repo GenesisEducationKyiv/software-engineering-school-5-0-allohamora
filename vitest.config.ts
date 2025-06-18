@@ -5,20 +5,7 @@ export default defineConfig({
   test: {
     globals: true,
     watch: false,
-    maxWorkers: 1,
-    minWorkers: 1,
-    poolOptions: {
-      threads: {
-        singleThread: true,
-        minThreads: 1,
-        maxThreads: 1,
-      },
-      forks: {
-        singleFork: true,
-        minForks: 1,
-        maxForks: 1,
-      },
-    },
+    include: ['**/__tests__/unit/**/*.spec.ts'],
   },
   plugins: [tsconfigPathsPlugin()],
 });

@@ -1,4 +1,4 @@
-import { ctx } from '__tests__/setup-e2e-context.js';
+import { ctx } from '__tests__/setup-integration-context.js';
 import { Frequency } from 'src/db.schema.js';
 import { SubscribeOptions } from 'src/services/subscription.service.js';
 import { HttpStatus } from 'src/types/http.types.js';
@@ -13,7 +13,7 @@ import { Server } from 'src/server.js';
 import { DrizzleDb } from 'src/services/db.service.js';
 import { SendEmailService } from 'src/services/send-email.service.js';
 
-describe('subscription controller (e2e)', () => {
+describe('subscription controller (integration)', () => {
   let weatherService: WeatherService;
   let subscriptionRepository: SubscriptionRepository;
   let jwtService: JwtService;
