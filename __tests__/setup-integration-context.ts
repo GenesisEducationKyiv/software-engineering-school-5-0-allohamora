@@ -1,9 +1,9 @@
 import './mocks';
-import { DrizzleDb } from 'src/services/db.service.js';
+import { Db } from 'src/services/db.service.js';
 import { makeDeps } from 'src/deps.js';
 
 const deps = makeDeps();
-export const ctx: ReturnType<typeof makeDeps> & { db: DrizzleDb } = { ...deps, db: deps.dbService.getConnection() };
+export const ctx: ReturnType<typeof makeDeps> & { db: Db } = { ...deps, db: deps.dbService.getConnection() };
 
 beforeAll(async () => {
   await ctx.dbService.runMigrations();

@@ -1,21 +1,17 @@
 import Dataloader from 'dataloader';
 import { Frequency } from 'src/db.schema.js';
 import { SubscriptionRepository } from 'src/repositories/subscription.repository.js';
-import { Weather, WeatherService } from './weather.service.js';
 import { SendEmailTemplateService } from './send-email-template.service.js';
 import { Logger } from './logger.service.js';
 import { ConfigService } from './config.service.js';
+import { Weather, WeatherProvider } from 'src/providers/weather/weather.provider.js';
 
-export interface HandleSubscriptionService {
-  createWeatherSubscriptionHandler: (frequency: Frequency) => () => Promise<void>;
-}
-
-export class WeatherHandleSubscriptionService implements HandleSubscriptionService {
+export class HandleSubscriptionService {
   private appUrl: string;
 
   constructor(
     private subscriptionRepository: SubscriptionRepository,
-    private weatherService: WeatherService,
+    private weatherProvider: WeatherProvider,
     private sendEmailTemplateService: SendEmailTemplateService,
     private logger: Logger,
     configService: ConfigService,
@@ -34,7 +30,7 @@ export class WeatherHandleSubscriptionService implements HandleSubscriptionServi
       const dataloader = new Dataloader<string, Weather>(async (cities) => {
         return await Promise.all(
           cities.map(async (city) => {
-            return await this.weatherService.getWeather(city);
+            return await this.weatherProvider.getWeather(city);
           }),
         );
       });

@@ -1,7 +1,7 @@
 import { Mock } from 'vitest';
 import { http, HttpResponse } from 'msw';
 import { setupServer } from 'msw/node';
-import { ResendSendEmailService, SendEmailOptions } from 'src/services/send-email.service.js';
+import { SendEmailService, SendEmailOptions } from 'src/services/send-email.service.js';
 import { Exception } from 'src/exception.js';
 import { makeConfigMock } from '__tests__/utils/config.utils.js';
 
@@ -13,7 +13,7 @@ describe('ResendSendEmailService (unit)', () => {
 
   let errorSpy: Mock;
 
-  let sendEmailService: ResendSendEmailService;
+  let sendEmailService: SendEmailService;
 
   const server = setupServer(
     http.post(RESEND_API_URL, async ({ request }) => {
@@ -41,7 +41,7 @@ describe('ResendSendEmailService (unit)', () => {
   beforeEach(() => {
     errorSpy = vitest.fn();
 
-    sendEmailService = new ResendSendEmailService(
+    sendEmailService = new SendEmailService(
       { error: errorSpy, info: vi.fn() },
       makeConfigMock({ EMAIL_NAME, EMAIL_FROM, RESEND_API_KEY }),
     );

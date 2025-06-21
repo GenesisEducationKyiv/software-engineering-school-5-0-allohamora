@@ -15,7 +15,6 @@ export default tseslint.config(
     languageOptions: { globals: { ...globals.node }, parserOptions: { project: true } },
     plugins: { 'beautiful-sort': beautifulSort },
     rules: {
-      'no-use-before-define': 'error',
       'object-shorthand': 'warn',
       'no-async-promise-executor': 'warn',
       '@typescript-eslint/interface-name-prefix': 'off',

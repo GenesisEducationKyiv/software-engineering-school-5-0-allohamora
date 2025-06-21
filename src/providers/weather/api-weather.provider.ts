@@ -1,5 +1,7 @@
 import { Exception, ExceptionCode } from 'src/exception.js';
-import { ConfigService } from './config.service.js';
+import { ConfigService } from 'src/services/config.service.js';
+import { Weather, WeatherProvider } from './weather.provider.js';
+import { HttpService } from 'src/services/http.service.js';
 
 const API_URL = 'https://api.weatherapi.com/v1';
 
@@ -62,31 +64,28 @@ type WeatherErrorResponse = {
   };
 };
 
-export type Weather = {
-  temperature: number; // in Celsius
-  humidity: number; // in percentage
-  description: string; // e.g., "Sunny"
-};
-
-export interface WeatherService {
-  getWeather: (city: string) => Promise<Weather>;
-  validateCity: (city: string) => Promise<void>;
-}
-
-export class ApiWeatherService implements WeatherService {
+export class ApiWeatherProvider extends WeatherProvider {
   private weatherApiKey: string;
 
-  constructor(configService: ConfigService) {
+  constructor(
+    private httpService: HttpService,
+    configService: ConfigService,
+  ) {
+    super();
+
     this.weatherApiKey = configService.get('WEATHER_API_KEY');
   }
 
-  public async getWeather(city: string): Promise<Weather> {
-    const query = new URLSearchParams({
-      key: this.weatherApiKey,
-      q: city,
+  public override async getWeather(city: string): Promise<Weather> {
+    const res = await this.httpService.get({
+      url: `${API_URL}/current.json`,
+      params: {
+        key: this.weatherApiKey,
+        q: city,
+      },
+      handleIsOk: false,
     });
 
-    const res = await fetch(`${API_URL}/current.json?${query.toString()}`);
     const data = await res.json();
 
     if (res.ok) {
@@ -105,15 +104,23 @@ export class ApiWeatherService implements WeatherService {
       throw new Exception(ExceptionCode.NOT_FOUND, error.message);
     }
 
+    if (this.next) {
+      return await this.next.getWeather(city);
+    }
+
     throw new Exception(ExceptionCode.INTERNAL_SERVER_ERROR, error?.message);
   }
 
-  public async validateCity(city: string): Promise<void> {
+  public override async validateCity(city: string): Promise<void> {
     try {
       await this.getWeather(city);
     } catch (error) {
       if (error instanceof Exception && error.code === ExceptionCode.NOT_FOUND) {
         throw new Exception(ExceptionCode.VALIDATION_ERROR, 'City not found');
+      }
+
+      if (this.next) {
+        return await this.next.validateCity(city);
       }
 
       throw error;

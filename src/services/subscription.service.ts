@@ -2,9 +2,9 @@ import { Frequency } from 'src/db.schema.js';
 import { JwtService } from './jwt.service.js';
 import { SubscriptionRepository } from 'src/repositories/subscription.repository.js';
 import { Exception, ExceptionCode } from 'src/exception.js';
-import { WeatherService } from './weather.service.js';
 import { SendEmailTemplateService } from './send-email-template.service.js';
 import { ConfigService } from './config.service.js';
+import { WeatherProvider } from 'src/providers/weather/weather.provider.js';
 
 export type SubscribeOptions = {
   email: string;
@@ -12,19 +12,13 @@ export type SubscribeOptions = {
   frequency: Frequency;
 };
 
-export interface SubscriptionService {
-  subscribe: (options: SubscribeOptions) => Promise<void>;
-  confirm: (token: string) => Promise<void>;
-  unsubscribe: (subscriptionId: string) => Promise<void>;
-}
-
-export class WeatherSubscriptionService implements SubscriptionService {
+export class SubscriptionService {
   private appUrl: string;
 
   constructor(
     private jwtService: JwtService,
     private subscriptionRepository: SubscriptionRepository,
-    private weatherService: WeatherService,
+    private weatherProvider: WeatherProvider,
     private sendEmailTemplateService: SendEmailTemplateService,
     configService: ConfigService,
   ) {
@@ -46,7 +40,7 @@ export class WeatherSubscriptionService implements SubscriptionService {
   public async subscribe(options: SubscribeOptions) {
     await this.assertIsSubscriptionExists(options.email);
 
-    await this.weatherService.validateCity(options.city);
+    await this.weatherProvider.validateCity(options.city);
 
     const token = await this.jwtService.sign(options);
     const confirmationLink = this.makeConfirmationLink(token);

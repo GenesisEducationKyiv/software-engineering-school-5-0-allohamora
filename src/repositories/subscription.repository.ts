@@ -1,17 +1,10 @@
 import { eq } from 'drizzle-orm';
 import { Frequency, subscriptions } from 'src/db.schema.js';
 import { Exception, ExceptionCode } from 'src/exception.js';
-import { DrizzleDb } from 'src/services/db.service.js';
+import { Db } from 'src/services/db.service.js';
 
-export interface SubscriptionRepository {
-  createSubscription(data: typeof subscriptions.$inferInsert): Promise<typeof subscriptions.$inferSelect>;
-  isSubscriptionExists(email: string): Promise<boolean>;
-  removeSubscriptionById(id: string): Promise<(typeof subscriptions.$inferSelect)[]>;
-  iterateSubscriptions(frequency: Frequency, limit?: number): AsyncGenerator<(typeof subscriptions.$inferSelect)[]>;
-}
-
-export class DrizzleSubscriptionRepository implements SubscriptionRepository {
-  constructor(private db: DrizzleDb) {}
+export class SubscriptionRepository {
+  constructor(private db: Db) {}
 
   async createSubscription(data: typeof subscriptions.$inferInsert) {
     const [item] = await this.db.insert(subscriptions).values(data).returning();

@@ -12,11 +12,7 @@ export type SendEmailOptions = {
   react?: JSX.Element;
 };
 
-export interface SendEmailService {
-  sendEmail: (options: SendEmailOptions) => Promise<void>;
-}
-
-export class ResendSendEmailService implements SendEmailService {
+export class SendEmailService {
   private emailName: string;
   private emailFrom: string;
   private resend: Resend;

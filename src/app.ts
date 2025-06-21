@@ -9,11 +9,7 @@ import { ConfigService } from './services/config.service.js';
 
 const GRACEFUL_SHUTDOWN_DELAY = 15_000;
 
-export interface App {
-  start(): Promise<void>;
-}
-
-export class CronServerApp implements App {
+export class App {
   private port: number;
   private nodeEnv: string;
 
