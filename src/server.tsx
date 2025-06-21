@@ -16,12 +16,7 @@ export type ServerInfo = {
   server: ServerType;
 }
 
-export type Server = {
-  serve(port: number): Promise<ServerInfo>;
-  request(input: RequestInfo | URL, requestInit?: RequestInit): Promise<Response>;
-}
-
-export class HonoServer implements Server {
+export class Server {
   constructor(
     private weatherProvider: WeatherProvider,
     private subscriptionService: SubscriptionService,

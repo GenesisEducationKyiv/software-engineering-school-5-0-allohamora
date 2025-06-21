@@ -1,58 +1,52 @@
-import { CronerCronService, CronService } from './services/cron.service.js';
-import { DrizzleSubscriptionRepository, SubscriptionRepository } from './repositories/subscription.repository.js';
-import { FastJwtService, JwtService } from './services/jwt.service.js';
-import {
-  HandleSubscriptionService,
-  WeatherHandleSubscriptionService,
-} from 'src/services/handle-subscription.service.js';
-import { SubscriptionService, WeatherSubscriptionService } from './services/subscription.service.js';
-import { Server, HonoServer } from './server.js';
-import { App, CronServerApp } from './app.js';
-import { SendEmailService, ResendSendEmailService } from 'src/services/send-email.service.js';
-import { SendEmailTemplateService, JsxSendEmailTemplateService } from './services/send-email-template.service.js';
-import { LoggerService, PinoLoggerService } from './services/logger.service.js';
-import { DrizzleDbService } from './services/db.service.js';
-import { ConfigService, ZnvConfigService } from './services/config.service.js';
+import { CronService } from './services/cron.service.js';
+import { SubscriptionRepository } from './repositories/subscription.repository.js';
+import { JwtService } from './services/jwt.service.js';
+import { HandleSubscriptionService } from 'src/services/handle-subscription.service.js';
+import { SubscriptionService } from './services/subscription.service.js';
+import { Server } from './server.js';
+import { App } from './app.js';
+import { SendEmailService } from 'src/services/send-email.service.js';
+import { SendEmailTemplateService } from './services/send-email-template.service.js';
+import { LoggerService } from './services/logger.service.js';
+import { DbService } from './services/db.service.js';
+import { ConfigService } from './services/config.service.js';
 import { ApiWeatherProvider } from './providers/weather/api-weather.provider.js';
 import { OpenMeteoProvider } from './providers/weather/open-meteo.provider.js';
-import { FetchHttpService, HttpService } from './services/http.service.js';
+import { HttpService } from './services/http.service.js';
 import { HttpLoggerProxy } from './proxies/http-logger.proxy.js';
 import { WeatherProvider } from './providers/weather/weather.provider.js';
 
 export const makeDeps = () => {
-  const configService: ConfigService = new ZnvConfigService();
-  const loggerService: LoggerService = new PinoLoggerService(configService);
-  const httpService: HttpService = new HttpLoggerProxy(new FetchHttpService(), configService);
+  const configService = new ConfigService();
+  const loggerService = new LoggerService(configService);
+  const httpService: HttpService = new HttpLoggerProxy(new HttpService(), configService);
 
-  const dbService = new DrizzleDbService(configService);
+  const dbService = new DbService(configService);
 
-  const subscriptionRepository: SubscriptionRepository = new DrizzleSubscriptionRepository(dbService.getConnection());
+  const subscriptionRepository = new SubscriptionRepository(dbService.getConnection());
 
-  const jwtService: JwtService = new FastJwtService(configService);
+  const jwtService = new JwtService(configService);
 
   const weatherProvider: WeatherProvider = new ApiWeatherProvider(httpService, configService).setNext(
     new OpenMeteoProvider(httpService),
   );
 
-  const sendEmailService: SendEmailService = new ResendSendEmailService(
-    loggerService.createLogger('ResendSendEmailService'),
-    configService,
-  );
+  const sendEmailService = new SendEmailService(loggerService.createLogger('SendEmailService'), configService);
 
-  const sendEmailTemplateService: SendEmailTemplateService = new JsxSendEmailTemplateService(
+  const sendEmailTemplateService = new SendEmailTemplateService(
     sendEmailService,
-    loggerService.createLogger('JsxSendEmailTemplateService'),
+    loggerService.createLogger('SendEmailTemplateService'),
   );
 
-  const handleSubscriptionService: HandleSubscriptionService = new WeatherHandleSubscriptionService(
+  const handleSubscriptionService = new HandleSubscriptionService(
     subscriptionRepository,
     weatherProvider,
     sendEmailTemplateService,
-    loggerService.createLogger('WeatherHandleSubscriptionService'),
+    loggerService.createLogger('HandleSubscriptionService'),
     configService,
   );
 
-  const subscriptionService: SubscriptionService = new WeatherSubscriptionService(
+  const subscriptionService = new SubscriptionService(
     jwtService,
     subscriptionRepository,
     weatherProvider,
@@ -60,17 +54,11 @@ export const makeDeps = () => {
     configService,
   );
 
-  const cronService: CronService = new CronerCronService(handleSubscriptionService);
+  const cronService = new CronService(handleSubscriptionService);
 
-  const server: Server = new HonoServer(weatherProvider, subscriptionService);
+  const server = new Server(weatherProvider, subscriptionService);
 
-  const app: App = new CronServerApp(
-    server,
-    cronService,
-    dbService,
-    loggerService.createLogger('CronServerApp'),
-    configService,
-  );
+  const app = new App(server, cronService, dbService, loggerService.createLogger('App'), configService);
 
   return {
     app,

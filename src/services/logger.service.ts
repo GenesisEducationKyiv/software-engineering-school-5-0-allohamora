@@ -6,11 +6,7 @@ export type Logger = {
   error: (data: { err: Error | unknown } & Record<string, unknown>) => void;
 };
 
-export interface LoggerService {
-  createLogger: (name: string) => Logger;
-}
-
-export class PinoLoggerService implements LoggerService {
+export class LoggerService {
   private pino: Pino;
 
   constructor(configService: ConfigService) {

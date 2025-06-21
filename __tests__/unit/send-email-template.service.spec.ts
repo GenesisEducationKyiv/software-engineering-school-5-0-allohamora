@@ -1,7 +1,8 @@
 import { Mock } from 'vitest';
-import { JsxSendEmailTemplateService, SendEmailTemplateService } from 'src/services/send-email-template.service.js';
+import { SendEmailTemplateService } from 'src/services/send-email-template.service.js';
+import { SendEmailService } from 'src/services/send-email.service.js';
 
-describe('JsxSendEmailTemplateService (unit)', () => {
+describe('SendEmailTemplateService (unit)', () => {
   let service: SendEmailTemplateService;
 
   let sendEmailSpy: Mock;
@@ -11,7 +12,11 @@ describe('JsxSendEmailTemplateService (unit)', () => {
     loggerInfoSpy = vitest.fn();
     sendEmailSpy = vitest.fn();
 
-    service = new JsxSendEmailTemplateService({ sendEmail: sendEmailSpy }, { info: loggerInfoSpy, error: vi.fn() });
+    service = new SendEmailTemplateService(
+      // typescript forces us to implement all private methods
+      { sendEmail: sendEmailSpy } as unknown as SendEmailService,
+      { info: loggerInfoSpy, error: vi.fn() },
+    );
   });
 
   describe('sendSubscribeEmail', () => {

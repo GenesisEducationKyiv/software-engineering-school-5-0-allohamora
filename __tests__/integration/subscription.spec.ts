@@ -9,7 +9,7 @@ import { createSigner } from 'fast-jwt';
 import { SubscriptionRepository } from 'src/repositories/subscription.repository.js';
 import { JwtService } from 'src/services/jwt.service.js';
 import { Server } from 'src/server.js';
-import { DrizzleDb } from 'src/services/db.service.js';
+import { Db } from 'src/services/db.service.js';
 import { SendEmailService } from 'src/services/send-email.service.js';
 import { WeatherProvider } from 'src/providers/weather/weather.provider.js';
 
@@ -19,7 +19,7 @@ describe('subscription controller (integration)', () => {
   let jwtService: JwtService;
   let sendEmailService: SendEmailService;
   let server: Server;
-  let db: DrizzleDb;
+  let db: Db;
 
   let validateCitySpy: MockInstance;
   let sendEmailSpy: MockInstance;

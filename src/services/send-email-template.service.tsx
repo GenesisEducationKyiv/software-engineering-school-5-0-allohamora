@@ -18,12 +18,7 @@ type WeatherUpdateEmailOptions = {
   description: string;
 };
 
-export type SendEmailTemplateService = {
-  sendSubscribeEmail: (options: SubscribeEmailOptions) => Promise<void>;
-  sendWeatherUpdateEmail: (options: WeatherUpdateEmailOptions) => Promise<void>;
-}
-
-export class JsxSendEmailTemplateService implements SendEmailTemplateService {
+export class SendEmailTemplateService {
   constructor(
     private sendEmailService: SendEmailService,
     private logger: Logger

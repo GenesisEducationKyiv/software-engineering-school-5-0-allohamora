@@ -27,11 +27,7 @@ const configSchema = {
 
 export type Config = ParsedSchema<typeof configSchema>;
 
-export interface ConfigService {
-  get<T extends keyof Config>(key: T): Config[T];
-}
-
-export class ZnvConfigService implements ConfigService {
+export class ConfigService {
   protected config: Config;
 
   constructor() {

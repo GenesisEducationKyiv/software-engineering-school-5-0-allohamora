@@ -12,13 +12,7 @@ export type SubscribeOptions = {
   frequency: Frequency;
 };
 
-export interface SubscriptionService {
-  subscribe: (options: SubscribeOptions) => Promise<void>;
-  confirm: (token: string) => Promise<void>;
-  unsubscribe: (subscriptionId: string) => Promise<void>;
-}
-
-export class WeatherSubscriptionService implements SubscriptionService {
+export class SubscriptionService {
   private appUrl: string;
 
   constructor(

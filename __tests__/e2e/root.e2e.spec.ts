@@ -1,6 +1,6 @@
 import '../mocks/config.mock.js';
 import { ServerType } from '@hono/node-server';
-import { DrizzleDb, DrizzleDbService } from 'src/services/db.service.js';
+import { Db, DbService } from 'src/services/db.service.js';
 import { Browser, chromium, Page } from 'playwright';
 import { Server } from 'src/server.js';
 import { http, HttpResponse } from 'msw';
@@ -16,8 +16,8 @@ describe('Root Page E2E Tests', () => {
   let page: Page;
 
   let configService: ConfigService;
-  let dbService: DrizzleDbService;
-  let db: DrizzleDb;
+  let dbService: DbService;
+  let db: Db;
   let server: Server;
   let httpServer: ServerType;
 

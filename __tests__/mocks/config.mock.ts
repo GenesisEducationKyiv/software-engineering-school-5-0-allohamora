@@ -1,13 +1,13 @@
 import { config } from 'dotenv';
 
 vitest.mock('src/services/config.service.js', async (importOriginal) => {
-  const { ZnvConfigService } = await importOriginal<typeof import('src/services/config.service.js')>();
+  const { ConfigService } = await importOriginal<typeof import('src/services/config.service.js')>();
 
   const result = config({ path: '.env.example' });
   if (result.error) {
     throw result.error;
   }
-  class MockZnvConfigService extends ZnvConfigService {
+  class MockConfigService extends ConfigService {
     protected override setConfig() {
       this.config = {
         ...result.parsed,
@@ -25,5 +25,5 @@ vitest.mock('src/services/config.service.js', async (importOriginal) => {
     }
   }
 
-  return { ZnvConfigService: MockZnvConfigService };
+  return { ConfigService: MockConfigService };
 });

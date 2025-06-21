@@ -8,20 +8,13 @@ import { ConfigService } from './config.service.js';
 
 const MIGRATIONS_DIR = path.join(import.meta.dirname, '..', '..', 'migrations');
 
-export interface DbService<T = unknown> {
-  runMigrations(): Promise<void>;
-  disconnectFromDb(): Promise<void>;
-  clearDb(): Promise<void>;
-  getConnection(): T;
-}
-
-export type DrizzleDb = PostgresJsDatabase<typeof schema> & {
+export type Db = PostgresJsDatabase<typeof schema> & {
   $client: postgres.Sql;
 };
 
-export class DrizzleDbService implements DbService<DrizzleDb> {
+export class DbService {
   private client: postgres.Sql;
-  private db: DrizzleDb;
+  private db: Db;
 
   constructor(configService: ConfigService) {
     this.client = postgres(configService.get('POSTGRES_URL'), { onnotice: () => {} });

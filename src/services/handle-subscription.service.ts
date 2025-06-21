@@ -6,11 +6,7 @@ import { Logger } from './logger.service.js';
 import { ConfigService } from './config.service.js';
 import { Weather, WeatherProvider } from 'src/providers/weather/weather.provider.js';
 
-export interface HandleSubscriptionService {
-  createWeatherSubscriptionHandler: (frequency: Frequency) => () => Promise<void>;
-}
-
-export class WeatherHandleSubscriptionService implements HandleSubscriptionService {
+export class HandleSubscriptionService {
   private appUrl: string;
 
   constructor(
