@@ -10,7 +10,7 @@ export type GetOptions = BuildUrlOptions & {
 };
 
 // typescript forces you to implement all private methods if you will use class as interface
-// and this will affect proxies, to prevent this we assign this private method here
+// and this will affect proxies, to prevent this we create this private method here
 const buildUrl = ({ url, params }: BuildUrlOptions) => {
   const parts = [url];
 
