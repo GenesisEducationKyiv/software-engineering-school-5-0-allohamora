@@ -1,7 +1,6 @@
 import { CronerCronService, CronService } from './services/cron.service.js';
 import { DrizzleSubscriptionRepository, SubscriptionRepository } from './repositories/subscription.repository.js';
 import { FastJwtService, JwtService } from './services/jwt.service.js';
-import { ProviderWeatherService, WeatherService } from './services/weather.service.js';
 import {
   HandleSubscriptionService,
   WeatherHandleSubscriptionService,
@@ -18,6 +17,7 @@ import { ApiWeatherProvider } from './providers/weather/api-weather.provider.js'
 import { OpenMeteoProvider } from './providers/weather/open-meteo.provider.js';
 import { FetchHttpService, HttpService } from './services/http.service.js';
 import { HttpLoggerProxy } from './proxies/http-logger.proxy.js';
+import { WeatherProvider } from './providers/weather/weather.provider.js';
 
 export const makeDeps = () => {
   const configService: ConfigService = new ZnvConfigService();
@@ -30,8 +30,8 @@ export const makeDeps = () => {
 
   const jwtService: JwtService = new FastJwtService(configService);
 
-  const weatherService: WeatherService = new ProviderWeatherService(
-    new ApiWeatherProvider(httpService, configService).setNext(new OpenMeteoProvider(httpService)),
+  const weatherProvider: WeatherProvider = new ApiWeatherProvider(httpService, configService).setNext(
+    new OpenMeteoProvider(httpService),
   );
 
   const sendEmailService: SendEmailService = new ResendSendEmailService(
@@ -46,7 +46,7 @@ export const makeDeps = () => {
 
   const handleSubscriptionService: HandleSubscriptionService = new WeatherHandleSubscriptionService(
     subscriptionRepository,
-    weatherService,
+    weatherProvider,
     sendEmailTemplateService,
     loggerService.createLogger('WeatherHandleSubscriptionService'),
     configService,
@@ -55,14 +55,14 @@ export const makeDeps = () => {
   const subscriptionService: SubscriptionService = new WeatherSubscriptionService(
     jwtService,
     subscriptionRepository,
-    weatherService,
+    weatherProvider,
     sendEmailTemplateService,
     configService,
   );
 
   const cronService: CronService = new CronerCronService(handleSubscriptionService);
 
-  const server: Server = new HonoServer(weatherService, subscriptionService);
+  const server: Server = new HonoServer(weatherProvider, subscriptionService);
 
   const app: App = new CronServerApp(
     server,
@@ -80,7 +80,7 @@ export const makeDeps = () => {
     subscriptionService,
     sendEmailService,
     sendEmailTemplateService,
-    weatherService,
+    weatherProvider,
     jwtService,
     subscriptionRepository,
     dbService,

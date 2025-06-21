@@ -6,15 +6,15 @@ import { MockInstance } from 'vitest';
 import { Exception, ExceptionCode } from 'src/exception.js';
 import { randomUUID } from 'node:crypto';
 import { createSigner } from 'fast-jwt';
-import { WeatherService } from 'src/services/weather.service.js';
 import { SubscriptionRepository } from 'src/repositories/subscription.repository.js';
 import { JwtService } from 'src/services/jwt.service.js';
 import { Server } from 'src/server.js';
 import { DrizzleDb } from 'src/services/db.service.js';
 import { SendEmailService } from 'src/services/send-email.service.js';
+import { WeatherProvider } from 'src/providers/weather/weather.provider.js';
 
 describe('subscription controller (integration)', () => {
-  let weatherService: WeatherService;
+  let weatherProvider: WeatherProvider;
   let subscriptionRepository: SubscriptionRepository;
   let jwtService: JwtService;
   let sendEmailService: SendEmailService;
@@ -25,11 +25,11 @@ describe('subscription controller (integration)', () => {
   let sendEmailSpy: MockInstance;
 
   beforeAll(() => {
-    ({ weatherService, subscriptionRepository, jwtService, sendEmailService, server, db } = ctx);
+    ({ weatherProvider, subscriptionRepository, jwtService, sendEmailService, server, db } = ctx);
   });
 
   beforeEach(async () => {
-    validateCitySpy = vitest.spyOn(weatherService, 'validateCity').mockImplementation(vitest.fn());
+    validateCitySpy = vitest.spyOn(weatherProvider, 'validateCity').mockImplementation(vitest.fn());
     sendEmailSpy = vitest.spyOn(sendEmailService, 'sendEmail').mockImplementation(vitest.fn());
   });
 

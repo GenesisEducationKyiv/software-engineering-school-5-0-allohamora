@@ -6,10 +6,10 @@ import { OpenAPIHono, createRoute } from '@hono/zod-openapi';
 import { makeSubscriptionRoutes } from './controllers/subscription.controller.js';
 import { makeWeatherRoutes } from './controllers/weather.controller.js';
 import { Root } from './root.js';
-import { WeatherService } from './services/weather.service.js';
 import { SubscriptionService } from './services/subscription.service.js';
 import { serve, ServerType } from '@hono/node-server';
 import { AddressInfo } from 'node:net';
+import { WeatherProvider } from './providers/weather/weather.provider.js';
 
 export type ServerInfo = {
   info: AddressInfo;
@@ -23,7 +23,7 @@ export type Server = {
 
 export class HonoServer implements Server {
   constructor(
-    private weatherService: WeatherService,
+    private weatherProvider: WeatherProvider,
     private subscriptionService: SubscriptionService,
     private app = new OpenAPIHono(),
   ) {
@@ -56,7 +56,7 @@ export class HonoServer implements Server {
     this.app.get('/swagger', swaggerUI({ url: '/swagger.json' }));
 
     const apiRouter = new OpenAPIHono();
-    makeWeatherRoutes(apiRouter, this.weatherService);
+    makeWeatherRoutes(apiRouter, this.weatherProvider);
     makeSubscriptionRoutes(apiRouter, this.subscriptionService);
 
     this.app.route('/api', apiRouter);
