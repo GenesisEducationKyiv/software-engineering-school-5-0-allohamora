@@ -1,4 +1,4 @@
-import { makeConfigMock } from '__tests__/utils/config.utils.js';
+import { createConfigMock } from '__tests__/utils/config.utils.js';
 import { JwtService } from 'src/services/jwt.service.js';
 
 describe('JwtService (unit)', () => {
@@ -8,7 +8,7 @@ describe('JwtService (unit)', () => {
   let jwtService: JwtService;
 
   beforeEach(() => {
-    jwtService = new JwtService(makeConfigMock({ JWT_SECRET, JWT_EXPIRES_IN }));
+    jwtService = new JwtService(createConfigMock({ JWT_SECRET, JWT_EXPIRES_IN }));
   });
 
   describe('sign', () => {
@@ -54,7 +54,7 @@ describe('JwtService (unit)', () => {
       const payload = { userId: '123' };
       const token = await jwtService.sign(payload);
       const jwtServiceWithDifferentSecret = new JwtService(
-        makeConfigMock({ JWT_SECRET: 'different-secret', JWT_EXPIRES_IN }),
+        createConfigMock({ JWT_SECRET: 'different-secret', JWT_EXPIRES_IN }),
       );
 
       await expect(jwtServiceWithDifferentSecret.verify(token)).rejects.toThrow();
@@ -62,7 +62,7 @@ describe('JwtService (unit)', () => {
 
     it('throws an error when verifying an expired token', async () => {
       const payload = { userId: '123' };
-      const jwtServiceWithShortExpiry = new JwtService(makeConfigMock({ JWT_SECRET, JWT_EXPIRES_IN: -1 }));
+      const jwtServiceWithShortExpiry = new JwtService(createConfigMock({ JWT_SECRET, JWT_EXPIRES_IN: -1 }));
       const token = await jwtServiceWithShortExpiry.sign(payload);
 
       await expect(jwtServiceWithShortExpiry.verify(token)).rejects.toThrow();

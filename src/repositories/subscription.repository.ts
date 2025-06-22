@@ -1,10 +1,14 @@
 import { eq } from 'drizzle-orm';
 import { Frequency, subscriptions } from 'src/db.schema.js';
 import { Exception, ExceptionCode } from 'src/exception.js';
-import { Db } from 'src/services/db.service.js';
+import { Db, DbService } from 'src/services/db.service.js';
 
 export class SubscriptionRepository {
-  constructor(private db: Db) {}
+  private db: Db;
+
+  constructor(dbService: DbService) {
+    this.db = dbService.getConnection();
+  }
 
   async createSubscription(data: typeof subscriptions.$inferInsert) {
     const [item] = await this.db.insert(subscriptions).values(data).returning();

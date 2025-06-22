@@ -1,6 +1,6 @@
 import { ConfigService, Config } from 'src/services/config.service.js';
 
-export const makeConfigMock = (values: Partial<Config>) => {
+export const createConfigMock = (values: Partial<Config>) => {
   return {
     get: (key: keyof Config) => {
       const value = values[key];

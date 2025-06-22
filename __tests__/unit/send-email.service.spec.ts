@@ -3,7 +3,9 @@ import { http, HttpResponse } from 'msw';
 import { setupServer } from 'msw/node';
 import { SendEmailService, SendEmailOptions } from 'src/services/send-email.service.js';
 import { Exception } from 'src/exception.js';
-import { makeConfigMock } from '__tests__/utils/config.utils.js';
+import { createConfigMock } from '__tests__/utils/config.utils.js';
+import { createMock } from '__tests__/utils/mock.utils.js';
+import { LoggerService } from 'src/services/logger.service.js';
 
 describe('ResendSendEmailService (unit)', () => {
   const EMAIL_NAME = 'Test App';
@@ -42,8 +44,8 @@ describe('ResendSendEmailService (unit)', () => {
     errorSpy = vitest.fn();
 
     sendEmailService = new SendEmailService(
-      { error: errorSpy, info: vi.fn() },
-      makeConfigMock({ EMAIL_NAME, EMAIL_FROM, RESEND_API_KEY }),
+      createMock<LoggerService>({ createLogger: () => ({ error: errorSpy, info: vi.fn() }) }),
+      createConfigMock({ EMAIL_NAME, EMAIL_FROM, RESEND_API_KEY }),
     );
   });
 

@@ -2,7 +2,7 @@ import closeWithGrace, { CloseWithGraceAsyncCallback } from 'close-with-grace';
 import { ServerType } from '@hono/node-server';
 import { Server } from './server.js';
 import { CronService } from './services/cron.service.js';
-import { Logger } from './services/logger.service.js';
+import { Logger, LoggerService } from './services/logger.service.js';
 import { DbService } from './services/db.service.js';
 import { promisify } from 'node:util';
 import { ConfigService } from './services/config.service.js';
@@ -13,15 +13,19 @@ export class App {
   private port: number;
   private nodeEnv: string;
 
+  private logger: Logger;
+
   constructor(
     private server: Server,
     private cronService: CronService,
     private dbService: DbService,
-    private logger: Logger,
+    loggerService: LoggerService,
     configService: ConfigService,
   ) {
     this.port = configService.get('PORT');
     this.nodeEnv = configService.get('NODE_ENV');
+
+    this.logger = loggerService.createLogger('App');
   }
 
   private setupGracefulShutdown(server: ServerType) {

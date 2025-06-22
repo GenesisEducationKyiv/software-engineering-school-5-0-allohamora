@@ -1,7 +1,7 @@
 import { Resend } from 'resend';
 import { Exception, ExceptionCode } from 'src/exception.js';
 import { JSX } from 'hono/jsx/jsx-runtime';
-import { Logger } from './logger.service.js';
+import { Logger, LoggerService } from './logger.service.js';
 import { ConfigService } from './config.service.js';
 
 export type SendEmailOptions = {
@@ -17,14 +17,15 @@ export class SendEmailService {
   private emailFrom: string;
   private resend: Resend;
 
-  constructor(
-    private logger: Logger,
-    configService: ConfigService,
-  ) {
+  private logger: Logger;
+
+  constructor(loggerService: LoggerService, configService: ConfigService) {
     this.emailName = configService.get('EMAIL_NAME');
     this.emailFrom = configService.get('EMAIL_FROM');
 
     this.resend = new Resend(configService.get('RESEND_API_KEY'));
+
+    this.logger = loggerService.createLogger('SendEmailService');
   }
 
   public async sendEmail({ to, title, html, text, react }: SendEmailOptions) {

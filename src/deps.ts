@@ -24,7 +24,7 @@ export const makeDeps = () => {
 
   const dbService = new DbService(configService);
 
-  const subscriptionRepository = new SubscriptionRepository(dbService.getConnection());
+  const subscriptionRepository = new SubscriptionRepository(dbService);
 
   const jwtService = new JwtService(configService);
 
@@ -32,18 +32,15 @@ export const makeDeps = () => {
     new OpenMeteoProvider(httpProvider),
   );
 
-  const sendEmailService = new SendEmailService(loggerService.createLogger('SendEmailService'), configService);
+  const sendEmailService = new SendEmailService(loggerService, configService);
 
-  const sendEmailTemplateService = new SendEmailTemplateService(
-    sendEmailService,
-    loggerService.createLogger('SendEmailTemplateService'),
-  );
+  const sendEmailTemplateService = new SendEmailTemplateService(sendEmailService, loggerService);
 
   const handleSubscriptionService = new HandleSubscriptionService(
     subscriptionRepository,
     weatherProvider,
     sendEmailTemplateService,
-    loggerService.createLogger('HandleSubscriptionService'),
+    loggerService,
     configService,
   );
 
@@ -59,7 +56,7 @@ export const makeDeps = () => {
 
   const server = new Server(weatherProvider, subscriptionService);
 
-  const app = new App(server, cronService, dbService, loggerService.createLogger('App'), configService);
+  const app = new App(server, cronService, dbService, loggerService, configService);
 
   return {
     app,
