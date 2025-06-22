@@ -21,7 +21,7 @@ describe('ResendSendEmailService (unit)', () => {
 
       const authHeader = request.headers.get('Authorization');
       if (authHeader !== `Bearer ${RESEND_API_KEY}`) {
-        return new HttpResponse(JSON.stringify({ error: { message: 'Invalid API key' } }), { status: 401 });
+        return HttpResponse.json({ error: { message: 'Invalid API key' } }, { status: 401 });
       }
 
       return HttpResponse.json({
@@ -91,7 +91,7 @@ describe('ResendSendEmailService (unit)', () => {
     it('throws an exception when the Resend API returns an error', async () => {
       server.use(
         http.post(RESEND_API_URL, async () => {
-          return new HttpResponse(JSON.stringify({ error: { message: 'Failed to send email' } }), { status: 400 });
+          return HttpResponse.json({ error: { message: 'Failed to send email' } }, { status: 400 });
         }),
       );
 
