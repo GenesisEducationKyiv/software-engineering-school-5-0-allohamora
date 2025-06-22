@@ -42,9 +42,9 @@ describe('WeatherHandleSubscriptionService (integration)', () => {
         frequency,
       }));
 
-      for (const subscription of testSubscriptions) {
-        await subscriptionRepository.createSubscription(subscription);
-      }
+      await Promise.all(
+        testSubscriptions.map((subscription) => subscriptionRepository.createSubscription(subscription)),
+      );
 
       await handleSubscriptionService.createWeatherSubscriptionHandler(frequency)();
 
@@ -91,9 +91,9 @@ describe('WeatherHandleSubscriptionService (integration)', () => {
         };
       });
 
-      for (const subscription of testSubscriptions) {
-        await subscriptionRepository.createSubscription(subscription);
-      }
+      await Promise.all(
+        testSubscriptions.map((subscription) => subscriptionRepository.createSubscription(subscription)),
+      );
 
       await handleSubscriptionService.createWeatherSubscriptionHandler(frequency)();
 
