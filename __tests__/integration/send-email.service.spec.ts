@@ -1,42 +1,53 @@
 import { Mock } from 'vitest';
-import { http, HttpResponse } from 'msw';
-import { setupServer } from 'msw/node';
+import { http, HttpResponse, JsonBodyType } from 'msw';
 import { ResendSendEmailService } from 'src/services/send-email.service.js';
 import { Exception } from 'src/exception.js';
 import { makeConfigMock } from '__tests__/utils/config.utils.js';
+import { createMockServer } from '__tests__/utils/mock-server.utils.js';
 
 describe('ResendSendEmailService (integration)', () => {
   const EMAIL_NAME = 'Test App';
   const EMAIL_FROM = 'test@example.com';
   const RESEND_API_KEY = 'test_api_key';
-  const RESEND_API_URL = 'https://api.resend.com/emails';
 
   let errorSpy: Mock;
 
   let sendEmailService: ResendSendEmailService;
 
-  const server = setupServer(
-    http.post(RESEND_API_URL, async ({ request }) => {
-      const requestBody = (await request.json()) as Record<string, unknown>;
+  const mockServer = createMockServer();
 
-      const authHeader = request.headers.get('Authorization');
-      if (authHeader !== `Bearer ${RESEND_API_KEY}`) {
-        return HttpResponse.json({ error: { message: 'Invalid API key' } }, { status: 401 });
-      }
+  const emailApi = {
+    mock: (fn: (requestBody: Record<string, unknown>) => HttpResponse<JsonBodyType>) => {
+      return http.post('https://api.resend.com/emails', async ({ request }) => {
+        const requestBody = (await request.json()) as Record<string, unknown>;
 
-      return HttpResponse.json({
-        id: 'mock-email-id',
-        from: requestBody.from,
-        to: requestBody.to,
+        return fn(requestBody);
       });
-    }),
-    http.all('*', ({ request }) => {
-      console.error(`[MSW] Request not in whitelist: ${request.method} ${request.url}`);
-      return HttpResponse.error();
-    }),
-  );
+    },
+    ok: () =>
+      emailApi.mock(({ from, to }) =>
+        HttpResponse.json({
+          id: 'mock-email-id',
+          from,
+          to,
+        }),
+      ),
+    unauthorized: () =>
+      emailApi.mock(() => HttpResponse.json({ error: { message: 'Invalid API key' } }, { status: 401 })),
+    badRequest: () =>
+      emailApi.mock(() =>
+        HttpResponse.json(
+          {
+            error: { message: 'Invalid request' },
+          },
+          { status: 400 },
+        ),
+      ),
+  };
 
-  beforeAll(() => server.listen());
+  beforeAll(() => {
+    mockServer.start();
+  });
 
   beforeEach(() => {
     errorSpy = vitest.fn();
@@ -48,14 +59,20 @@ describe('ResendSendEmailService (integration)', () => {
   });
 
   afterEach(() => {
-    server.resetHandlers();
+    // here is the solution used https://github.com/mswjs/msw/issues/946#issuecomment-1572768939
+    expect(mockServer.onUnhandledRequest).not.toHaveBeenCalled();
+    mockServer.onUnhandledRequest.mockClear();
+
+    mockServer.clearHandlers();
     vitest.clearAllMocks();
   });
 
-  afterAll(() => server.close());
+  afterAll(() => mockServer.stop());
 
   describe('sendEmail', () => {
     it('successfully sends an email with HTML content', async () => {
+      mockServer.addHandlers(emailApi.ok());
+
       await expect(
         sendEmailService.sendEmail({
           to: ['recipient@example.com'],
@@ -68,6 +85,8 @@ describe('ResendSendEmailService (integration)', () => {
     });
 
     it('successfully sends an email with text content', async () => {
+      mockServer.addHandlers(emailApi.ok());
+
       await expect(
         sendEmailService.sendEmail({
           to: ['recipient@example.com'],
@@ -80,6 +99,8 @@ describe('ResendSendEmailService (integration)', () => {
     });
 
     it('successfully sends an email to multiple recipients', async () => {
+      mockServer.addHandlers(emailApi.ok());
+
       await expect(
         sendEmailService.sendEmail({
           to: ['recipient1@example.com', 'recipient2@example.com'],
@@ -91,12 +112,8 @@ describe('ResendSendEmailService (integration)', () => {
       expect(errorSpy).not.toHaveBeenCalled();
     });
 
-    it('throws an exception when the Resend API returns an error', async () => {
-      server.use(
-        http.post(RESEND_API_URL, async () => {
-          return HttpResponse.json({ error: { message: 'Failed to send email' } }, { status: 400 });
-        }),
-      );
+    it('throws an exception when the Resend API returns 400', async () => {
+      mockServer.addHandlers(emailApi.badRequest());
 
       await expect(
         sendEmailService.sendEmail({
@@ -109,19 +126,38 @@ describe('ResendSendEmailService (integration)', () => {
       expect(errorSpy).toHaveBeenCalledWith({
         err: {
           error: {
-            message: 'Failed to send email',
+            message: 'Invalid request',
+          },
+        },
+      });
+    });
+
+    it('throws an exception when the Resend API returns 401', async () => {
+      mockServer.addHandlers(emailApi.unauthorized());
+
+      await expect(
+        sendEmailService.sendEmail({
+          to: ['error@example.com'],
+          title: 'Test Email',
+          html: '<p>This is a test email</p>',
+        }),
+      ).rejects.toThrow(Exception);
+
+      expect(errorSpy).toHaveBeenCalledWith({
+        err: {
+          error: {
+            message: 'Invalid API key',
           },
         },
       });
     });
 
     it('formats the from address correctly with name and email', async () => {
-      server.use(
-        http.post(RESEND_API_URL, async ({ request }) => {
-          const requestBody = (await request.json()) as Record<string, unknown>;
-          expect(requestBody.from).toBe(`${EMAIL_NAME} <${EMAIL_FROM}>`);
+      mockServer.addHandlers(
+        emailApi.mock(({ from }) => {
+          expect(from).toBe(`${EMAIL_NAME} <${EMAIL_FROM}>`);
 
-          return HttpResponse.json({ id: 'mock-email-id' });
+          return HttpResponse.json({ id: 'mock-email-id' }, { status: 200 });
         }),
       );
 

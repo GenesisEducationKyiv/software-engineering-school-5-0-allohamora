@@ -3,10 +3,10 @@ import { ServerType } from '@hono/node-server';
 import { DrizzleDb, DrizzleDbService } from 'src/services/db.service.js';
 import { Browser, chromium, Page } from 'playwright';
 import { Server } from 'src/server.js';
-import { http, HttpResponse } from 'msw';
-import { setupServer } from 'msw/node';
+import { http, HttpResponse, JsonBodyType } from 'msw';
 import { createContainer } from 'src/container.js';
 import { Frequency } from 'src/db.schema.js';
+import { createMockServer } from '__tests__/utils/mock-server.utils.js';
 
 describe('Root Page E2E Tests', () => {
   let BASE_URL: string;
@@ -37,13 +37,20 @@ describe('Root Page E2E Tests', () => {
     },
   };
 
-  const mswServer = setupServer(
-    http.get('https://api.weatherapi.com/v1/current.json', ({ request }) => {
-      const url = new URL(request.url);
-      const city = url.searchParams.get('q');
+  const mockServer = createMockServer();
 
-      if (city !== 'London') {
-        return HttpResponse.json(
+  const weatherApi = {
+    mock: (fn: (city: string | null) => HttpResponse<JsonBodyType>) => {
+      return http.get('https://api.weatherapi.com/v1/current.json', ({ request }) => {
+        const url = new URL(request.url);
+        const city = url.searchParams.get('q');
+
+        return fn(city);
+      });
+    },
+    notFound: () =>
+      weatherApi.mock(() =>
+        HttpResponse.json(
           {
             error: {
               code: 1006,
@@ -51,68 +58,74 @@ describe('Root Page E2E Tests', () => {
             },
           },
           { status: 400 },
-        );
-      }
-
-      return HttpResponse.json({
-        location: {
-          name: 'London',
-          region: 'City of London, Greater London',
-          country: 'United Kingdom',
-          lat: 51.5171,
-          lon: -0.1062,
-          tz_id: 'Europe/London',
-          localtime_epoch: 1747148529,
-          localtime: '2025-05-13 16:02',
-        },
-        current: {
-          last_updated_epoch: 1747148400,
-          last_updated: '2025-05-13 16:00',
-          temp_c: 20,
-          temp_f: 68.4,
-          is_day: 1,
-          condition: {
-            text: 'Sunny',
-            icon: '//cdn.weatherapi.com/weather/64x64/day/113.png',
-            code: 1000,
+        ),
+      ),
+    ok: () =>
+      weatherApi.mock((city) =>
+        HttpResponse.json({
+          location: {
+            name: city,
+            region: 'City of London, Greater London',
+            country: 'United Kingdom',
+            lat: 51.5171,
+            lon: -0.1062,
+            tz_id: 'Europe/London',
+            localtime_epoch: 1747148529,
+            localtime: '2025-05-13 16:02',
           },
-          wind_mph: 11.4,
-          wind_kph: 18.4,
-          wind_degree: 81,
-          wind_dir: 'E',
-          pressure_mb: 1018.0,
-          pressure_in: 30.06,
-          precip_mm: 0.0,
-          precip_in: 0.0,
-          humidity: 50,
-          cloud: 0,
-          feelslike_c: 20.2,
-          feelslike_f: 68.4,
-          vis_km: 10.0,
-          vis_miles: 6.0,
-          uv: 3.2,
-          gust_mph: 13.1,
-          gust_kph: 21.1,
-        },
-      });
-    }),
-    http.post('https://api.resend.com/emails', async ({ request }) => {
-      const requestBody = (await request.json()) as Record<string, unknown>;
+          current: {
+            last_updated_epoch: 1747148400,
+            last_updated: '2025-05-13 16:00',
+            temp_c: 20,
+            temp_f: 68.4,
+            is_day: 1,
+            condition: {
+              text: 'Sunny',
+              icon: '//cdn.weatherapi.com/weather/64x64/day/113.png',
+              code: 1000,
+            },
+            wind_mph: 11.4,
+            wind_kph: 18.4,
+            wind_degree: 81,
+            wind_dir: 'E',
+            pressure_mb: 1018.0,
+            pressure_in: 30.06,
+            precip_mm: 0.0,
+            precip_in: 0.0,
+            humidity: 50,
+            cloud: 0,
+            feelslike_c: 20.2,
+            feelslike_f: 68.4,
+            vis_km: 10.0,
+            vis_miles: 6.0,
+            uv: 3.2,
+            gust_mph: 13.1,
+            gust_kph: 21.1,
+          },
+        }),
+      ),
+  };
 
-      return HttpResponse.json({
-        id: 'mock-email-id',
-        from: requestBody.from,
-        to: requestBody.to,
+  const emailApi = {
+    mock: (fn: (requestBody: Record<string, unknown>) => HttpResponse<JsonBodyType>) => {
+      return http.post('https://api.resend.com/emails', async ({ request }) => {
+        const requestBody = (await request.json()) as Record<string, unknown>;
+
+        return fn(requestBody);
       });
-    }),
-    http.all('*', ({ request }) => {
-      console.error(`[MSW] Request not in whitelist: ${request.method} ${request.url}`);
-      return HttpResponse.error();
-    }),
-  );
+    },
+    ok: () =>
+      emailApi.mock(({ from, to }) =>
+        HttpResponse.json({
+          id: 'mock-email-id',
+          from,
+          to,
+        }),
+      ),
+  };
 
   beforeAll(async () => {
-    mswServer.listen();
+    mockServer.start();
 
     ({ dbService, server } = createContainer());
 
@@ -135,11 +148,15 @@ describe('Root Page E2E Tests', () => {
     await dbService.clearDb();
     await page.close();
 
-    mswServer.resetHandlers();
+    // here is the solution used https://github.com/mswjs/msw/issues/946#issuecomment-1572768939
+    expect(mockServer.onUnhandledRequest).not.toHaveBeenCalled();
+    mockServer.onUnhandledRequest.mockClear();
+
+    mockServer.clearHandlers();
   });
 
   afterAll(async () => {
-    mswServer.close();
+    mockServer.stop();
 
     await dbService.disconnectFromDb();
     await browser.close();
@@ -196,6 +213,8 @@ describe('Root Page E2E Tests', () => {
   it.each([Frequency.Daily, Frequency.Hourly])(
     'submits form and handles successful response with %s frequency',
     async (frequency) => {
+      mockServer.addHandlers(weatherApi.ok(), emailApi.ok());
+
       await page.goto(BASE_URL);
 
       await form.email().fill('test@example.com');
@@ -222,6 +241,8 @@ describe('Root Page E2E Tests', () => {
   it.each([Frequency.Daily, Frequency.Hourly])(
     'does not send email when invalid city is provided with %s frequency',
     async (frequency) => {
+      mockServer.addHandlers(weatherApi.notFound());
+
       await page.goto(BASE_URL);
 
       await form.email().fill('test@example.com');
@@ -242,6 +263,8 @@ describe('Root Page E2E Tests', () => {
 
       const subscriptions = await db.query.subscriptions.findMany();
       expect(subscriptions.length).toBe(0);
+
+      expect(mockServer.onUnhandledRequest).not.toHaveBeenCalled();
     },
   );
 
