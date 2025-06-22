@@ -260,10 +260,7 @@ describe('Root Page E2E Tests', () => {
 
     expect(page.url()).toContain(BASE_URL.replace(/\/$/, ''));
 
-    const emailValid = await page.evaluate(() => {
-      const emailInput = document.getElementById('email') as HTMLInputElement;
-      return emailInput.validity.valid;
-    });
+    const emailValid = await page.locator('#email').evaluate((el: HTMLInputElement) => el.validity.valid);
     expect(emailValid).toBe(false);
 
     expect(sendEmailSpy).not.toHaveBeenCalled();
