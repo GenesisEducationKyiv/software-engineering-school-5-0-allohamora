@@ -1,7 +1,7 @@
 import { Mock } from 'vitest';
 import { http, HttpResponse } from 'msw';
 import { setupServer } from 'msw/node';
-import { ResendSendEmailService, SendEmailOptions } from 'src/services/send-email.service.js';
+import { ResendSendEmailService } from 'src/services/send-email.service.js';
 import { Exception } from 'src/exception.js';
 import { makeConfigMock } from '__tests__/utils/config.utils.js';
 
@@ -56,35 +56,38 @@ describe('ResendSendEmailService (unit)', () => {
 
   describe('sendEmail', () => {
     it('successfully sends an email with HTML content', async () => {
-      const emailOptions: SendEmailOptions = {
-        to: ['recipient@example.com'],
-        title: 'Test Email',
-        html: '<p>This is a test email</p>',
-      };
+      await expect(
+        sendEmailService.sendEmail({
+          to: ['recipient@example.com'],
+          title: 'Test Email',
+          html: '<p>This is a test email</p>',
+        }),
+      ).resolves.not.toThrow();
 
-      await expect(sendEmailService.sendEmail(emailOptions)).resolves.not.toThrow();
       expect(errorSpy).not.toHaveBeenCalled();
     });
 
     it('successfully sends an email with text content', async () => {
-      const emailOptions: SendEmailOptions = {
-        to: ['recipient@example.com'],
-        title: 'Test Email',
-        text: 'This is a test email',
-      };
+      await expect(
+        sendEmailService.sendEmail({
+          to: ['recipient@example.com'],
+          title: 'Test Email',
+          text: 'This is a test email',
+        }),
+      ).resolves.not.toThrow();
 
-      await expect(sendEmailService.sendEmail(emailOptions)).resolves.not.toThrow();
       expect(errorSpy).not.toHaveBeenCalled();
     });
 
     it('successfully sends an email to multiple recipients', async () => {
-      const emailOptions: SendEmailOptions = {
-        to: ['recipient1@example.com', 'recipient2@example.com'],
-        title: 'Test Email',
-        html: '<p>This is a test email</p>',
-      };
+      await expect(
+        sendEmailService.sendEmail({
+          to: ['recipient1@example.com', 'recipient2@example.com'],
+          title: 'Test Email',
+          html: '<p>This is a test email</p>',
+        }),
+      ).resolves.not.toThrow();
 
-      await expect(sendEmailService.sendEmail(emailOptions)).resolves.not.toThrow();
       expect(errorSpy).not.toHaveBeenCalled();
     });
 
@@ -95,13 +98,14 @@ describe('ResendSendEmailService (unit)', () => {
         }),
       );
 
-      const emailOptions: SendEmailOptions = {
-        to: ['error@example.com'],
-        title: 'Test Email',
-        html: '<p>This is a test email</p>',
-      };
+      await expect(
+        sendEmailService.sendEmail({
+          to: ['error@example.com'],
+          title: 'Test Email',
+          html: '<p>This is a test email</p>',
+        }),
+      ).rejects.toThrow(Exception);
 
-      await expect(sendEmailService.sendEmail(emailOptions)).rejects.toThrow(Exception);
       expect(errorSpy).toHaveBeenCalledWith({
         err: {
           error: {
@@ -116,17 +120,16 @@ describe('ResendSendEmailService (unit)', () => {
         http.post(RESEND_API_URL, async ({ request }) => {
           const requestBody = (await request.json()) as Record<string, any>;
           expect(requestBody.from).toBe(`${EMAIL_NAME} <${EMAIL_FROM}>`);
+
           return HttpResponse.json({ id: 'mock-email-id' });
         }),
       );
 
-      const emailOptions: SendEmailOptions = {
+      await sendEmailService.sendEmail({
         to: ['recipient@example.com'],
         title: 'Test Email',
         html: '<p>This is a test email</p>',
-      };
-
-      await sendEmailService.sendEmail(emailOptions);
+      });
     });
   });
 });
