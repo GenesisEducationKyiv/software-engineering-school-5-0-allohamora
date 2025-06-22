@@ -118,7 +118,7 @@ describe('ResendSendEmailService (unit)', () => {
     it('formats the from address correctly with name and email', async () => {
       server.use(
         http.post(RESEND_API_URL, async ({ request }) => {
-          const requestBody = (await request.json()) as Record<string, any>;
+          const requestBody = (await request.json()) as Record<string, unknown>;
           expect(requestBody.from).toBe(`${EMAIL_NAME} <${EMAIL_FROM}>`);
 
           return HttpResponse.json({ id: 'mock-email-id' });
