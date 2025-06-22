@@ -12,14 +12,15 @@ import { DbService } from './services/db.service.js';
 import { ConfigService } from './services/config.service.js';
 import { ApiWeatherProvider } from './providers/weather/api-weather.provider.js';
 import { OpenMeteoProvider } from './providers/weather/open-meteo.provider.js';
-import { HttpService } from './services/http.service.js';
-import { HttpLoggerProxy } from './proxies/http-logger.proxy.js';
+import { FetchHttpProvider } from './providers/http/fetch.provider.js';
+import { LoggerHttpProvider } from './providers/http/logger.provider.js';
 import { WeatherProvider } from './providers/weather/weather.provider.js';
+import { HttpProvider } from './providers/http/http.provider.js';
 
 export const makeDeps = () => {
   const configService = new ConfigService();
   const loggerService = new LoggerService(configService);
-  const httpService: HttpService = new HttpLoggerProxy(new HttpService(), configService);
+  const httpProvider: HttpProvider = new LoggerHttpProvider(new FetchHttpProvider(), configService);
 
   const dbService = new DbService(configService);
 
@@ -27,8 +28,8 @@ export const makeDeps = () => {
 
   const jwtService = new JwtService(configService);
 
-  const weatherProvider: WeatherProvider = new ApiWeatherProvider(httpService, configService).setNext(
-    new OpenMeteoProvider(httpService),
+  const weatherProvider: WeatherProvider = new ApiWeatherProvider(httpProvider, configService).setNext(
+    new OpenMeteoProvider(httpProvider),
   );
 
   const sendEmailService = new SendEmailService(loggerService.createLogger('SendEmailService'), configService);
@@ -72,7 +73,7 @@ export const makeDeps = () => {
     jwtService,
     subscriptionRepository,
     dbService,
-    httpService,
+    httpProvider,
     loggerService,
     configService,
   };

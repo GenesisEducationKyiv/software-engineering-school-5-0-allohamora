@@ -1,7 +1,7 @@
 import { Exception, ExceptionCode } from 'src/exception.js';
 import { ConfigService } from 'src/services/config.service.js';
 import { Weather, WeatherProvider } from './weather.provider.js';
-import { HttpService } from 'src/services/http.service.js';
+import { HttpProvider } from '../http/http.provider.js';
 
 const API_URL = 'https://api.weatherapi.com/v1';
 
@@ -68,7 +68,7 @@ export class ApiWeatherProvider extends WeatherProvider {
   private weatherApiKey: string;
 
   constructor(
-    private httpService: HttpService,
+    private httpProvider: HttpProvider,
     configService: ConfigService,
   ) {
     super();
@@ -77,7 +77,7 @@ export class ApiWeatherProvider extends WeatherProvider {
   }
 
   public override async getWeather(city: string): Promise<Weather> {
-    const res = await this.httpService.get({
+    const res = await this.httpProvider.get({
       url: `${API_URL}/current.json`,
       params: {
         key: this.weatherApiKey,

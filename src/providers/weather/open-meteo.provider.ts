@@ -1,6 +1,6 @@
 import { Exception, ExceptionCode } from 'src/exception.js';
 import { Weather, WeatherProvider } from './weather.provider.js';
-import { HttpService } from 'src/services/http.service.js';
+import { HttpProvider } from '../http/http.provider.js';
 
 const GEOCODING_API_URL = 'https://geocoding-api.open-meteo.com/v1';
 const FORECAST_API_URL = 'https://api.open-meteo.com/v1';
@@ -82,12 +82,12 @@ const weatherCodeToDescription: Record<number, string> = {
 };
 
 export class OpenMeteoProvider extends WeatherProvider {
-  constructor(private httpService: HttpService) {
+  constructor(private httpProvider: HttpProvider) {
     super();
   }
 
   private async getCity(city: string) {
-    const res = await this.httpService.get({
+    const res = await this.httpProvider.get({
       url: `${GEOCODING_API_URL}/search`,
       params: {
         name: city,
@@ -114,7 +114,7 @@ export class OpenMeteoProvider extends WeatherProvider {
     try {
       const { latitude, longitude } = await this.getCity(city);
 
-      const res = await this.httpService.get({
+      const res = await this.httpProvider.get({
         url: `${FORECAST_API_URL}/forecast`,
         params: {
           latitude: latitude.toString(),

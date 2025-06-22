@@ -1,16 +1,16 @@
-import { GetOptions, HttpService } from 'src/services/http.service.js';
 import { join } from 'node:path';
 import { appendFile } from 'node:fs/promises';
 import { ConfigService } from 'src/services/config.service.js';
+import { HttpProvider, GetOptions } from './http.provider.js';
 
-const TEMP_DIR = join(import.meta.dirname, '..', '..', '.temp');
+const TEMP_DIR = join(import.meta.dirname, '..', '..', '..', '.temp');
 
-export class HttpLoggerProxy implements HttpService {
+export class LoggerHttpProvider implements HttpProvider {
   private filePath = join(TEMP_DIR, `${Date.now()}.txt`);
   private isEnabled: boolean;
 
   constructor(
-    private httpService: HttpService,
+    private httpProvider: HttpProvider,
     configService: ConfigService,
   ) {
     this.isEnabled = configService.get('WRITE_LOGS_TO_FILES');
@@ -27,7 +27,7 @@ export class HttpLoggerProxy implements HttpService {
   }
 
   public async get(options: GetOptions) {
-    const res = await this.httpService.get(options);
+    const res = await this.httpProvider.get(options);
 
     if (this.isEnabled) {
       void this.logResponse(res.clone());
