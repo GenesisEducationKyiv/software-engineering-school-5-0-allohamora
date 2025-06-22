@@ -1,7 +1,7 @@
-import { makeDeps } from './deps.js';
+import { createContainer } from './container.js';
 
 const main = async () => {
-  const { app } = makeDeps();
+  const { app } = createContainer();
 
   await app.start();
 };

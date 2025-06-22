@@ -5,7 +5,7 @@ import { Browser, chromium, Page } from 'playwright';
 import { Server } from 'src/server.js';
 import { http, HttpResponse } from 'msw';
 import { setupServer } from 'msw/node';
-import { makeDeps } from 'src/deps.js';
+import { createContainer } from 'src/container.js';
 import { ConfigService } from 'src/services/config.service.js';
 import { Frequency } from 'src/db.schema.js';
 
@@ -102,7 +102,7 @@ describe('Root Page E2E Tests', () => {
   beforeAll(async () => {
     mswServer.listen();
 
-    ({ dbService, configService, server } = makeDeps());
+    ({ dbService, configService, server } = createContainer());
 
     db = dbService.getConnection();
 
