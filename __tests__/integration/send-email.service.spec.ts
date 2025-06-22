@@ -5,7 +5,7 @@ import { ResendSendEmailService } from 'src/services/send-email.service.js';
 import { Exception } from 'src/exception.js';
 import { makeConfigMock } from '__tests__/utils/config.utils.js';
 
-describe('ResendSendEmailService (unit)', () => {
+describe('ResendSendEmailService (integration)', () => {
   const EMAIL_NAME = 'Test App';
   const EMAIL_FROM = 'test@example.com';
   const RESEND_API_KEY = 'test_api_key';
