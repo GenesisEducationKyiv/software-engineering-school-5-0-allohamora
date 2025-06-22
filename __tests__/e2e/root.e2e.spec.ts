@@ -128,11 +128,6 @@ describe('Root Page E2E Tests', () => {
     mswServer.resetHandlers();
   });
 
-  const expectNoSubscriptions = async () => {
-    const subscriptions = await db.query.subscriptions.findMany();
-    expect(subscriptions.length).toBe(0);
-  };
-
   afterAll(async () => {
     mswServer.close();
 
@@ -153,7 +148,9 @@ describe('Root Page E2E Tests', () => {
     expect(form).toBe(true);
 
     expect(sendEmailSpy).not.toHaveBeenCalled();
-    await expectNoSubscriptions();
+
+    const subscriptions = await db.query.subscriptions.findMany();
+    expect(subscriptions.length).toBe(0);
   });
 
   it('has all form elements and they are interactive', async () => {
@@ -185,7 +182,9 @@ describe('Root Page E2E Tests', () => {
     expect(frequencyValue).toBe('hourly');
 
     expect(sendEmailSpy).not.toHaveBeenCalled();
-    await expectNoSubscriptions();
+
+    const subscriptions = await db.query.subscriptions.findMany();
+    expect(subscriptions.length).toBe(0);
   });
 
   it.each([Frequency.Daily, Frequency.Hourly])(
@@ -221,7 +220,8 @@ describe('Root Page E2E Tests', () => {
         }),
       );
 
-      await expectNoSubscriptions();
+      const subscriptions = await db.query.subscriptions.findMany();
+      expect(subscriptions.length).toBe(0);
     },
   );
 
@@ -247,7 +247,9 @@ describe('Root Page E2E Tests', () => {
       });
 
       expect(sendEmailSpy).not.toHaveBeenCalled();
-      await expectNoSubscriptions();
+
+      const subscriptions = await db.query.subscriptions.findMany();
+      expect(subscriptions.length).toBe(0);
     },
   );
 
@@ -265,6 +267,8 @@ describe('Root Page E2E Tests', () => {
     expect(emailValid).toBe(false);
 
     expect(sendEmailSpy).not.toHaveBeenCalled();
-    await expectNoSubscriptions();
+
+    const subscriptions = await db.query.subscriptions.findMany();
+    expect(subscriptions.length).toBe(0);
   });
 });
