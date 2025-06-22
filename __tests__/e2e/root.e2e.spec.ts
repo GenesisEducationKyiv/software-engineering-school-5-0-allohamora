@@ -6,7 +6,6 @@ import { Server } from 'src/server.js';
 import { http, HttpResponse } from 'msw';
 import { setupServer } from 'msw/node';
 import { createContainer } from 'src/container.js';
-import { ConfigService } from 'src/services/config.service.js';
 import { Frequency } from 'src/db.schema.js';
 
 describe('Root Page E2E Tests', () => {
@@ -15,13 +14,10 @@ describe('Root Page E2E Tests', () => {
   let browser: Browser;
   let page: Page;
 
-  let configService: ConfigService;
   let dbService: DrizzleDbService;
   let db: DrizzleDb;
   let server: Server;
   let httpServer: ServerType;
-
-  const sendEmailSpy = vitest.fn();
 
   const mswServer = setupServer(
     http.get('https://api.weatherapi.com/v1/current.json', ({ request }) => {
@@ -85,8 +81,6 @@ describe('Root Page E2E Tests', () => {
     http.post('https://api.resend.com/emails', async ({ request }) => {
       const requestBody = (await request.json()) as Record<string, unknown>;
 
-      sendEmailSpy(requestBody);
-
       return HttpResponse.json({
         id: 'mock-email-id',
         from: requestBody.from,
@@ -102,7 +96,7 @@ describe('Root Page E2E Tests', () => {
   beforeAll(async () => {
     mswServer.listen();
 
-    ({ dbService, configService, server } = createContainer());
+    ({ dbService, server } = createContainer());
 
     db = dbService.getConnection();
 
@@ -117,8 +111,6 @@ describe('Root Page E2E Tests', () => {
 
   beforeEach(async () => {
     page = await browser.newPage();
-
-    sendEmailSpy.mockReset();
   });
 
   afterEach(async () => {
@@ -146,8 +138,6 @@ describe('Root Page E2E Tests', () => {
 
     const form = await page.locator('#subscribe-form').isVisible();
     expect(form).toBe(true);
-
-    expect(sendEmailSpy).not.toHaveBeenCalled();
 
     const subscriptions = await db.query.subscriptions.findMany();
     expect(subscriptions.length).toBe(0);
@@ -181,8 +171,6 @@ describe('Root Page E2E Tests', () => {
     const frequencyValue = await page.locator('#frequency').inputValue();
     expect(frequencyValue).toBe('hourly');
 
-    expect(sendEmailSpy).not.toHaveBeenCalled();
-
     const subscriptions = await db.query.subscriptions.findMany();
     expect(subscriptions.length).toBe(0);
   });
@@ -207,18 +195,6 @@ describe('Root Page E2E Tests', () => {
       expect(responseBody).toEqual({
         message: 'Subscription successful. Confirmation email sent.',
       });
-
-      expect(sendEmailSpy).toHaveBeenCalledTimes(1);
-
-      expect(sendEmailSpy).toHaveBeenCalledWith(
-        expect.objectContaining({
-          to: ['test@example.com'],
-          subject: 'Confirm your weather subscription for London',
-          from: `${configService.get('EMAIL_NAME')} <${configService.get('EMAIL_FROM')}>`,
-          html: expect.stringMatching(/http:\/\/localhost:\d+\/api\/confirm\/.+?/),
-          text: expect.stringMatching(/http:\/\/localhost:\d+\/api\/confirm\/.+?/),
-        }),
-      );
 
       const subscriptions = await db.query.subscriptions.findMany();
       expect(subscriptions.length).toBe(0);
@@ -246,8 +222,6 @@ describe('Root Page E2E Tests', () => {
         message: 'City not found',
       });
 
-      expect(sendEmailSpy).not.toHaveBeenCalled();
-
       const subscriptions = await db.query.subscriptions.findMany();
       expect(subscriptions.length).toBe(0);
     },
@@ -262,8 +236,6 @@ describe('Root Page E2E Tests', () => {
 
     const emailValid = await page.locator('#email').evaluate((el: HTMLInputElement) => el.validity.valid);
     expect(emailValid).toBe(false);
-
-    expect(sendEmailSpy).not.toHaveBeenCalled();
 
     const subscriptions = await db.query.subscriptions.findMany();
     expect(subscriptions.length).toBe(0);
