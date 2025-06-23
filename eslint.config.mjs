@@ -27,7 +27,7 @@ export default tseslint.config(
       'beautiful-sort/import': [
         'error',
         {
-          special: ['./mocks', '/setup-.+-context.js$/'],
+          special: ['./mocks', '/config.mock.js$/', '/setup-.+-context.js$/'],
           order: ['special', 'namespace', 'default', 'defaultObj', 'obj', 'none'],
         },
       ],

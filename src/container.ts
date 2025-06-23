@@ -15,7 +15,7 @@ import { LoggerService, PinoLoggerService } from './services/logger.service.js';
 import { DrizzleDbService } from './services/db.service.js';
 import { ConfigService, ZnvConfigService } from './services/config.service.js';
 
-export const makeDeps = () => {
+export const createContainer = () => {
   const configService: ConfigService = new ZnvConfigService();
   const loggerService: LoggerService = new PinoLoggerService(configService);
 
@@ -81,3 +81,5 @@ export const makeDeps = () => {
     configService,
   };
 };
+
+export type Container = ReturnType<typeof createContainer>;

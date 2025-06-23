@@ -1,11 +1,11 @@
-name: test
+name: integration-test
 
 on:
   workflow_dispatch:
   push:
 
 jobs:
-  test:
+  integration-test:
     runs-on: ubuntu-latest
 
     env:
@@ -15,8 +15,11 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Start services
+        run: docker compose up -d
+
       - name: Set up Node.js and dependencies
         uses: ./.github/actions/setup-node
 
-      - name: Run Unit Tests
-        run: npm run test
+      - name: Run Integration Tests
+        run: npm run test:integration
