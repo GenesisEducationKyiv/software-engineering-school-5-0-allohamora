@@ -20,7 +20,6 @@ export default defineConfig({
       },
     },
     include: ['**/__tests__/integration/**/*.spec.ts'],
-    setupFiles: ['./__tests__/setup-integration-context.ts'],
   },
   plugins: [tsconfigPathsPlugin()],
 });

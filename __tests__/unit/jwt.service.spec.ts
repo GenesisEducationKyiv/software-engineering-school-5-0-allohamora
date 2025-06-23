@@ -52,10 +52,10 @@ describe('JwtService (unit)', () => {
 
     it('throws an error when verifying a token with wrong secret', async () => {
       const payload = { userId: '123' };
-      const token = await jwtService.sign(payload);
       const jwtServiceWithDifferentSecret = new JwtService(
         createConfigMock({ JWT_SECRET: 'different-secret', JWT_EXPIRES_IN }),
       );
+      const token = await jwtService.sign(payload);
 
       await expect(jwtServiceWithDifferentSecret.verify(token)).rejects.toThrow();
     });

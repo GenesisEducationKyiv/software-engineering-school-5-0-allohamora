@@ -17,7 +17,7 @@ import { LoggerHttpProviderDecorator } from './providers/http/logger.provider.js
 import { WeatherProvider } from './providers/weather/weather.provider.js';
 import { HttpProvider } from './providers/http/http.provider.js';
 
-export const makeDeps = () => {
+export const createContainer = () => {
   const configService = new ConfigService();
   const loggerService = new LoggerService(configService);
   const httpProvider: HttpProvider = new LoggerHttpProviderDecorator(new FetchHttpProvider(), configService);
@@ -75,3 +75,5 @@ export const makeDeps = () => {
     configService,
   };
 };
+
+export type Container = ReturnType<typeof createContainer>;
