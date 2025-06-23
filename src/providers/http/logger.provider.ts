@@ -5,7 +5,7 @@ import { HttpProvider, GetOptions } from './http.provider.js';
 
 const TEMP_DIR = join(import.meta.dirname, '..', '..', '..', '.temp');
 
-export class LoggerHttpProvider implements HttpProvider {
+export class LoggerHttpProviderDecorator implements HttpProvider {
   private filePath = join(TEMP_DIR, `${Date.now()}.txt`);
   private isEnabled: boolean;
 
