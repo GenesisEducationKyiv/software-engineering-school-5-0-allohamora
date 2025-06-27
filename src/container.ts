@@ -16,6 +16,8 @@ import { FetchHttpProvider } from './providers/http/fetch.provider.js';
 import { LoggerHttpProviderDecorator } from './providers/http/logger.provider.js';
 import { WeatherProvider } from './providers/weather/weather.provider.js';
 import { HttpProvider } from './providers/http/http.provider.js';
+import { CacheService } from './services/cache.service.js';
+import { CacheWeatherProviderDecorator } from './providers/weather/cache.provider.js';
 
 export const createContainer = () => {
   const configService = new ConfigService();
@@ -24,12 +26,16 @@ export const createContainer = () => {
 
   const dbService = new DbService(configService);
 
+  const cacheService = new CacheService(configService);
+
   const subscriptionRepository = new SubscriptionRepository(dbService);
 
   const jwtService = new JwtService(configService);
 
-  const weatherProvider: WeatherProvider = new ApiWeatherProvider(httpProvider, configService).setNext(
-    new OpenMeteoProvider(httpProvider),
+  const weatherProvider: WeatherProvider = new CacheWeatherProviderDecorator(
+    new ApiWeatherProvider(httpProvider, configService).setNext(new OpenMeteoProvider(httpProvider)),
+    cacheService,
+    configService,
   );
 
   const sendEmailService = new SendEmailService(loggerService, configService);
@@ -69,6 +75,7 @@ export const createContainer = () => {
     weatherProvider,
     jwtService,
     subscriptionRepository,
+    cacheService,
     dbService,
     httpProvider,
     loggerService,

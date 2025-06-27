@@ -11,6 +11,7 @@ beforeAll(async () => {
 
 afterEach(async () => {
   await ctx.dbService.clearDb();
+  await ctx.cacheService.clearAll();
 });
 
 afterAll(async () => {

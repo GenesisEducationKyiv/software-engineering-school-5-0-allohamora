@@ -7,6 +7,7 @@ import { http, HttpResponse, JsonBodyType } from 'msw';
 import { createContainer } from 'src/container.js';
 import { Frequency } from 'src/db.schema.js';
 import { createMockServer } from '__tests__/utils/mock-server.utils.js';
+import { CacheService } from 'src/services/cache.service.js';
 
 describe('Root Page E2E Tests', () => {
   let BASE_URL: string;
@@ -15,6 +16,7 @@ describe('Root Page E2E Tests', () => {
   let page: Page;
 
   let dbService: DbService;
+  let cacheService: CacheService;
   let db: Db;
   let server: Server;
   let httpServer: ServerType;
@@ -215,7 +217,7 @@ describe('Root Page E2E Tests', () => {
   beforeAll(async () => {
     mockServer.start();
 
-    ({ dbService, server } = createContainer());
+    ({ dbService, cacheService, server } = createContainer());
 
     db = dbService.getConnection();
 
@@ -234,6 +236,7 @@ describe('Root Page E2E Tests', () => {
 
   afterEach(async () => {
     await dbService.clearDb();
+    await cacheService.clearAll();
     await page.close();
 
     // here is the solution used https://github.com/mswjs/msw/issues/946#issuecomment-1572768939

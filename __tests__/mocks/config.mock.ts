@@ -16,6 +16,8 @@ vitest.mock('src/services/config.service.js', async (importOriginal) => {
 
         POSTGRES_URL: 'postgres://app:example@localhost:5432/test',
 
+        REDIS_URL: 'redis://:example@localhost:6379/1',
+
         DRIZZLE_DEBUG: false,
 
         PINO_LEVEL: 'fatal',
