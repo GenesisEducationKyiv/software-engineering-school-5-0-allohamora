@@ -3,7 +3,7 @@ import { Weather, WeatherProvider } from './weather.provider.js';
 import { ConfigService } from 'src/services/config.service.js';
 import { Exception, ExceptionCode } from 'src/exception.js';
 
-export class CacheWeatherProviderDecorator implements WeatherProvider {
+export class CacheWeatherProviderProxy implements WeatherProvider {
   private weatherTtlSeconds: number;
 
   constructor(

@@ -17,7 +17,7 @@ import { LoggerHttpProviderDecorator } from './providers/http/logger.provider.js
 import { WeatherProvider } from './providers/weather/weather.provider.js';
 import { HttpProvider } from './providers/http/http.provider.js';
 import { CacheService } from './services/cache.service.js';
-import { CacheWeatherProviderDecorator } from './providers/weather/cache.provider.js';
+import { CacheWeatherProviderProxy } from './providers/weather/cache.provider.js';
 
 export const createContainer = () => {
   const configService = new ConfigService();
@@ -32,7 +32,7 @@ export const createContainer = () => {
 
   const jwtService = new JwtService(configService);
 
-  const weatherProvider: WeatherProvider = new CacheWeatherProviderDecorator(
+  const weatherProvider: WeatherProvider = new CacheWeatherProviderProxy(
     new ApiWeatherProvider(httpProvider, configService).setNext(new OpenMeteoProvider(httpProvider)),
     cacheService,
     configService,
