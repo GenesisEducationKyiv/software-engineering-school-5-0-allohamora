@@ -14,8 +14,12 @@ export class CacheWeatherProviderProxy implements WeatherProvider {
     this.weatherTtlSeconds = configService.get('WEATHER_TTL_SECONDS');
   }
 
+  private toWeatherCacheKey(city: string) {
+    return `weather:${city.toLowerCase()}`;
+  }
+
   public async getWeather(city: string) {
-    const cacheKey = `weather:${city}`;
+    const cacheKey = this.toWeatherCacheKey(city);
     const cachedWeather = await this.cacheService.get<Weather>(cacheKey);
     if (cachedWeather) {
       return cachedWeather;
@@ -27,8 +31,12 @@ export class CacheWeatherProviderProxy implements WeatherProvider {
     return weather;
   }
 
+  private toValidateCacheKey(city: string) {
+    return `weather:validate:${city.toLowerCase()}`;
+  }
+
   public async validateCity(city: string) {
-    const cacheKey = `weather:validate:${city}`;
+    const cacheKey = this.toValidateCacheKey(city);
     const cachedValidation = await this.cacheService.get<boolean>(cacheKey);
     if (cachedValidation) {
       return;
