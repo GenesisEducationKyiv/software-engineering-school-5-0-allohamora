@@ -5,7 +5,7 @@ export const createConfigMock = (values: Partial<Config>) => {
     get: (key: keyof Config) => {
       const value = values[key];
 
-      if (!value) {
+      if (!(key in values)) {
         console.warn(`Config key "${key}" is not set in the mock.`);
       }
 
