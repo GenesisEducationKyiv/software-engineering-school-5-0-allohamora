@@ -5,7 +5,7 @@ import { Exception } from 'src/exception.js';
 import { createConfigMock } from '__tests__/utils/config.utils.js';
 import { createMockServer } from '__tests__/utils/mock-server.utils.js';
 import { createMock } from '__tests__/utils/mock.utils.js';
-import { LoggerProvider } from 'src/providers/logger/logger.provider.js';
+import { LoggerService } from 'src/services/logger.service.js';
 
 describe('SendEmailService (integration)', () => {
   const EMAIL_NAME = 'Test App';
@@ -55,7 +55,7 @@ describe('SendEmailService (integration)', () => {
     errorSpy = vitest.fn();
 
     sendEmailService = new SendEmailService(
-      createMock<LoggerProvider>({ createLogger: () => ({ error: errorSpy, info: vi.fn() }) }),
+      createMock<LoggerService>({ createLogger: () => ({ error: errorSpy, info: vi.fn() }) }),
       createConfigMock({ EMAIL_NAME, EMAIL_FROM, RESEND_API_KEY }),
     );
   });

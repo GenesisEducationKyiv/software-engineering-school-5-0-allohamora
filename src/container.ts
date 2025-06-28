@@ -7,6 +7,7 @@ import { Server } from './server.js';
 import { App } from './app.js';
 import { SendEmailService } from 'src/services/send-email.service.js';
 import { SendEmailTemplateService } from './services/send-email-template.service.js';
+import { LoggerService } from './services/logger.service.js';
 import { DbService } from './services/db.service.js';
 import { ConfigService } from './services/config.service.js';
 import { ApiWeatherProvider } from './providers/weather/api-weather.provider.js';
@@ -15,18 +16,12 @@ import { FetchHttpProvider } from './providers/http/fetch.provider.js';
 import { LoggerHttpProviderDecorator } from './providers/http/logger.provider.js';
 import { HttpProvider } from './providers/http/http.provider.js';
 import { WeatherService } from './services/weather.service.js';
-import { PinoLoggerProvider } from './providers/logger/pino.provider.js';
-import { FsOnlyMessageLoggerProvider } from './providers/logger/fs-only-message.provider.js';
 
 export const createContainer = () => {
   const configService = new ConfigService();
-  const loggerProvider = new PinoLoggerProvider(configService);
+  const loggerService = new LoggerService(configService);
 
-  const httpProvider: HttpProvider = new LoggerHttpProviderDecorator(
-    new FetchHttpProvider(),
-    configService,
-    new FsOnlyMessageLoggerProvider(configService),
-  );
+  const httpProvider: HttpProvider = new LoggerHttpProviderDecorator(new FetchHttpProvider(), configService);
 
   const dbService = new DbService(configService);
 
@@ -36,18 +31,18 @@ export const createContainer = () => {
 
   const weatherService = new WeatherService(
     [new ApiWeatherProvider(httpProvider, configService), new OpenMeteoProvider(httpProvider)],
-    loggerProvider,
+    loggerService,
   );
 
-  const sendEmailService = new SendEmailService(loggerProvider, configService);
+  const sendEmailService = new SendEmailService(loggerService, configService);
 
-  const sendEmailTemplateService = new SendEmailTemplateService(sendEmailService, loggerProvider);
+  const sendEmailTemplateService = new SendEmailTemplateService(sendEmailService, loggerService);
 
   const handleSubscriptionService = new HandleSubscriptionService(
     subscriptionRepository,
     weatherService,
     sendEmailTemplateService,
-    loggerProvider,
+    loggerService,
     configService,
   );
 
@@ -63,7 +58,7 @@ export const createContainer = () => {
 
   const server = new Server(weatherService, subscriptionService);
 
-  const app = new App(server, cronService, dbService, loggerProvider, configService);
+  const app = new App(server, cronService, dbService, loggerService, configService);
 
   return {
     app,
@@ -78,7 +73,7 @@ export const createContainer = () => {
     subscriptionRepository,
     dbService,
     httpProvider,
-    loggerProvider,
+    loggerService,
     configService,
   };
 };

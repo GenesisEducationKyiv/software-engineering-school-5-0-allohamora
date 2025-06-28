@@ -1,8 +1,12 @@
 import { Logger as Pino, pino } from 'pino';
-import { ConfigService } from 'src/services/config.service.js';
-import { Logger, LoggerProvider } from './logger.provider.js';
+import { ConfigService } from './config.service.js';
 
-export class PinoLoggerProvider implements LoggerProvider {
+export type Logger = {
+  info: (data: { msg: string } & Record<string, unknown>) => void;
+  error: (data: { err: Error | unknown } & Record<string, unknown>) => void;
+};
+
+export class LoggerService {
   private pino: Pino;
 
   constructor(configService: ConfigService) {

@@ -6,7 +6,6 @@ import { createConfigMock } from '__tests__/utils/config.utils.js';
 import { createMockServer } from '__tests__/utils/mock-server.utils.js';
 import { scheduler } from 'node:timers/promises';
 import { MockInstance } from 'vitest';
-import { FsOnlyMessageLoggerProvider } from 'src/providers/logger/fs-only-message.provider.js';
 
 vitest.mock('node:fs/promises', () => ({
   appendFile: vitest.fn(),
@@ -43,12 +42,9 @@ describe('LoggerHttpProviderDecorator (integration)', () => {
     let loggerHttpProvider: LoggerHttpProviderDecorator;
 
     beforeEach(() => {
-      const configService = createConfigMock({ WRITE_LOGS_TO_FILES: true });
-
       loggerHttpProvider = new LoggerHttpProviderDecorator(
         new FetchHttpProvider(),
-        configService,
-        new FsOnlyMessageLoggerProvider(configService),
+        createConfigMock({ WRITE_LOGS_TO_FILES: true }),
       );
     });
 
@@ -180,12 +176,9 @@ describe('LoggerHttpProviderDecorator (integration)', () => {
     let loggerHttpProvider: LoggerHttpProviderDecorator;
 
     beforeEach(() => {
-      const configService = createConfigMock({ WRITE_LOGS_TO_FILES: false });
-
       loggerHttpProvider = new LoggerHttpProviderDecorator(
         new FetchHttpProvider(),
-        configService,
-        new FsOnlyMessageLoggerProvider(configService),
+        createConfigMock({ WRITE_LOGS_TO_FILES: false }),
       );
     });
 

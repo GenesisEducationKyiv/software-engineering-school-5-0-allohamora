@@ -2,7 +2,7 @@ import { Mock } from 'vitest';
 import { SendEmailTemplateService } from 'src/services/send-email-template.service.js';
 import { SendEmailService } from 'src/services/send-email.service.js';
 import { createMock } from '__tests__/utils/mock.utils.js';
-import { LoggerProvider } from 'src/providers/logger/logger.provider.js';
+import { LoggerService } from 'src/services/logger.service.js';
 
 describe('SendEmailTemplateService (unit)', () => {
   let service: SendEmailTemplateService;
@@ -16,7 +16,7 @@ describe('SendEmailTemplateService (unit)', () => {
 
     service = new SendEmailTemplateService(
       createMock<SendEmailService>({ sendEmail: sendEmailSpy }),
-      createMock<LoggerProvider>({ createLogger: () => ({ info: loggerInfoSpy, error: vi.fn() }) }),
+      createMock<LoggerService>({ createLogger: () => ({ info: loggerInfoSpy, error: vi.fn() }) }),
     );
   });
 
