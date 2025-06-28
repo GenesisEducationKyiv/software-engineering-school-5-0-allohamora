@@ -2,10 +2,10 @@ import closeWithGrace, { CloseWithGraceAsyncCallback } from 'close-with-grace';
 import { ServerType } from '@hono/node-server';
 import { Server } from './server.js';
 import { CronService } from './services/cron.service.js';
-import { Logger, LoggerService } from './services/logger.service.js';
 import { DbService } from './services/db.service.js';
 import { promisify } from 'node:util';
 import { ConfigService } from './services/config.service.js';
+import { Logger, LoggerProvider } from './providers/logger/logger.provider.js';
 
 const GRACEFUL_SHUTDOWN_DELAY = 15_000;
 
@@ -19,13 +19,13 @@ export class App {
     private server: Server,
     private cronService: CronService,
     private dbService: DbService,
-    loggerService: LoggerService,
+    loggerProvider: LoggerProvider,
     configService: ConfigService,
   ) {
     this.port = configService.get('PORT');
     this.nodeEnv = configService.get('NODE_ENV');
 
-    this.logger = loggerService.createLogger('App');
+    this.logger = loggerProvider.createLogger('App');
   }
 
   private setupGracefulShutdown(server: ServerType) {

@@ -1,15 +1,15 @@
 import { Exception, ExceptionCode } from 'src/exception.js';
+import { Logger, LoggerProvider } from 'src/providers/logger/logger.provider.js';
 import { Weather, WeatherProvider } from 'src/providers/weather/weather.provider.js';
-import { Logger, LoggerService } from './logger.service.js';
 
 export class WeatherService {
   private logger: Logger;
 
   constructor(
     private providers: WeatherProvider[],
-    loggerService: LoggerService,
+    loggerProvider: LoggerProvider,
   ) {
-    this.logger = loggerService.createLogger('WeatherService');
+    this.logger = loggerProvider.createLogger('WeatherService');
   }
 
   private async chain<T>(fn: (provider: WeatherProvider) => T) {

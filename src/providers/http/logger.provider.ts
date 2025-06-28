@@ -1,29 +1,25 @@
-import { join } from 'node:path';
-import { appendFile } from 'node:fs/promises';
 import { ConfigService } from 'src/services/config.service.js';
 import { HttpProvider, GetOptions } from './http.provider.js';
-
-const TEMP_DIR = join(import.meta.dirname, '..', '..', '..', '.temp');
+import { Logger, LoggerProvider } from '../logger/logger.provider.js';
 
 export class LoggerHttpProviderDecorator implements HttpProvider {
-  private filePath = join(TEMP_DIR, `${Date.now()}.txt`);
   private isEnabled: boolean;
+  private logger: Logger;
 
   constructor(
     private httpProvider: HttpProvider,
     configService: ConfigService,
+    loggerProvider: LoggerProvider,
   ) {
     this.isEnabled = configService.get('WRITE_LOGS_TO_FILES');
-  }
 
-  private async writeLog(log: string) {
-    await appendFile(this.filePath, log);
+    this.logger = loggerProvider.createLogger('HttpProvider');
   }
 
   private async logResponse(res: Response) {
-    const log = `"${res.url} - Response: ${await res.text()}"`;
+    const msg = `"${res.url} - Response: ${await res.text()}"`;
 
-    await this.writeLog(log);
+    this.logger.info({ msg });
   }
 
   public async get(options: GetOptions) {
