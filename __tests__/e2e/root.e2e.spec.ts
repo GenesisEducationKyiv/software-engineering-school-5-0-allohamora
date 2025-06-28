@@ -363,13 +363,13 @@ describe('Root Page E2E Tests', () => {
 
       await page.goto(BASE_URL);
 
-      await page.locator('#email').fill('test@example.com');
-      await page.locator('#city').fill('London');
-      await page.locator('#frequency').selectOption(frequency);
+      await form.email().fill('test@example.com');
+      await form.city().fill('London');
+      await form.frequency().selectOption(frequency);
 
       const responsePromise = page.waitForResponse((response) => response.url().includes('/api/subscribe'));
 
-      await page.locator('button[type="submit"]').click();
+      await form.submit();
 
       const response = await responsePromise;
       expect(response.status()).toBe(200);
