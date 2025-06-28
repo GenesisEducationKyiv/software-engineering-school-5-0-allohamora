@@ -5,24 +5,26 @@ import { HttpProvider } from '../http/http.provider.js';
 const GEOCODING_API_URL = 'https://geocoding-api.open-meteo.com/v1';
 const FORECAST_API_URL = 'https://api.open-meteo.com/v1';
 
+type CityResponseResult = {
+  id: number; // 2643743,
+  name: string; // "London",
+  latitude: number; // 51.50853,
+  longitude: number; // -0.12574,
+  elevation: number; // 25,
+  feature_code: string; // "PPLC",
+  country_code: string; // "GB",
+  admin1_id: number; // 6269131,
+  admin2_id: number; // 2648110,
+  timezone: string; // "Europe/London",
+  population: number; // 8961989,
+  country_id: number; // 2635167,
+  country: string; // "United Kingdom",
+  admin1: string; // "England",
+  admin2: string; // "Greater London"
+};
+
 type CityResponse = {
-  results?: {
-    id: number; // 2643743,
-    name: string; // "London",
-    latitude: number; // 51.50853,
-    longitude: number; // -0.12574,
-    elevation: number; // 25,
-    feature_code: string; // "PPLC",
-    country_code: string; // "GB",
-    admin1_id: number; // 6269131,
-    admin2_id: number; // 2648110,
-    timezone: string; // "Europe/London",
-    population: number; // 8961989,
-    country_id: number; // 2635167,
-    country: string; // "United Kingdom",
-    admin1: string; // "England",
-    admin2: string; // "Greater London"
-  }[];
+  results?: CityResponseResult[];
   generationtime_ms: number; // 0.6712675
 };
 
