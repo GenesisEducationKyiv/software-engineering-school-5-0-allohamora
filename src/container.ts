@@ -16,7 +16,7 @@ import { LoggerHttpProviderDecorator } from './providers/http/logger.provider.js
 import { HttpProvider } from './providers/http/http.provider.js';
 import { WeatherService } from './services/weather.service.js';
 import { PinoLoggerProvider } from './providers/logger/pino.provider.js';
-import { FsLoggerProvider } from './providers/logger/fs.provider.js';
+import { FsOnlyMessageLoggerProvider } from './providers/logger/fs-only-message.provider.js';
 
 export const createContainer = () => {
   const configService = new ConfigService();
@@ -25,7 +25,7 @@ export const createContainer = () => {
   const httpProvider: HttpProvider = new LoggerHttpProviderDecorator(
     new FetchHttpProvider(),
     configService,
-    new FsLoggerProvider(configService),
+    new FsOnlyMessageLoggerProvider(configService),
   );
 
   const dbService = new DbService(configService);

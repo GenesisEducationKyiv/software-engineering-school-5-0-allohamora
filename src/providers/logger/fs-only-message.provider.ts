@@ -6,7 +6,7 @@ import { ConfigService } from 'src/services/config.service.js';
 const TEMP_DIR = join(import.meta.dirname, '..', '..', '..', '.temp');
 const FILE_PATH = join(TEMP_DIR, `${Date.now()}.txt`);
 
-export class FsLoggerProvider implements LoggerProvider {
+export class FsOnlyMessageLoggerProvider implements LoggerProvider {
   private isEnabled: boolean;
 
   constructor(configService: ConfigService) {
