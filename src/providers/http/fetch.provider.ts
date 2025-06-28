@@ -1,4 +1,4 @@
-import { Exception, ExceptionCode } from 'src/exception.js';
+import { Exception } from 'src/exception.js';
 import { HttpProvider, BuildUrlOptions, GetOptions } from './http.provider.js';
 
 export class FetchHttpProvider implements HttpProvider {
@@ -16,7 +16,7 @@ export class FetchHttpProvider implements HttpProvider {
     const res = await fetch(this.buildUrl(rest));
 
     if (handleIsOk && !res.ok) {
-      throw new Exception(ExceptionCode.INTERNAL_SERVER_ERROR, 'Something went wrong');
+      throw Exception.InternalServerError('Something went wrong');
     }
 
     return res;

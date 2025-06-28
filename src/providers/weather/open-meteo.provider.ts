@@ -5,24 +5,26 @@ import { HttpProvider } from '../http/http.provider.js';
 const GEOCODING_API_URL = 'https://geocoding-api.open-meteo.com/v1';
 const FORECAST_API_URL = 'https://api.open-meteo.com/v1';
 
+type CityResponseResult = {
+  id: number; // 2643743,
+  name: string; // "London",
+  latitude: number; // 51.50853,
+  longitude: number; // -0.12574,
+  elevation: number; // 25,
+  feature_code: string; // "PPLC",
+  country_code: string; // "GB",
+  admin1_id: number; // 6269131,
+  admin2_id: number; // 2648110,
+  timezone: string; // "Europe/London",
+  population: number; // 8961989,
+  country_id: number; // 2635167,
+  country: string; // "United Kingdom",
+  admin1: string; // "England",
+  admin2: string; // "Greater London"
+};
+
 type CityResponse = {
-  results?: {
-    id: number; // 2643743,
-    name: string; // "London",
-    latitude: number; // 51.50853,
-    longitude: number; // -0.12574,
-    elevation: number; // 25,
-    feature_code: string; // "PPLC",
-    country_code: string; // "GB",
-    admin1_id: number; // 6269131,
-    admin2_id: number; // 2648110,
-    timezone: string; // "Europe/London",
-    population: number; // 8961989,
-    country_id: number; // 2635167,
-    country: string; // "United Kingdom",
-    admin1: string; // "England",
-    admin2: string; // "Greater London"
-  }[];
+  results?: CityResponseResult[];
   generationtime_ms: number; // 0.6712675
 };
 
@@ -81,10 +83,8 @@ const weatherCodeToDescription: Record<number, string> = {
   99: 'Thunderstorm with heavy hail',
 };
 
-export class OpenMeteoProvider extends WeatherProvider {
-  constructor(private httpProvider: HttpProvider) {
-    super();
-  }
+export class OpenMeteoProvider implements WeatherProvider {
+  constructor(private httpProvider: HttpProvider) {}
 
   private async getCity(city: string) {
     const res = await this.httpProvider.get({
@@ -100,7 +100,7 @@ export class OpenMeteoProvider extends WeatherProvider {
     const data = (await res.json()) as CityResponse;
 
     if (!data?.results || !data.results[0]) {
-      throw new Exception(ExceptionCode.NOT_FOUND, 'No matching location found.');
+      throw Exception.NotFound('No matching location found.');
     }
 
     return data.results[0];
@@ -111,32 +111,24 @@ export class OpenMeteoProvider extends WeatherProvider {
   }
 
   public async getWeather(city: string): Promise<Weather> {
-    try {
-      const { latitude, longitude } = await this.getCity(city);
+    const { latitude, longitude } = await this.getCity(city);
 
-      const res = await this.httpProvider.get({
-        url: `${FORECAST_API_URL}/forecast`,
-        params: {
-          latitude: latitude.toString(),
-          longitude: longitude.toString(),
-          current: 'temperature_2m,relative_humidity_2m,weather_code',
-        },
-      });
+    const res = await this.httpProvider.get({
+      url: `${FORECAST_API_URL}/forecast`,
+      params: {
+        latitude: latitude.toString(),
+        longitude: longitude.toString(),
+        current: 'temperature_2m,relative_humidity_2m,weather_code',
+      },
+    });
 
-      const data = (await res.json()) as WeatherResponse;
+    const data = (await res.json()) as WeatherResponse;
 
-      return {
-        temperature: data.current.temperature_2m,
-        humidity: data.current.relative_humidity_2m,
-        description: this.getWeatherDescription(data.current.weather_code),
-      };
-    } catch (error) {
-      if (this.next) {
-        return await this.next.getWeather(city);
-      }
-
-      throw error;
-    }
+    return {
+      temperature: data.current.temperature_2m,
+      humidity: data.current.relative_humidity_2m,
+      description: this.getWeatherDescription(data.current.weather_code),
+    };
   }
 
   public async validateCity(city: string): Promise<void> {
@@ -144,11 +136,7 @@ export class OpenMeteoProvider extends WeatherProvider {
       await this.getCity(city);
     } catch (error) {
       if (error instanceof Exception && error.code === ExceptionCode.NOT_FOUND) {
-        throw new Exception(ExceptionCode.VALIDATION_ERROR, 'City not found');
-      }
-
-      if (this.next) {
-        return await this.next.validateCity(city);
+        throw Exception.ValidationError('City not found');
       }
 
       throw error;

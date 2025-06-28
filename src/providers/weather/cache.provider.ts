@@ -57,8 +57,4 @@ export class CacheWeatherProviderProxy implements WeatherProvider {
       throw error;
     }
   }
-
-  public setNext(provider: WeatherProvider) {
-    return this.weatherProvider.setNext(provider);
-  }
 }

@@ -1,22 +1,22 @@
 import { ctx } from '__tests__/setup-integration-context.js';
 import { HttpStatus } from 'src/types/http.types.js';
 import { MockInstance } from 'vitest';
-import { Exception, ExceptionCode } from 'src/exception.js';
+import { Exception } from 'src/exception.js';
 import { Server } from 'src/server.js';
-import { WeatherProvider } from 'src/providers/weather/weather.provider.js';
+import { WeatherService } from 'src/services/weather.service.js';
 
 describe('weather controller (integration)', () => {
   let server: Server;
-  let weatherProvider: WeatherProvider;
+  let weatherService: WeatherService;
 
   let getWeatherSpy: MockInstance;
 
   beforeAll(() => {
-    ({ weatherProvider, server } = ctx);
+    ({ weatherService, server } = ctx);
   });
 
   beforeEach(async () => {
-    getWeatherSpy = vitest.spyOn(weatherProvider, 'getWeather');
+    getWeatherSpy = vitest.spyOn(weatherService, 'getWeather');
   });
 
   afterEach(() => {
@@ -52,7 +52,7 @@ describe('weather controller (integration)', () => {
     });
 
     it('returns 404 when city not found', async () => {
-      getWeatherSpy.mockRejectedValueOnce(new Exception(ExceptionCode.NOT_FOUND, 'No matching location found.'));
+      getWeatherSpy.mockRejectedValueOnce(Exception.NotFound('No matching location found.'));
 
       const data = await getWeather('InvalidCity', HttpStatus.NOT_FOUND);
 

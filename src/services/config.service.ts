@@ -45,4 +45,8 @@ export class ConfigService {
   public get<T extends keyof Config>(key: T): Config[T] {
     return this.config[key];
   }
+
+  public getConfig(): Config {
+    return this.config;
+  }
 }

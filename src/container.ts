@@ -14,55 +14,59 @@ import { ApiWeatherProvider } from './providers/weather/api-weather.provider.js'
 import { OpenMeteoProvider } from './providers/weather/open-meteo.provider.js';
 import { FetchHttpProvider } from './providers/http/fetch.provider.js';
 import { LoggerHttpProviderDecorator } from './providers/http/logger.provider.js';
-import { WeatherProvider } from './providers/weather/weather.provider.js';
 import { HttpProvider } from './providers/http/http.provider.js';
 import { CacheService } from './services/cache.service.js';
 import { CacheWeatherProviderProxy } from './providers/weather/cache.provider.js';
+import { WeatherService } from './services/weather.service.js';
 
 export const createContainer = () => {
   const configService = new ConfigService();
-  const loggerService = new LoggerService(configService);
-  const httpProvider: HttpProvider = new LoggerHttpProviderDecorator(new FetchHttpProvider(), configService);
+  const config = configService.getConfig();
 
-  const dbService = new DbService(configService);
+  const loggerService = new LoggerService(config);
+
+  const httpProvider: HttpProvider = new LoggerHttpProviderDecorator(new FetchHttpProvider(), config);
+
+  const dbService = new DbService(config);
 
   const cacheService = new CacheService(configService);
 
   const subscriptionRepository = new SubscriptionRepository(dbService);
 
-  const jwtService = new JwtService(configService);
+  const jwtService = new JwtService(config);
 
-  const weatherProvider: WeatherProvider = new CacheWeatherProviderProxy(
-    new ApiWeatherProvider(httpProvider, configService).setNext(new OpenMeteoProvider(httpProvider)),
-    cacheService,
-    configService,
+  const weatherService = new WeatherService(
+    [new ApiWeatherProvider(httpProvider, config), new OpenMeteoProvider(httpProvider)].map(
+      (provider) => new CacheWeatherProviderProxy(provider, cacheService, configService),
+    ),
+    loggerService,
   );
 
-  const sendEmailService = new SendEmailService(loggerService, configService);
+  const sendEmailService = new SendEmailService(loggerService, config);
 
   const sendEmailTemplateService = new SendEmailTemplateService(sendEmailService, loggerService);
 
   const handleSubscriptionService = new HandleSubscriptionService(
     subscriptionRepository,
-    weatherProvider,
+    weatherService,
     sendEmailTemplateService,
     loggerService,
-    configService,
+    config,
   );
 
   const subscriptionService = new SubscriptionService(
     jwtService,
     subscriptionRepository,
-    weatherProvider,
+    weatherService,
     sendEmailTemplateService,
-    configService,
+    config,
   );
 
   const cronService = new CronService(handleSubscriptionService);
 
-  const server = new Server(weatherProvider, subscriptionService);
+  const server = new Server(weatherService, subscriptionService);
 
-  const app = new App(server, cronService, dbService, loggerService, configService);
+  const app = new App(server, cronService, dbService, loggerService, config);
 
   return {
     app,
@@ -72,7 +76,7 @@ export const createContainer = () => {
     subscriptionService,
     sendEmailService,
     sendEmailTemplateService,
-    weatherProvider,
+    weatherService,
     jwtService,
     subscriptionRepository,
     cacheService,

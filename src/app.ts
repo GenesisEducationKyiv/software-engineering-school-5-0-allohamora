@@ -5,7 +5,6 @@ import { CronService } from './services/cron.service.js';
 import { Logger, LoggerService } from './services/logger.service.js';
 import { DbService } from './services/db.service.js';
 import { promisify } from 'node:util';
-import { ConfigService } from './services/config.service.js';
 
 const GRACEFUL_SHUTDOWN_DELAY = 15_000;
 
@@ -20,10 +19,10 @@ export class App {
     private cronService: CronService,
     private dbService: DbService,
     loggerService: LoggerService,
-    configService: ConfigService,
+    config: { PORT: number; NODE_ENV: string },
   ) {
-    this.port = configService.get('PORT');
-    this.nodeEnv = configService.get('NODE_ENV');
+    this.port = config.PORT;
+    this.nodeEnv = config.NODE_ENV;
 
     this.logger = loggerService.createLogger('App');
   }

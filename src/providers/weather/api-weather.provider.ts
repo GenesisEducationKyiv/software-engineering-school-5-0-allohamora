@@ -1,5 +1,4 @@
 import { Exception, ExceptionCode } from 'src/exception.js';
-import { ConfigService } from 'src/services/config.service.js';
 import { Weather, WeatherProvider } from './weather.provider.js';
 import { HttpProvider } from '../http/http.provider.js';
 
@@ -64,19 +63,17 @@ type WeatherErrorResponse = {
   };
 };
 
-export class ApiWeatherProvider extends WeatherProvider {
+export class ApiWeatherProvider implements WeatherProvider {
   private weatherApiKey: string;
 
   constructor(
     private httpProvider: HttpProvider,
-    configService: ConfigService,
+    config: { WEATHER_API_KEY: string },
   ) {
-    super();
-
-    this.weatherApiKey = configService.get('WEATHER_API_KEY');
+    this.weatherApiKey = config.WEATHER_API_KEY;
   }
 
-  public override async getWeather(city: string): Promise<Weather> {
+  public async getWeather(city: string): Promise<Weather> {
     const res = await this.httpProvider.get({
       url: `${API_URL}/current.json`,
       params: {
@@ -101,26 +98,18 @@ export class ApiWeatherProvider extends WeatherProvider {
     const { error } = data as WeatherErrorResponse;
 
     if (error.code === ErrorCode.NO_MATCHING_LOCATION_FOUND) {
-      throw new Exception(ExceptionCode.NOT_FOUND, error.message);
+      throw Exception.NotFound(error.message);
     }
 
-    if (this.next) {
-      return await this.next.getWeather(city);
-    }
-
-    throw new Exception(ExceptionCode.INTERNAL_SERVER_ERROR, error?.message);
+    throw Exception.InternalServerError(error?.message);
   }
 
-  public override async validateCity(city: string): Promise<void> {
+  public async validateCity(city: string): Promise<void> {
     try {
       await this.getWeather(city);
     } catch (error) {
       if (error instanceof Exception && error.code === ExceptionCode.NOT_FOUND) {
-        throw new Exception(ExceptionCode.VALIDATION_ERROR, 'City not found');
-      }
-
-      if (this.next) {
-        return await this.next.validateCity(city);
+        throw Exception.ValidationError('City not found');
       }
 
       throw error;

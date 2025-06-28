@@ -1,10 +1,9 @@
 import { Frequency } from 'src/db.schema.js';
 import { JwtService } from './jwt.service.js';
 import { SubscriptionRepository } from 'src/repositories/subscription.repository.js';
-import { Exception, ExceptionCode } from 'src/exception.js';
+import { Exception } from 'src/exception.js';
 import { SendEmailTemplateService } from './send-email-template.service.js';
-import { ConfigService } from './config.service.js';
-import { WeatherProvider } from 'src/providers/weather/weather.provider.js';
+import { WeatherService } from './weather.service.js';
 
 export type SubscribeOptions = {
   email: string;
@@ -18,18 +17,18 @@ export class SubscriptionService {
   constructor(
     private jwtService: JwtService,
     private subscriptionRepository: SubscriptionRepository,
-    private weatherProvider: WeatherProvider,
+    private weatherService: WeatherService,
     private sendEmailTemplateService: SendEmailTemplateService,
-    configService: ConfigService,
+    config: { APP_URL: string },
   ) {
-    this.appUrl = configService.get('APP_URL');
+    this.appUrl = config.APP_URL;
   }
 
   private async assertIsSubscriptionExists(email: string) {
     const isSubscriptionExists = await this.subscriptionRepository.isSubscriptionExists(email);
 
     if (isSubscriptionExists) {
-      throw new Exception(ExceptionCode.ALREADY_EXISTS, 'Subscription already exists');
+      throw Exception.AlreadyExists('Subscription already exists');
     }
   }
 
@@ -40,7 +39,7 @@ export class SubscriptionService {
   public async subscribe(options: SubscribeOptions) {
     await this.assertIsSubscriptionExists(options.email);
 
-    await this.weatherProvider.validateCity(options.city);
+    await this.weatherService.validateCity(options.city);
 
     const token = await this.jwtService.sign(options);
     const confirmationLink = this.makeConfirmationLink(token);
