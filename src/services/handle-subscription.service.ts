@@ -3,7 +3,6 @@ import { Frequency } from 'src/db.schema.js';
 import { SubscriptionRepository } from 'src/repositories/subscription.repository.js';
 import { SendEmailTemplateService } from './send-email-template.service.js';
 import { Logger, LoggerService } from './logger.service.js';
-import { ConfigService } from './config.service.js';
 import { Weather } from 'src/providers/weather/weather.provider.js';
 import { WeatherService } from './weather.service.js';
 
@@ -17,9 +16,9 @@ export class HandleSubscriptionService {
     private weatherService: WeatherService,
     private sendEmailTemplateService: SendEmailTemplateService,
     loggerService: LoggerService,
-    configService: ConfigService,
+    config: { APP_URL: string },
   ) {
-    this.appUrl = configService.get('APP_URL');
+    this.appUrl = config.APP_URL;
 
     this.logger = loggerService.createLogger('HandleSubscriptionService');
   }

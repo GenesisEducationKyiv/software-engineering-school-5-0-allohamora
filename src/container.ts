@@ -19,22 +19,24 @@ import { WeatherService } from './services/weather.service.js';
 
 export const createContainer = () => {
   const configService = new ConfigService();
-  const loggerService = new LoggerService(configService);
+  const config = configService.getConfig();
 
-  const httpProvider: HttpProvider = new LoggerHttpProviderDecorator(new FetchHttpProvider(), configService);
+  const loggerService = new LoggerService(config);
 
-  const dbService = new DbService(configService);
+  const httpProvider: HttpProvider = new LoggerHttpProviderDecorator(new FetchHttpProvider(), config);
+
+  const dbService = new DbService(config);
 
   const subscriptionRepository = new SubscriptionRepository(dbService);
 
-  const jwtService = new JwtService(configService);
+  const jwtService = new JwtService(config);
 
   const weatherService = new WeatherService(
-    [new ApiWeatherProvider(httpProvider, configService), new OpenMeteoProvider(httpProvider)],
+    [new ApiWeatherProvider(httpProvider, config), new OpenMeteoProvider(httpProvider)],
     loggerService,
   );
 
-  const sendEmailService = new SendEmailService(loggerService, configService);
+  const sendEmailService = new SendEmailService(loggerService, config);
 
   const sendEmailTemplateService = new SendEmailTemplateService(sendEmailService, loggerService);
 
@@ -43,7 +45,7 @@ export const createContainer = () => {
     weatherService,
     sendEmailTemplateService,
     loggerService,
-    configService,
+    config,
   );
 
   const subscriptionService = new SubscriptionService(
@@ -51,14 +53,14 @@ export const createContainer = () => {
     subscriptionRepository,
     weatherService,
     sendEmailTemplateService,
-    configService,
+    config,
   );
 
   const cronService = new CronService(handleSubscriptionService);
 
   const server = new Server(weatherService, subscriptionService);
 
-  const app = new App(server, cronService, dbService, loggerService, configService);
+  const app = new App(server, cronService, dbService, loggerService, config);
 
   return {
     app,

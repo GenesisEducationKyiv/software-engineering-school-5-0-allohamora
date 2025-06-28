@@ -1,5 +1,4 @@
 import { Logger as Pino, pino } from 'pino';
-import { ConfigService } from './config.service.js';
 
 export type Logger = {
   info: (data: { msg: string } & Record<string, unknown>) => void;
@@ -9,9 +8,9 @@ export type Logger = {
 export class LoggerService {
   private pino: Pino;
 
-  constructor(configService: ConfigService) {
+  constructor(config: { PINO_LEVEL: string }) {
     this.pino = pino({
-      level: configService.get('PINO_LEVEL'),
+      level: config.PINO_LEVEL,
       transport: {
         targets: [{ target: 'pino-pretty' }],
       },

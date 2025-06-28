@@ -2,7 +2,6 @@ import * as fsp from 'node:fs/promises';
 import { http, HttpResponse } from 'msw';
 import { LoggerHttpProviderDecorator } from 'src/providers/http/logger.provider.js';
 import { FetchHttpProvider } from 'src/providers/http/fetch.provider.js';
-import { createConfigMock } from '__tests__/utils/config.utils.js';
 import { createMockServer } from '__tests__/utils/mock-server.utils.js';
 import { scheduler } from 'node:timers/promises';
 import { MockInstance } from 'vitest';
@@ -42,10 +41,7 @@ describe('LoggerHttpProviderDecorator (integration)', () => {
     let loggerHttpProvider: LoggerHttpProviderDecorator;
 
     beforeEach(() => {
-      loggerHttpProvider = new LoggerHttpProviderDecorator(
-        new FetchHttpProvider(),
-        createConfigMock({ WRITE_LOGS_TO_FILES: true }),
-      );
+      loggerHttpProvider = new LoggerHttpProviderDecorator(new FetchHttpProvider(), { WRITE_LOGS_TO_FILES: true });
     });
 
     it('calls the underlying HTTP provider', async () => {
@@ -176,10 +172,7 @@ describe('LoggerHttpProviderDecorator (integration)', () => {
     let loggerHttpProvider: LoggerHttpProviderDecorator;
 
     beforeEach(() => {
-      loggerHttpProvider = new LoggerHttpProviderDecorator(
-        new FetchHttpProvider(),
-        createConfigMock({ WRITE_LOGS_TO_FILES: false }),
-      );
+      loggerHttpProvider = new LoggerHttpProviderDecorator(new FetchHttpProvider(), { WRITE_LOGS_TO_FILES: false });
     });
 
     it('calls the underlying HTTP provider without logging', async () => {

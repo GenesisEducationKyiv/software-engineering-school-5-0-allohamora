@@ -1,5 +1,4 @@
 import { Exception, ExceptionCode } from 'src/exception.js';
-import { ConfigService } from 'src/services/config.service.js';
 import { Weather, WeatherProvider } from './weather.provider.js';
 import { HttpProvider } from '../http/http.provider.js';
 
@@ -69,9 +68,9 @@ export class ApiWeatherProvider implements WeatherProvider {
 
   constructor(
     private httpProvider: HttpProvider,
-    configService: ConfigService,
+    config: { WEATHER_API_KEY: string },
   ) {
-    this.weatherApiKey = configService.get('WEATHER_API_KEY');
+    this.weatherApiKey = config.WEATHER_API_KEY;
   }
 
   public async getWeather(city: string): Promise<Weather> {

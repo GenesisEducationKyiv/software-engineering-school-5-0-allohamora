@@ -1,15 +1,12 @@
 import { createSigner, createVerifier, SignerAsync, VerifierAsync } from 'fast-jwt';
-import { ConfigService } from './config.service.js';
 
 export class JwtService {
   private signer: typeof SignerAsync;
   private verifier: typeof VerifierAsync;
 
-  constructor(configService: ConfigService) {
-    const jwtSecret = configService.get('JWT_SECRET');
-
-    this.signer = createSigner({ key: async () => jwtSecret, expiresIn: configService.get('JWT_EXPIRES_IN') });
-    this.verifier = createVerifier({ key: async () => jwtSecret });
+  constructor(config: { JWT_SECRET: string; JWT_EXPIRES_IN: number }) {
+    this.signer = createSigner({ key: async () => config.JWT_SECRET, expiresIn: config.JWT_EXPIRES_IN });
+    this.verifier = createVerifier({ key: async () => config.JWT_SECRET });
   }
 
   public async verify<T extends Record<string, unknown>>(jwt: string): Promise<T> {

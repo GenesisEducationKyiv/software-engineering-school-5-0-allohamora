@@ -3,7 +3,6 @@ import { JwtService } from './jwt.service.js';
 import { SubscriptionRepository } from 'src/repositories/subscription.repository.js';
 import { Exception } from 'src/exception.js';
 import { SendEmailTemplateService } from './send-email-template.service.js';
-import { ConfigService } from './config.service.js';
 import { WeatherService } from './weather.service.js';
 
 export type SubscribeOptions = {
@@ -20,9 +19,9 @@ export class SubscriptionService {
     private subscriptionRepository: SubscriptionRepository,
     private weatherService: WeatherService,
     private sendEmailTemplateService: SendEmailTemplateService,
-    configService: ConfigService,
+    config: { APP_URL: string },
   ) {
-    this.appUrl = configService.get('APP_URL');
+    this.appUrl = config.APP_URL;
   }
 
   private async assertIsSubscriptionExists(email: string) {

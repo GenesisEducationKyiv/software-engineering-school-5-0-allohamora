@@ -1,6 +1,5 @@
 import { join } from 'node:path';
 import { appendFile } from 'node:fs/promises';
-import { ConfigService } from 'src/services/config.service.js';
 import { HttpProvider, GetOptions } from './http.provider.js';
 
 const TEMP_DIR = join(import.meta.dirname, '..', '..', '..', '.temp');
@@ -11,9 +10,9 @@ export class LoggerHttpProviderDecorator implements HttpProvider {
 
   constructor(
     private httpProvider: HttpProvider,
-    configService: ConfigService,
+    config: { WRITE_LOGS_TO_FILES: boolean },
   ) {
-    this.isEnabled = configService.get('WRITE_LOGS_TO_FILES');
+    this.isEnabled = config.WRITE_LOGS_TO_FILES;
   }
 
   private async writeLog(log: string) {

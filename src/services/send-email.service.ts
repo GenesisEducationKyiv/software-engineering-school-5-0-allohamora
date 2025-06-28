@@ -2,7 +2,6 @@ import { Resend } from 'resend';
 import { Exception } from 'src/exception.js';
 import { JSX } from 'hono/jsx/jsx-runtime';
 import { Logger, LoggerService } from './logger.service.js';
-import { ConfigService } from './config.service.js';
 
 export type SendEmailOptions = {
   to: string[];
@@ -19,11 +18,14 @@ export class SendEmailService {
 
   private logger: Logger;
 
-  constructor(loggerService: LoggerService, configService: ConfigService) {
-    this.emailName = configService.get('EMAIL_NAME');
-    this.emailFrom = configService.get('EMAIL_FROM');
+  constructor(
+    loggerService: LoggerService,
+    config: { RESEND_API_KEY: string; EMAIL_NAME: string; EMAIL_FROM: string },
+  ) {
+    this.emailName = config.EMAIL_NAME;
+    this.emailFrom = config.EMAIL_FROM;
 
-    this.resend = new Resend(configService.get('RESEND_API_KEY'));
+    this.resend = new Resend(config.RESEND_API_KEY);
 
     this.logger = loggerService.createLogger('SendEmailService');
   }

@@ -2,7 +2,6 @@ import { Mock } from 'vitest';
 import { http, HttpResponse, JsonBodyType } from 'msw';
 import { SendEmailService } from 'src/services/send-email.service.js';
 import { Exception } from 'src/exception.js';
-import { createConfigMock } from '__tests__/utils/config.utils.js';
 import { createMockServer } from '__tests__/utils/mock-server.utils.js';
 import { createMock } from '__tests__/utils/mock.utils.js';
 import { LoggerService } from 'src/services/logger.service.js';
@@ -56,7 +55,7 @@ describe('SendEmailService (integration)', () => {
 
     sendEmailService = new SendEmailService(
       createMock<LoggerService>({ createLogger: () => ({ error: errorSpy, info: vi.fn() }) }),
-      createConfigMock({ EMAIL_NAME, EMAIL_FROM, RESEND_API_KEY }),
+      { EMAIL_NAME, EMAIL_FROM, RESEND_API_KEY },
     );
   });
 
