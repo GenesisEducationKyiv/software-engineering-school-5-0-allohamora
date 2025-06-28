@@ -1,6 +1,6 @@
 import { OpenAPIHono, createRoute } from '@hono/zod-openapi';
-import { z } from 'zod';
 import { WeatherService } from 'src/services/weather.service.js';
+import { z } from 'zod';
 
 export const makeWeatherRoutes = (app: OpenAPIHono, weatherService: WeatherService) => {
   app.openapi(

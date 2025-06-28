@@ -1,10 +1,10 @@
 import { ctx } from '__tests__/setup-integration-context.js';
 import { Frequency } from 'src/db.schema.js';
 import { HandleSubscriptionService } from 'src/services/handle-subscription.service.js';
-import { WeatherService } from 'src/services/weather.service.js';
 import { SubscriptionRepository } from 'src/repositories/subscription.repository.js';
 import { MockInstance } from 'vitest';
 import { SendEmailService } from 'src/services/send-email.service.js';
+import { WeatherService } from 'src/services/weather.service.js';
 
 describe('WeatherHandleSubscriptionService (integration)', () => {
   let handleSubscriptionService: HandleSubscriptionService;

@@ -6,22 +6,17 @@ import { OpenAPIHono, createRoute } from '@hono/zod-openapi';
 import { makeSubscriptionRoutes } from './controllers/subscription.controller.js';
 import { makeWeatherRoutes } from './controllers/weather.controller.js';
 import { Root } from './root.js';
-import { WeatherService } from './services/weather.service.js';
 import { SubscriptionService } from './services/subscription.service.js';
 import { serve, ServerType } from '@hono/node-server';
 import { AddressInfo } from 'node:net';
+import { WeatherService } from './services/weather.service.js';
 
 export type ServerInfo = {
   info: AddressInfo;
   server: ServerType;
 }
 
-export type Server = {
-  serve(port: number): Promise<ServerInfo>;
-  request(input: RequestInfo | URL, requestInit?: RequestInit): Promise<Response>;
-}
-
-export class HonoServer implements Server {
+export class Server {
   constructor(
     private weatherService: WeatherService,
     private subscriptionService: SubscriptionService,

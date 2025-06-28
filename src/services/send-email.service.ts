@@ -1,8 +1,7 @@
 import { Resend } from 'resend';
-import { Exception, ExceptionCode } from 'src/exception.js';
+import { Exception } from 'src/exception.js';
 import { JSX } from 'hono/jsx/jsx-runtime';
-import { Logger } from './logger.service.js';
-import { ConfigService } from './config.service.js';
+import { Logger, LoggerService } from './logger.service.js';
 
 export type SendEmailOptions = {
   to: string[];
@@ -12,23 +11,23 @@ export type SendEmailOptions = {
   react?: JSX.Element;
 };
 
-export interface SendEmailService {
-  sendEmail: (options: SendEmailOptions) => Promise<void>;
-}
-
-export class ResendSendEmailService implements SendEmailService {
+export class SendEmailService {
   private emailName: string;
   private emailFrom: string;
   private resend: Resend;
 
-  constructor(
-    private logger: Logger,
-    configService: ConfigService,
-  ) {
-    this.emailName = configService.get('EMAIL_NAME');
-    this.emailFrom = configService.get('EMAIL_FROM');
+  private logger: Logger;
 
-    this.resend = new Resend(configService.get('RESEND_API_KEY'));
+  constructor(
+    loggerService: LoggerService,
+    config: { RESEND_API_KEY: string; EMAIL_NAME: string; EMAIL_FROM: string },
+  ) {
+    this.emailName = config.EMAIL_NAME;
+    this.emailFrom = config.EMAIL_FROM;
+
+    this.resend = new Resend(config.RESEND_API_KEY);
+
+    this.logger = loggerService.createLogger('SendEmailService');
   }
 
   public async sendEmail({ to, title, html, text, react }: SendEmailOptions) {
@@ -43,7 +42,7 @@ export class ResendSendEmailService implements SendEmailService {
 
     if (error) {
       this.logger.error({ err: error });
-      throw new Exception(ExceptionCode.INTERNAL_SERVER_ERROR, error.message);
+      throw Exception.InternalServerError(error.message);
     }
   }
 }

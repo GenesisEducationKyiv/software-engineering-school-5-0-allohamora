@@ -2,7 +2,7 @@ import { OpenAPIHono, createRoute } from '@hono/zod-openapi';
 import { z } from 'zod';
 import { SubscriptionService } from 'src/services/subscription.service.js';
 import { Frequency } from 'src/db.schema.js';
-import { Exception, ExceptionCode } from 'src/exception.js';
+import { Exception } from 'src/exception.js';
 
 export const makeSubscriptionRoutes = (app: OpenAPIHono, subscriptionService: SubscriptionService) => {
   const subscribeSchema = z.object({
@@ -57,7 +57,7 @@ export const makeSubscriptionRoutes = (app: OpenAPIHono, subscriptionService: Su
         } else if (contentType.includes('application/x-www-form-urlencoded')) {
           return ctx.req.valid('form');
         } else {
-          throw new Exception(ExceptionCode.VALIDATION_ERROR, 'Unsupported content type');
+          throw Exception.ValidationError('Unsupported content type');
         }
       };
 

@@ -1,10 +1,9 @@
 import { Frequency } from 'src/db.schema.js';
 import { JwtService } from './jwt.service.js';
 import { SubscriptionRepository } from 'src/repositories/subscription.repository.js';
-import { Exception, ExceptionCode } from 'src/exception.js';
-import { WeatherService } from './weather.service.js';
+import { Exception } from 'src/exception.js';
 import { SendEmailTemplateService } from './send-email-template.service.js';
-import { ConfigService } from './config.service.js';
+import { WeatherService } from './weather.service.js';
 
 export type SubscribeOptions = {
   email: string;
@@ -12,13 +11,7 @@ export type SubscribeOptions = {
   frequency: Frequency;
 };
 
-export interface SubscriptionService {
-  subscribe: (options: SubscribeOptions) => Promise<void>;
-  confirm: (token: string) => Promise<void>;
-  unsubscribe: (subscriptionId: string) => Promise<void>;
-}
-
-export class WeatherSubscriptionService implements SubscriptionService {
+export class SubscriptionService {
   private appUrl: string;
 
   constructor(
@@ -26,16 +19,16 @@ export class WeatherSubscriptionService implements SubscriptionService {
     private subscriptionRepository: SubscriptionRepository,
     private weatherService: WeatherService,
     private sendEmailTemplateService: SendEmailTemplateService,
-    configService: ConfigService,
+    config: { APP_URL: string },
   ) {
-    this.appUrl = configService.get('APP_URL');
+    this.appUrl = config.APP_URL;
   }
 
   private async assertIsSubscriptionExists(email: string) {
     const isSubscriptionExists = await this.subscriptionRepository.isSubscriptionExists(email);
 
     if (isSubscriptionExists) {
-      throw new Exception(ExceptionCode.ALREADY_EXISTS, 'Subscription already exists');
+      throw Exception.AlreadyExists('Subscription already exists');
     }
   }
 

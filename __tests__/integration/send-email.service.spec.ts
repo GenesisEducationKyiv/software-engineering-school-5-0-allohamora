@@ -1,18 +1,19 @@
 import { Mock } from 'vitest';
 import { http, HttpResponse, JsonBodyType } from 'msw';
-import { ResendSendEmailService } from 'src/services/send-email.service.js';
+import { SendEmailService } from 'src/services/send-email.service.js';
 import { Exception } from 'src/exception.js';
-import { makeConfigMock } from '__tests__/utils/config.utils.js';
 import { createMockServer } from '__tests__/utils/mock-server.utils.js';
+import { createMock } from '__tests__/utils/mock.utils.js';
+import { LoggerService } from 'src/services/logger.service.js';
 
-describe('ResendSendEmailService (integration)', () => {
+describe('SendEmailService (integration)', () => {
   const EMAIL_NAME = 'Test App';
   const EMAIL_FROM = 'test@example.com';
   const RESEND_API_KEY = 'test_api_key';
 
   let errorSpy: Mock;
 
-  let sendEmailService: ResendSendEmailService;
+  let sendEmailService: SendEmailService;
 
   const mockServer = createMockServer();
 
@@ -52,9 +53,9 @@ describe('ResendSendEmailService (integration)', () => {
   beforeEach(() => {
     errorSpy = vitest.fn();
 
-    sendEmailService = new ResendSendEmailService(
-      { error: errorSpy, info: vi.fn() },
-      makeConfigMock({ EMAIL_NAME, EMAIL_FROM, RESEND_API_KEY }),
+    sendEmailService = new SendEmailService(
+      createMock<LoggerService>({ createLogger: () => ({ error: errorSpy, info: vi.fn() }) }),
+      { EMAIL_NAME, EMAIL_FROM, RESEND_API_KEY },
     );
   });
 

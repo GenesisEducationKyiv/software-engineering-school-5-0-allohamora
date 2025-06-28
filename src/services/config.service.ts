@@ -21,15 +21,13 @@ const configSchema = {
 
   EMAIL_NAME: z.string(),
   EMAIL_FROM: z.string().email(),
+
+  WRITE_LOGS_TO_FILES: z.boolean().default(false),
 } as const;
 
 export type Config = ParsedSchema<typeof configSchema>;
 
-export interface ConfigService {
-  get<T extends keyof Config>(key: T): Config[T];
-}
-
-export class ZnvConfigService implements ConfigService {
+export class ConfigService {
   protected config: Config;
 
   constructor() {
@@ -42,5 +40,9 @@ export class ZnvConfigService implements ConfigService {
 
   public get<T extends keyof Config>(key: T): Config[T] {
     return this.config[key];
+  }
+
+  public getConfig(): Config {
+    return this.config;
   }
 }

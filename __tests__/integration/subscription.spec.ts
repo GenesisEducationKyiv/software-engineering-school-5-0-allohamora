@@ -3,15 +3,15 @@ import { Frequency } from 'src/db.schema.js';
 import { SubscribeOptions } from 'src/services/subscription.service.js';
 import { HttpStatus } from 'src/types/http.types.js';
 import { MockInstance } from 'vitest';
-import { Exception, ExceptionCode } from 'src/exception.js';
+import { Exception } from 'src/exception.js';
 import { randomUUID } from 'node:crypto';
 import { createSigner } from 'fast-jwt';
-import { WeatherService } from 'src/services/weather.service.js';
 import { SubscriptionRepository } from 'src/repositories/subscription.repository.js';
 import { JwtService } from 'src/services/jwt.service.js';
 import { Server } from 'src/server.js';
-import { DrizzleDb } from 'src/services/db.service.js';
+import { Db } from 'src/services/db.service.js';
 import { SendEmailService } from 'src/services/send-email.service.js';
+import { WeatherService } from 'src/services/weather.service.js';
 
 describe('subscription controller (integration)', () => {
   let weatherService: WeatherService;
@@ -19,7 +19,7 @@ describe('subscription controller (integration)', () => {
   let jwtService: JwtService;
   let sendEmailService: SendEmailService;
   let server: Server;
-  let db: DrizzleDb;
+  let db: Db;
 
   let validateCitySpy: MockInstance;
   let sendEmailSpy: MockInstance;
@@ -156,7 +156,7 @@ describe('subscription controller (integration)', () => {
 
     it('returns 400 for invalid city', async () => {
       validateCitySpy.mockImplementationOnce(async () => {
-        throw new Exception(ExceptionCode.VALIDATION_ERROR, 'Invalid city');
+        throw Exception.ValidationError('Invalid city');
       });
 
       await subscribe(
@@ -278,7 +278,7 @@ describe('subscription controller (integration)', () => {
 
     it('returns 400 for invalid city', async () => {
       validateCitySpy.mockImplementationOnce(async () => {
-        throw new Exception(ExceptionCode.VALIDATION_ERROR, 'Invalid city');
+        throw Exception.ValidationError('Invalid city');
       });
 
       await subscribeForm(

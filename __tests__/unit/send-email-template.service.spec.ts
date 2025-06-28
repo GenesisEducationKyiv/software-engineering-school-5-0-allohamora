@@ -1,7 +1,10 @@
 import { Mock } from 'vitest';
-import { JsxSendEmailTemplateService, SendEmailTemplateService } from 'src/services/send-email-template.service.js';
+import { SendEmailTemplateService } from 'src/services/send-email-template.service.js';
+import { SendEmailService } from 'src/services/send-email.service.js';
+import { createMock } from '__tests__/utils/mock.utils.js';
+import { LoggerService } from 'src/services/logger.service.js';
 
-describe('JsxSendEmailTemplateService (unit)', () => {
+describe('SendEmailTemplateService (unit)', () => {
   let service: SendEmailTemplateService;
 
   let sendEmailSpy: Mock;
@@ -11,7 +14,10 @@ describe('JsxSendEmailTemplateService (unit)', () => {
     loggerInfoSpy = vitest.fn();
     sendEmailSpy = vitest.fn();
 
-    service = new JsxSendEmailTemplateService({ sendEmail: sendEmailSpy }, { info: loggerInfoSpy, error: vi.fn() });
+    service = new SendEmailTemplateService(
+      createMock<SendEmailService>({ sendEmail: sendEmailSpy }),
+      createMock<LoggerService>({ createLogger: () => ({ info: loggerInfoSpy, error: vi.fn() }) }),
+    );
   });
 
   describe('sendSubscribeEmail', () => {

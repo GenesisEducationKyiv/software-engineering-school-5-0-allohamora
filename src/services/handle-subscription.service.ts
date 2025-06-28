@@ -1,26 +1,26 @@
 import Dataloader from 'dataloader';
 import { Frequency } from 'src/db.schema.js';
 import { SubscriptionRepository } from 'src/repositories/subscription.repository.js';
-import { Weather, WeatherService } from './weather.service.js';
 import { SendEmailTemplateService } from './send-email-template.service.js';
-import { Logger } from './logger.service.js';
-import { ConfigService } from './config.service.js';
+import { Logger, LoggerService } from './logger.service.js';
+import { Weather } from 'src/providers/weather/weather.provider.js';
+import { WeatherService } from './weather.service.js';
 
-export interface HandleSubscriptionService {
-  createWeatherSubscriptionHandler: (frequency: Frequency) => () => Promise<void>;
-}
-
-export class WeatherHandleSubscriptionService implements HandleSubscriptionService {
+export class HandleSubscriptionService {
   private appUrl: string;
+
+  private logger: Logger;
 
   constructor(
     private subscriptionRepository: SubscriptionRepository,
     private weatherService: WeatherService,
     private sendEmailTemplateService: SendEmailTemplateService,
-    private logger: Logger,
-    configService: ConfigService,
+    loggerService: LoggerService,
+    config: { APP_URL: string },
   ) {
-    this.appUrl = configService.get('APP_URL');
+    this.appUrl = config.APP_URL;
+
+    this.logger = loggerService.createLogger('HandleSubscriptionService');
   }
 
   private makeUnsubscribeLink(subscriptionId: string) {

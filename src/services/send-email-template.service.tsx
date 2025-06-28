@@ -1,6 +1,6 @@
 import { SubscribeTemplate, SubscribeTemplateText } from 'src/templates/subscribe.template.js';
 import { WeatherUpdateTemplate, WeatherUpdateTemplateText } from 'src/templates/weather-update.template.js';
-import { Logger } from './logger.service.js';
+import { Logger, LoggerService } from './logger.service.js';
 import { SendEmailService } from './send-email.service.js';
 
 type SubscribeEmailOptions = {
@@ -18,16 +18,15 @@ type WeatherUpdateEmailOptions = {
   description: string;
 };
 
-export type SendEmailTemplateService = {
-  sendSubscribeEmail: (options: SubscribeEmailOptions) => Promise<void>;
-  sendWeatherUpdateEmail: (options: WeatherUpdateEmailOptions) => Promise<void>;
-}
+export class SendEmailTemplateService {
+  private logger: Logger;
 
-export class JsxSendEmailTemplateService implements SendEmailTemplateService {
   constructor(
     private sendEmailService: SendEmailService,
-    private logger: Logger
-  ) {}
+    loggerService: LoggerService,
+  ) {
+    this.logger = loggerService.createLogger('SendEmailTemplateService');
+  }
 
   public async sendSubscribeEmail({
     to,
