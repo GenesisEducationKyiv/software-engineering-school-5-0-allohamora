@@ -17,7 +17,8 @@ export class LoggerHttpProviderDecorator implements HttpProvider {
   }
 
   private async logResponse(res: Response) {
-    const msg = `"${res.url} - Response: ${await res.text()}"`;
+    const clone = res.clone();
+    const msg = `"${clone.url} - Response: ${await clone.text()}"`;
 
     this.logger.info({ msg });
   }
@@ -26,7 +27,7 @@ export class LoggerHttpProviderDecorator implements HttpProvider {
     const res = await this.httpProvider.get(options);
 
     if (this.isEnabled) {
-      void this.logResponse(res.clone());
+      void this.logResponse(res);
     }
 
     return res;
