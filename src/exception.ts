@@ -32,7 +32,7 @@ export const toHttpCode = (code: ExceptionCode) => {
 export class Exception extends HTTPException {
   public code: ExceptionCode;
 
-  private constructor(code: ExceptionCode, message: string) {
+  constructor(code: ExceptionCode, message: string) {
     super(toHttpCode(code), { message });
 
     this.code = code;
