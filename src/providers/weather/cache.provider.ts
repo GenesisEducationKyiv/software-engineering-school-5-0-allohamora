@@ -1,17 +1,23 @@
 import { CacheService } from 'src/services/cache.service.js';
 import { Weather, WeatherProvider } from './weather.provider.js';
-import { ConfigService } from 'src/services/config.service.js';
 import { Exception, ExceptionCode } from 'src/exception.js';
 
+type Options = {
+  cacheService: CacheService;
+  config: { WEATHER_TTL_SECONDS: number };
+};
+
 export class CacheWeatherProviderProxy implements WeatherProvider {
+  private weatherProvider: WeatherProvider;
+  private cacheService: CacheService;
+
   private weatherTtlSeconds: number;
 
-  constructor(
-    private weatherProvider: WeatherProvider,
-    private cacheService: CacheService,
-    configService: ConfigService,
-  ) {
-    this.weatherTtlSeconds = configService.get('WEATHER_TTL_SECONDS');
+  constructor(weatherProvider: WeatherProvider, { cacheService, config }: Options) {
+    this.weatherProvider = weatherProvider;
+    this.cacheService = cacheService;
+
+    this.weatherTtlSeconds = config.WEATHER_TTL_SECONDS;
   }
 
   private toWeatherCacheKey(city: string) {

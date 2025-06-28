@@ -1,9 +1,7 @@
 import './mocks';
-import { Db } from 'src/services/db.service.js';
-import { Container, createContainer } from 'src/container.js';
+import { Container } from 'src/container.js';
 
-const container = createContainer();
-export const ctx: Container & { db: Db } = { ...container, db: container.dbService.getConnection() };
+export const ctx = new Container();
 
 beforeAll(async () => {
   await ctx.dbService.runMigrations();

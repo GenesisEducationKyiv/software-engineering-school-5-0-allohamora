@@ -7,10 +7,18 @@ const enum CronExpression {
   HOURLY = '0 * * * *',
 }
 
+type Options = {
+  handleSubscriptionService: HandleSubscriptionService;
+};
+
 export class CronService {
   private crons: Cron[] = [];
 
-  constructor(private handleSubscriptionService: HandleSubscriptionService) {}
+  constructor({ handleSubscriptionService }: Options) {
+    this.handleSubscriptionService = handleSubscriptionService;
+  }
+
+  private handleSubscriptionService: HandleSubscriptionService;
 
   public async startCron() {
     this.crons.push(

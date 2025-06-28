@@ -1,11 +1,14 @@
 import { Redis } from 'ioredis';
-import { ConfigService } from './config.service.js';
+
+type Options = {
+  config: { REDIS_URL: string };
+};
 
 export class CacheService {
   private redis: Redis;
 
-  constructor(configService: ConfigService) {
-    this.redis = new Redis(configService.get('REDIS_URL'));
+  constructor({ config }: Options) {
+    this.redis = new Redis(config.REDIS_URL);
   }
 
   public async get<T>(key: string): Promise<T | null> {

@@ -16,12 +16,24 @@ export type ServerInfo = {
   server: ServerType;
 }
 
+type Options = {
+  weatherService: WeatherService;
+  subscriptionService: SubscriptionService;
+};
+
 export class Server {
-  constructor(
-    private weatherService: WeatherService,
-    private subscriptionService: SubscriptionService,
-    private app = new OpenAPIHono(),
-  ) {
+  private weatherService: WeatherService;
+  private subscriptionService: SubscriptionService;
+
+  private app = new OpenAPIHono();
+
+  constructor({
+    weatherService,
+    subscriptionService
+  }: Options) {
+    this.weatherService = weatherService;
+    this.subscriptionService = subscriptionService;
+
     this.setup();
   }
 

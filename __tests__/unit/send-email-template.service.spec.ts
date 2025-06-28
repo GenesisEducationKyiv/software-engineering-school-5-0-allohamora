@@ -14,10 +14,10 @@ describe('SendEmailTemplateService (unit)', () => {
     loggerInfoSpy = vitest.fn();
     sendEmailSpy = vitest.fn();
 
-    service = new SendEmailTemplateService(
-      createMock<SendEmailService>({ sendEmail: sendEmailSpy }),
-      createMock<LoggerService>({ createLogger: () => ({ info: loggerInfoSpy, error: vi.fn() }) }),
-    );
+    service = new SendEmailTemplateService({
+      sendEmailService: createMock<SendEmailService>({ sendEmail: sendEmailSpy }),
+      loggerService: createMock<LoggerService>({ createLogger: () => ({ info: loggerInfoSpy, error: vi.fn() }) }),
+    });
   });
 
   describe('sendSubscribeEmail', () => {

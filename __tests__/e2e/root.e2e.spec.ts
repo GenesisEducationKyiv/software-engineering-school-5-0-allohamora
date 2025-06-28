@@ -4,7 +4,7 @@ import { Db, DbService } from 'src/services/db.service.js';
 import { Browser, chromium, Page } from 'playwright';
 import { Server } from 'src/server.js';
 import { http, HttpResponse, JsonBodyType } from 'msw';
-import { createContainer } from 'src/container.js';
+import { Container } from 'src/container.js';
 import { Frequency } from 'src/db.schema.js';
 import { createMockServer } from '__tests__/utils/mock-server.utils.js';
 import { CacheService } from 'src/services/cache.service.js';
@@ -220,7 +220,7 @@ describe('Root Page E2E Tests', () => {
   beforeAll(async () => {
     mockServer.start();
 
-    ({ dbService, cacheService, server } = createContainer());
+    ({ dbService, cacheService, server } = new Container());
 
     db = dbService.getConnection();
 
