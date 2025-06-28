@@ -4,24 +4,24 @@ import { HandleSubscriptionService } from 'src/services/handle-subscription.serv
 import { SubscriptionRepository } from 'src/repositories/subscription.repository.js';
 import { MockInstance } from 'vitest';
 import { SendEmailService } from 'src/services/send-email.service.js';
-import { WeatherProvider } from 'src/providers/weather/weather.provider.js';
+import { WeatherService } from 'src/services/weather.service.js';
 
 describe('WeatherHandleSubscriptionService (integration)', () => {
   let handleSubscriptionService: HandleSubscriptionService;
   let sendEmailService: SendEmailService;
-  let weatherProvider: WeatherProvider;
+  let weatherService: WeatherService;
   let subscriptionRepository: SubscriptionRepository;
 
   let sendEmailSpy: MockInstance;
   let getWeatherSpy: MockInstance;
 
   beforeAll(() => {
-    ({ handleSubscriptionService, sendEmailService, weatherProvider, subscriptionRepository } = ctx);
+    ({ handleSubscriptionService, sendEmailService, weatherService, subscriptionRepository } = ctx);
   });
 
   beforeEach(async () => {
     sendEmailSpy = vitest.spyOn(sendEmailService, 'sendEmail').mockImplementation(vitest.fn());
-    getWeatherSpy = vitest.spyOn(weatherProvider, 'getWeather').mockImplementation(async (city) => ({
+    getWeatherSpy = vitest.spyOn(weatherService, 'getWeather').mockImplementation(async (city) => ({
       temperature: 20,
       humidity: 50,
       description: city === 'London' ? 'Sunny' : 'Cloudy',

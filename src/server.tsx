@@ -9,7 +9,7 @@ import { Root } from './root.js';
 import { SubscriptionService } from './services/subscription.service.js';
 import { serve, ServerType } from '@hono/node-server';
 import { AddressInfo } from 'node:net';
-import { WeatherProvider } from './providers/weather/weather.provider.js';
+import { WeatherService } from './services/weather.service.js';
 
 export type ServerInfo = {
   info: AddressInfo;
@@ -18,7 +18,7 @@ export type ServerInfo = {
 
 export class Server {
   constructor(
-    private weatherProvider: WeatherProvider,
+    private weatherService: WeatherService,
     private subscriptionService: SubscriptionService,
     private app = new OpenAPIHono(),
   ) {
@@ -51,7 +51,7 @@ export class Server {
     this.app.get('/swagger', swaggerUI({ url: '/swagger.json' }));
 
     const apiRouter = new OpenAPIHono();
-    makeWeatherRoutes(apiRouter, this.weatherProvider);
+    makeWeatherRoutes(apiRouter, this.weatherService);
     makeSubscriptionRoutes(apiRouter, this.subscriptionService);
 
     this.app.route('/api', apiRouter);

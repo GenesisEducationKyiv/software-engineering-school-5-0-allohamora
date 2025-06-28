@@ -14,8 +14,8 @@ import { ApiWeatherProvider } from './providers/weather/api-weather.provider.js'
 import { OpenMeteoProvider } from './providers/weather/open-meteo.provider.js';
 import { FetchHttpProvider } from './providers/http/fetch.provider.js';
 import { LoggerHttpProviderDecorator } from './providers/http/logger.provider.js';
-import { WeatherProvider } from './providers/weather/weather.provider.js';
 import { HttpProvider } from './providers/http/http.provider.js';
+import { WeatherService } from './services/weather.service.js';
 
 export const createContainer = () => {
   const configService = new ConfigService();
@@ -28,8 +28,9 @@ export const createContainer = () => {
 
   const jwtService = new JwtService(configService);
 
-  const weatherProvider: WeatherProvider = new ApiWeatherProvider(httpProvider, configService).setNext(
-    new OpenMeteoProvider(httpProvider),
+  const weatherService = new WeatherService(
+    [new ApiWeatherProvider(httpProvider, configService), new OpenMeteoProvider(httpProvider)],
+    loggerService,
   );
 
   const sendEmailService = new SendEmailService(loggerService, configService);
@@ -38,7 +39,7 @@ export const createContainer = () => {
 
   const handleSubscriptionService = new HandleSubscriptionService(
     subscriptionRepository,
-    weatherProvider,
+    weatherService,
     sendEmailTemplateService,
     loggerService,
     configService,
@@ -47,14 +48,14 @@ export const createContainer = () => {
   const subscriptionService = new SubscriptionService(
     jwtService,
     subscriptionRepository,
-    weatherProvider,
+    weatherService,
     sendEmailTemplateService,
     configService,
   );
 
   const cronService = new CronService(handleSubscriptionService);
 
-  const server = new Server(weatherProvider, subscriptionService);
+  const server = new Server(weatherService, subscriptionService);
 
   const app = new App(server, cronService, dbService, loggerService, configService);
 
@@ -66,7 +67,7 @@ export const createContainer = () => {
     subscriptionService,
     sendEmailService,
     sendEmailTemplateService,
-    weatherProvider,
+    weatherService,
     jwtService,
     subscriptionRepository,
     dbService,

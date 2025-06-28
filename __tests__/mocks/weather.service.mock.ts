@@ -1,9 +1,9 @@
 import { Exception, ExceptionCode } from 'src/exception.js';
 
-vitest.mock('src/providers/weather/api-weather.provider.js', async (importOriginal) => {
-  const { ApiWeatherProvider } = await importOriginal<typeof import('src/providers/weather/api-weather.provider.js')>();
+vitest.mock('src/services/weather.service.js', async (importOriginal) => {
+  const { WeatherService } = await importOriginal<typeof import('src/services/weather.service.js')>();
 
-  class MockApiWeatherProvider extends ApiWeatherProvider {
+  class MockWeatherService extends WeatherService {
     public override async getWeather(city: string) {
       if (city !== 'London') {
         throw new Exception(ExceptionCode.NOT_FOUND, 'No matching location found.');
@@ -23,5 +23,5 @@ vitest.mock('src/providers/weather/api-weather.provider.js', async (importOrigin
     }
   }
 
-  return { ApiWeatherProvider: MockApiWeatherProvider };
+  return { WeatherService: MockWeatherService };
 });

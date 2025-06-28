@@ -4,15 +4,7 @@ export type Weather = {
   description: string; // e.g., "Sunny"
 };
 
-export abstract class WeatherProvider {
-  protected next?: WeatherProvider;
-
-  public abstract getWeather(city: string): Promise<Weather>;
-  public abstract validateCity(city: string): Promise<void>;
-
-  public setNext(provider: WeatherProvider): WeatherProvider {
-    this.next = provider;
-
-    return this;
-  }
+export interface WeatherProvider {
+  getWeather(city: string): Promise<Weather>;
+  validateCity(city: string): Promise<void>;
 }

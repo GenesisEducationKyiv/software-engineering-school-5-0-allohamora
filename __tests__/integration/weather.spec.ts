@@ -3,20 +3,20 @@ import { HttpStatus } from 'src/types/http.types.js';
 import { MockInstance } from 'vitest';
 import { Exception, ExceptionCode } from 'src/exception.js';
 import { Server } from 'src/server.js';
-import { WeatherProvider } from 'src/providers/weather/weather.provider.js';
+import { WeatherService } from 'src/services/weather.service.js';
 
 describe('weather controller (integration)', () => {
   let server: Server;
-  let weatherProvider: WeatherProvider;
+  let weatherService: WeatherService;
 
   let getWeatherSpy: MockInstance;
 
   beforeAll(() => {
-    ({ weatherProvider, server } = ctx);
+    ({ weatherService, server } = ctx);
   });
 
   beforeEach(async () => {
-    getWeatherSpy = vitest.spyOn(weatherProvider, 'getWeather');
+    getWeatherSpy = vitest.spyOn(weatherService, 'getWeather');
   });
 
   afterEach(() => {

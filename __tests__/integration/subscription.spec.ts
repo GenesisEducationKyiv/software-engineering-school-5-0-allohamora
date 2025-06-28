@@ -11,10 +11,10 @@ import { JwtService } from 'src/services/jwt.service.js';
 import { Server } from 'src/server.js';
 import { Db } from 'src/services/db.service.js';
 import { SendEmailService } from 'src/services/send-email.service.js';
-import { WeatherProvider } from 'src/providers/weather/weather.provider.js';
+import { WeatherService } from 'src/services/weather.service.js';
 
 describe('subscription controller (integration)', () => {
-  let weatherProvider: WeatherProvider;
+  let weatherService: WeatherService;
   let subscriptionRepository: SubscriptionRepository;
   let jwtService: JwtService;
   let sendEmailService: SendEmailService;
@@ -25,11 +25,11 @@ describe('subscription controller (integration)', () => {
   let sendEmailSpy: MockInstance;
 
   beforeAll(() => {
-    ({ weatherProvider, subscriptionRepository, jwtService, sendEmailService, server, db } = ctx);
+    ({ weatherService, subscriptionRepository, jwtService, sendEmailService, server, db } = ctx);
   });
 
   beforeEach(async () => {
-    validateCitySpy = vitest.spyOn(weatherProvider, 'validateCity').mockImplementation(vitest.fn());
+    validateCitySpy = vitest.spyOn(weatherService, 'validateCity').mockImplementation(vitest.fn());
     sendEmailSpy = vitest.spyOn(sendEmailService, 'sendEmail').mockImplementation(vitest.fn());
   });
 
