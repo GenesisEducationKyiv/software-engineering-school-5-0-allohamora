@@ -99,10 +99,10 @@ export class ApiWeatherProvider implements WeatherProvider {
     const { error } = data as WeatherErrorResponse;
 
     if (error.code === ErrorCode.NO_MATCHING_LOCATION_FOUND) {
-      throw new Exception(ExceptionCode.NOT_FOUND, error.message);
+      throw Exception.NotFound(error.message);
     }
 
-    throw new Exception(ExceptionCode.INTERNAL_SERVER_ERROR, error?.message);
+    throw Exception.InternalServerError(error?.message);
   }
 
   public async validateCity(city: string): Promise<void> {
@@ -110,7 +110,7 @@ export class ApiWeatherProvider implements WeatherProvider {
       await this.getWeather(city);
     } catch (error) {
       if (error instanceof Exception && error.code === ExceptionCode.NOT_FOUND) {
-        throw new Exception(ExceptionCode.VALIDATION_ERROR, 'City not found');
+        throw Exception.ValidationError('City not found');
       }
 
       throw error;

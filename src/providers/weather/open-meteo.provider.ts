@@ -98,7 +98,7 @@ export class OpenMeteoProvider implements WeatherProvider {
     const data = (await res.json()) as CityResponse;
 
     if (!data?.results || !data.results[0]) {
-      throw new Exception(ExceptionCode.NOT_FOUND, 'No matching location found.');
+      throw Exception.NotFound('No matching location found.');
     }
 
     return data.results[0];
@@ -134,7 +134,7 @@ export class OpenMeteoProvider implements WeatherProvider {
       await this.getCity(city);
     } catch (error) {
       if (error instanceof Exception && error.code === ExceptionCode.NOT_FOUND) {
-        throw new Exception(ExceptionCode.VALIDATION_ERROR, 'City not found');
+        throw Exception.ValidationError('City not found');
       }
 
       throw error;

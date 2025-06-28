@@ -32,9 +32,25 @@ export const toHttpCode = (code: ExceptionCode) => {
 export class Exception extends HTTPException {
   public code: ExceptionCode;
 
-  constructor(code: ExceptionCode, message: string) {
+  private constructor(code: ExceptionCode, message: string) {
     super(toHttpCode(code), { message });
 
     this.code = code;
+  }
+
+  public static NotFound(message: string) {
+    return new Exception(ExceptionCode.NOT_FOUND, message);
+  }
+
+  public static InternalServerError(message: string) {
+    return new Exception(ExceptionCode.INTERNAL_SERVER_ERROR, message);
+  }
+
+  public static ValidationError(message: string) {
+    return new Exception(ExceptionCode.VALIDATION_ERROR, message);
+  }
+
+  public static AlreadyExists(message: string) {
+    return new Exception(ExceptionCode.ALREADY_EXISTS, message);
   }
 }

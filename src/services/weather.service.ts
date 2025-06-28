@@ -27,7 +27,7 @@ export class WeatherService {
       }
     }
 
-    throw new Exception(ExceptionCode.INTERNAL_SERVER_ERROR, 'Failed to execute chain of providers');
+    throw Exception.InternalServerError('Failed to execute chain of providers');
   }
 
   public async getWeather(city: string): Promise<Weather> {

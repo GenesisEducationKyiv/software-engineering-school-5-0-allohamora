@@ -3,7 +3,7 @@ import { Frequency } from 'src/db.schema.js';
 import { SubscribeOptions } from 'src/services/subscription.service.js';
 import { HttpStatus } from 'src/types/http.types.js';
 import { MockInstance } from 'vitest';
-import { Exception, ExceptionCode } from 'src/exception.js';
+import { Exception } from 'src/exception.js';
 import { randomUUID } from 'node:crypto';
 import { createSigner } from 'fast-jwt';
 import { SubscriptionRepository } from 'src/repositories/subscription.repository.js';
@@ -156,7 +156,7 @@ describe('subscription controller (integration)', () => {
 
     it('returns 400 for invalid city', async () => {
       validateCitySpy.mockImplementationOnce(async () => {
-        throw new Exception(ExceptionCode.VALIDATION_ERROR, 'Invalid city');
+        throw Exception.ValidationError('Invalid city');
       });
 
       await subscribe(
@@ -278,7 +278,7 @@ describe('subscription controller (integration)', () => {
 
     it('returns 400 for invalid city', async () => {
       validateCitySpy.mockImplementationOnce(async () => {
-        throw new Exception(ExceptionCode.VALIDATION_ERROR, 'Invalid city');
+        throw Exception.ValidationError('Invalid city');
       });
 
       await subscribeForm(

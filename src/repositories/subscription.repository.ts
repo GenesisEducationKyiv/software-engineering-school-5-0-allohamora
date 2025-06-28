@@ -1,6 +1,6 @@
 import { eq } from 'drizzle-orm';
 import { Frequency, subscriptions } from 'src/db.schema.js';
-import { Exception, ExceptionCode } from 'src/exception.js';
+import { Exception } from 'src/exception.js';
 import { Db, DbService } from 'src/services/db.service.js';
 
 export class SubscriptionRepository {
@@ -15,7 +15,7 @@ export class SubscriptionRepository {
 
     // type-guard
     if (!item) {
-      throw new Exception(ExceptionCode.INTERNAL_SERVER_ERROR, 'Subscription was not returned');
+      throw Exception.InternalServerError('Subscription was not returned');
     }
 
     return item;

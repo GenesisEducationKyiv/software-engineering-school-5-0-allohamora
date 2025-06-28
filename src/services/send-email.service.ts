@@ -1,5 +1,5 @@
 import { Resend } from 'resend';
-import { Exception, ExceptionCode } from 'src/exception.js';
+import { Exception } from 'src/exception.js';
 import { JSX } from 'hono/jsx/jsx-runtime';
 import { Logger, LoggerService } from './logger.service.js';
 import { ConfigService } from './config.service.js';
@@ -40,7 +40,7 @@ export class SendEmailService {
 
     if (error) {
       this.logger.error({ err: error });
-      throw new Exception(ExceptionCode.INTERNAL_SERVER_ERROR, error.message);
+      throw Exception.InternalServerError(error.message);
     }
   }
 }
