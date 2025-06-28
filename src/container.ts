@@ -20,6 +20,7 @@ import { WeatherService } from './services/weather.service.js';
 export const createContainer = () => {
   const configService = new ConfigService();
   const loggerService = new LoggerService(configService);
+
   const httpProvider: HttpProvider = new LoggerHttpProviderDecorator(new FetchHttpProvider(), configService);
 
   const dbService = new DbService(configService);
