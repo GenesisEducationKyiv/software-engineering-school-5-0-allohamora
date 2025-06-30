@@ -17,12 +17,12 @@ export class MetricsService {
     return await this.register.metrics();
   }
 
-  public getCounter(name: string, description: string, keys: string[] = []) {
+  public getCounter(name: string, description: string, labelNames: string[] = []) {
     return new Counter({
       name,
       help: description,
       registers: [this.register],
-      labelNames: keys,
+      labelNames,
     });
   }
 }
