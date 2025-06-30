@@ -18,10 +18,13 @@ import { HttpProvider } from './providers/http/http.provider.js';
 import { CacheService } from './services/cache.service.js';
 import { CacheWeatherProviderProxy } from './providers/weather/cache.provider.js';
 import { WeatherService } from './services/weather.service.js';
+import { MetricsService } from './services/metrics.service.js';
 
 export class Container {
   public configService = new ConfigService();
   public config = this.configService.getConfig();
+
+  public metricsService = new MetricsService();
 
   public loggerService = new LoggerService(this);
 
