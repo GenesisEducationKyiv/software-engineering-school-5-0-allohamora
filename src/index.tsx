@@ -1,7 +1,7 @@
-import { createContainer } from './container.js';
+import { Container } from './container.js';
 
 const main = async () => {
-  const { app } = createContainer();
+  const { app } = new Container();
 
   await app.start();
 };

@@ -41,7 +41,9 @@ describe('LoggerHttpProviderDecorator (integration)', () => {
     let loggerHttpProvider: LoggerHttpProviderDecorator;
 
     beforeEach(() => {
-      loggerHttpProvider = new LoggerHttpProviderDecorator(new FetchHttpProvider(), { WRITE_LOGS_TO_FILES: true });
+      loggerHttpProvider = new LoggerHttpProviderDecorator(new FetchHttpProvider(), {
+        config: { WRITE_LOGS_TO_FILES: true },
+      });
     });
 
     it('calls the underlying HTTP provider', async () => {
@@ -172,7 +174,9 @@ describe('LoggerHttpProviderDecorator (integration)', () => {
     let loggerHttpProvider: LoggerHttpProviderDecorator;
 
     beforeEach(() => {
-      loggerHttpProvider = new LoggerHttpProviderDecorator(new FetchHttpProvider(), { WRITE_LOGS_TO_FILES: false });
+      loggerHttpProvider = new LoggerHttpProviderDecorator(new FetchHttpProvider(), {
+        config: { WRITE_LOGS_TO_FILES: false },
+      });
     });
 
     it('calls the underlying HTTP provider without logging', async () => {

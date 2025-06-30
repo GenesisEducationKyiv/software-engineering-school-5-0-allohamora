@@ -4,9 +4,10 @@ import { Db, DbService } from 'src/services/db.service.js';
 import { Browser, chromium, Page } from 'playwright';
 import { Server } from 'src/server.js';
 import { http, HttpResponse, JsonBodyType } from 'msw';
-import { createContainer } from 'src/container.js';
+import { Container } from 'src/container.js';
 import { Frequency } from 'src/db.schema.js';
 import { createMockServer } from '__tests__/utils/mock-server.utils.js';
+import { CacheService } from 'src/services/cache.service.js';
 import { Chance } from 'chance';
 
 describe('Root Page E2E Tests', () => {
@@ -16,6 +17,7 @@ describe('Root Page E2E Tests', () => {
   let page: Page;
 
   let dbService: DbService;
+  let cacheService: CacheService;
   let db: Db;
   let server: Server;
   let httpServer: ServerType;
@@ -218,7 +220,7 @@ describe('Root Page E2E Tests', () => {
   beforeAll(async () => {
     mockServer.start();
 
-    ({ dbService, server } = createContainer());
+    ({ dbService, cacheService, server } = new Container());
 
     db = dbService.getConnection();
 
@@ -237,6 +239,7 @@ describe('Root Page E2E Tests', () => {
 
   afterEach(async () => {
     await dbService.clearDb();
+    await cacheService.clearAll();
     await page.close();
 
     // here is the solution used https://github.com/mswjs/msw/issues/946#issuecomment-1572768939

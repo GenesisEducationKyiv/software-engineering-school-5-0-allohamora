@@ -6,18 +6,28 @@ import { Logger, LoggerService } from './logger.service.js';
 import { Weather } from 'src/providers/weather/weather.provider.js';
 import { WeatherService } from './weather.service.js';
 
+type Options = {
+  subscriptionRepository: SubscriptionRepository;
+  weatherService: WeatherService;
+  sendEmailTemplateService: SendEmailTemplateService;
+  loggerService: LoggerService;
+  config: { APP_URL: string };
+};
+
 export class HandleSubscriptionService {
+  private subscriptionRepository: SubscriptionRepository;
+  private weatherService: WeatherService;
+  private sendEmailTemplateService: SendEmailTemplateService;
+
   private appUrl: string;
 
   private logger: Logger;
 
-  constructor(
-    private subscriptionRepository: SubscriptionRepository,
-    private weatherService: WeatherService,
-    private sendEmailTemplateService: SendEmailTemplateService,
-    loggerService: LoggerService,
-    config: { APP_URL: string },
-  ) {
+  constructor({ subscriptionRepository, weatherService, sendEmailTemplateService, loggerService, config }: Options) {
+    this.subscriptionRepository = subscriptionRepository;
+    this.weatherService = weatherService;
+    this.sendEmailTemplateService = sendEmailTemplateService;
+
     this.appUrl = config.APP_URL;
 
     this.logger = loggerService.createLogger('HandleSubscriptionService');

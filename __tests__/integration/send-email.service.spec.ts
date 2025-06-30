@@ -53,10 +53,10 @@ describe('SendEmailService (integration)', () => {
   beforeEach(() => {
     errorSpy = vitest.fn();
 
-    sendEmailService = new SendEmailService(
-      createMock<LoggerService>({ createLogger: () => ({ error: errorSpy, info: vi.fn() }) }),
-      { EMAIL_NAME, EMAIL_FROM, RESEND_API_KEY },
-    );
+    sendEmailService = new SendEmailService({
+      loggerService: createMock<LoggerService>({ createLogger: () => ({ error: errorSpy, info: vi.fn() }) }),
+      config: { EMAIL_NAME, EMAIL_FROM, RESEND_API_KEY },
+    });
   });
 
   afterEach(() => {

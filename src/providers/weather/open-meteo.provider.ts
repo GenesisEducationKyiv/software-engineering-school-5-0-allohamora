@@ -83,8 +83,16 @@ const weatherCodeToDescription: Record<number, string> = {
   99: 'Thunderstorm with heavy hail',
 };
 
+type Options = {
+  httpProvider: HttpProvider;
+};
+
 export class OpenMeteoProvider implements WeatherProvider {
-  constructor(private httpProvider: HttpProvider) {}
+  private httpProvider: HttpProvider;
+
+  constructor({ httpProvider }: Options) {
+    this.httpProvider = httpProvider;
+  }
 
   private async getCity(city: string) {
     const res = await this.httpProvider.get({

@@ -4,14 +4,19 @@ import { HttpProvider, GetOptions } from './http.provider.js';
 
 const TEMP_DIR = join(import.meta.dirname, '..', '..', '..', '.temp');
 
+type Options = {
+  config: { WRITE_LOGS_TO_FILES: boolean };
+};
+
 export class LoggerHttpProviderDecorator implements HttpProvider {
+  private httpProvider: HttpProvider;
+
   private filePath = join(TEMP_DIR, `${Date.now()}.txt`);
   private isEnabled: boolean;
 
-  constructor(
-    private httpProvider: HttpProvider,
-    config: { WRITE_LOGS_TO_FILES: boolean },
-  ) {
+  constructor(httpProvider: HttpProvider, { config }: Options) {
+    this.httpProvider = httpProvider;
+
     this.isEnabled = config.WRITE_LOGS_TO_FILES;
   }
 

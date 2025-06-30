@@ -10,6 +10,8 @@ const configSchema = {
   POSTGRES_URL: z.string().url(),
   DRIZZLE_DEBUG: z.boolean().optional().default(true),
 
+  REDIS_URL: z.string().url(),
+
   WEATHER_API_KEY: z.string(),
 
   JWT_SECRET: z.string(),
@@ -21,6 +23,8 @@ const configSchema = {
 
   EMAIL_NAME: z.string(),
   EMAIL_FROM: z.string().email(),
+
+  WEATHER_TTL_SECONDS: z.number(),
 
   WRITE_LOGS_TO_FILES: z.boolean().default(false),
 } as const;

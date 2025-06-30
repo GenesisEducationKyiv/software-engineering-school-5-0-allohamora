@@ -18,13 +18,21 @@ type WeatherUpdateEmailOptions = {
   description: string;
 };
 
+type Options = {
+  sendEmailService: SendEmailService;
+  loggerService: LoggerService;
+};
+
 export class SendEmailTemplateService {
+  private sendEmailService: SendEmailService;
+
   private logger: Logger;
 
-  constructor(
-    private sendEmailService: SendEmailService,
-    loggerService: LoggerService,
-  ) {
+  constructor({
+    sendEmailService,
+    loggerService
+  }: Options) {
+    this.sendEmailService = sendEmailService;
     this.logger = loggerService.createLogger('SendEmailTemplateService');
   }
 

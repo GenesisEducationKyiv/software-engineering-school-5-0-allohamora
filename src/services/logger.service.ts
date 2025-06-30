@@ -5,10 +5,14 @@ export type Logger = {
   error: (data: { err: Error | unknown } & Record<string, unknown>) => void;
 };
 
+type Options = {
+  config: { PINO_LEVEL: string };
+};
+
 export class LoggerService {
   private pino: Pino;
 
-  constructor(config: { PINO_LEVEL: string }) {
+  constructor({ config }: Options) {
     this.pino = pino({
       level: config.PINO_LEVEL,
       transport: {
