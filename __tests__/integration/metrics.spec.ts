@@ -50,7 +50,7 @@ describe('metrics controller (integration)', () => {
     });
 
     it('returns updated counter values after increment', async () => {
-      const testCounter = ctx.metricsService.getCounter('test_counter_total', 'A test counter for integration testing');
+      const testCounter = metricsService.getCounter('test_counter_total', 'A test counter for integration testing');
 
       testCounter.inc();
 
