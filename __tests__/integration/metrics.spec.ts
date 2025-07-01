@@ -27,15 +27,21 @@ describe('metrics controller (integration)', () => {
     it('returns default Node.js metrics', async () => {
       const data = await getMetrics();
 
-      expect(data).toContain('process_cpu_user_seconds_total');
-      expect(data).toContain('process_cpu_system_seconds_total');
-      expect(data).toContain('process_cpu_seconds_total');
-      expect(data).toContain('process_start_time_seconds');
-      expect(data).toContain('process_resident_memory_bytes');
-      expect(data).toContain('nodejs_heap_size_total_bytes');
-      expect(data).toContain('nodejs_heap_size_used_bytes');
-      expect(data).toContain('nodejs_external_memory_bytes');
-      expect(data).toContain('nodejs_heap_space_size_total_bytes');
+      const expectedMetrics = [
+        'process_cpu_user_seconds_total',
+        'process_cpu_system_seconds_total',
+        'process_cpu_seconds_total',
+        'process_start_time_seconds',
+        'process_resident_memory_bytes',
+        'nodejs_heap_size_total_bytes',
+        'nodejs_heap_size_used_bytes',
+        'nodejs_external_memory_bytes',
+        'nodejs_heap_space_size_total_bytes',
+      ];
+
+      for (const metric of expectedMetrics) {
+        expect(data).toContain(metric);
+      }
     });
 
     it('creates counter with initial value of 0', async () => {
