@@ -25,4 +25,8 @@ export class MetricsService {
       labelNames,
     });
   }
+
+  public clearMetrics() {
+    this.register.clear();
+  }
 }

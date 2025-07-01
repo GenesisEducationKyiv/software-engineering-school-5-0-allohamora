@@ -11,6 +11,10 @@ describe('metrics controller (integration)', () => {
     ({ server, metricsService } = ctx);
   });
 
+  afterEach(() => {
+    metricsService.clearMetrics();
+  });
+
   const getMetrics = async (status = HttpStatus.OK) => {
     const res = await server.request('/api/metrics', {
       method: 'GET',

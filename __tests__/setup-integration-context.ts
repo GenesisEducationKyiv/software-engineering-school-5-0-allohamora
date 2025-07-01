@@ -8,6 +8,7 @@ beforeAll(async () => {
 });
 
 afterEach(async () => {
+  ctx.metricsService.clearMetrics();
   await ctx.dbService.clearDb();
   await ctx.cacheService.clearAll();
 });
