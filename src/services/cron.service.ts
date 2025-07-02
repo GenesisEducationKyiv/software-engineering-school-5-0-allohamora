@@ -14,11 +14,11 @@ type Options = {
 export class CronService {
   private crons: Cron[] = [];
 
+  private handleSubscriptionService: HandleSubscriptionService;
+
   constructor({ handleSubscriptionService }: Options) {
     this.handleSubscriptionService = handleSubscriptionService;
   }
-
-  private handleSubscriptionService: HandleSubscriptionService;
 
   public async startCron() {
     this.crons.push(
