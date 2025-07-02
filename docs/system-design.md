@@ -53,18 +53,33 @@
 
 ```mermaid
 flowchart TD
-    Client[Client Browser]
-    NodeApp[Node.js App]
-    DB[(PostgreSQL)]
-    Email[Resend Email Service]
-    Weather[Weather API]
-    Scheduler[Croner Scheduler]
+    subgraph Client
+        User["User Browser"]
+    end
 
-    Client <-->|HTTP| NodeApp
-    Scheduler -->|In-Memory| NodeApp
-    NodeApp <-->|TCP| DB
-    NodeApp <-->|HTTP API| Email
-    NodeApp <-->|HTTP API| Weather
+    subgraph Primary
+        App
+    end
+
+    subgraph Domain
+        Core[Business Logic & Services]
+    end
+
+    subgraph Secondary
+        DB[(PostgreSQL)]
+        Email[Email Service]
+        Weather[Weather API]
+        Scheduler[Scheduler]
+    end
+
+    Client --> |HTTP| Primary
+
+    Primary --> Domain
+
+    Domain --> |SQL| DB
+    Domain --> |HTTP| Email
+    Domain --> |HTTP| Weather
+    Domain --> Scheduler
 ```
 
 ## 4. Detailed Components Design

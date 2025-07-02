@@ -130,17 +130,6 @@ npm run format:fix
 npm run lint:fix
 ```
 
-## Project Architecture
-
-### API Structure
-
-The application follows a clean architecture pattern:
-
-- **Controllers** (`src/controllers/`) - Handle HTTP requests/responses
-- **Services** (`src/services/`) - Implement business logic
-- **Repositories** (`src/repositories/`) - Handle data access
-- **Templates** (`src/templates/`) - Define email templates
-
 ### Design Decisions
 
 #### Weather API Integration
