@@ -1,4 +1,9 @@
+export const enum CronExpression {
+  DAILY = '0 0 * * *',
+  HOURLY = '0 * * * *',
+}
+
 export interface CronProvider {
-  addJob: (pattern: string, handler: () => Promise<void>) => void;
+  addJob: (pattern: CronExpression, handler: () => Promise<void>) => void;
   stopJobs: () => Promise<void>;
 }

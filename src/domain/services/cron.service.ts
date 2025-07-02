@@ -1,11 +1,6 @@
 import { Frequency } from '../entities/subscription.entity.js';
-import { CronProvider } from '../providers/cron.provider.js';
+import { CronProvider, CronExpression } from '../providers/cron.provider.js';
 import { HandleSubscriptionService } from './handle-subscription.service.js';
-
-const enum CronExpression {
-  DAILY = '0 0 * * *',
-  HOURLY = '0 * * * *',
-}
 
 type Options = {
   cronProvider: CronProvider;
