@@ -1,16 +1,7 @@
 import { Resend } from 'resend';
 import { Exception } from 'src/exception.js';
-import { JSX } from 'hono/jsx/jsx-runtime';
-import { EmailProvider } from 'src/domain/providers/email.provider.js';
+import { EmailProvider, SendEmailOptions } from 'src/domain/providers/email.provider.js';
 import { Logger, LoggerProvider } from 'src/domain/providers/logger.provider.js';
-
-export type SendEmailOptions = {
-  to: string[];
-  title: string;
-  html?: string;
-  text?: string;
-  react?: JSX.Element;
-};
 
 type Options = {
   loggerProvider: LoggerProvider;
@@ -34,14 +25,16 @@ export class ResendEmailProvider implements EmailProvider {
     this.logger = loggerProvider.createLogger('EmailProvider');
   }
 
-  public async sendEmail({ to, title, html, text, react }: SendEmailOptions) {
+  public async sendEmail({ to, title, html, text }: SendEmailOptions): Promise<void> {
     const { error } = await this.resend.emails.send({
       from: `${this.emailName} <${this.emailFrom}>`,
       to,
       subject: title,
       html,
       text,
-      react,
+
+      // type issues with required react prop
+      react: undefined,
     });
 
     if (error) {
