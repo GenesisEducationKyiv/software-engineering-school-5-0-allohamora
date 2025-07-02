@@ -3,7 +3,13 @@ export const enum CronExpression {
   HOURLY = '0 * * * *',
 }
 
+export type CronJob = {
+  pattern: CronExpression;
+  handler: () => Promise<void>;
+};
+
 export interface CronProvider {
-  addJob: (pattern: CronExpression, handler: () => Promise<void>) => void;
-  stopJobs: () => Promise<void>;
+  addJob: (job: CronJob) => void;
+  startJobs: () => void;
+  stopJobs: () => void;
 }

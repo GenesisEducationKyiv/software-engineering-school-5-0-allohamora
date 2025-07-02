@@ -1,13 +1,13 @@
 import { ctx } from '__tests__/setup-integration-context.js';
-import { HandleSubscriptionService } from 'src/domain/services/handle-subscription.service.js';
 import { MockInstance } from 'vitest';
 import { WeatherService } from 'src/domain/services/weather.service.js';
 import { SubscriptionRepository } from 'src/domain/repositories/subscription.repository.js';
 import { EmailProvider } from 'src/domain/providers/email.provider.js';
 import { Frequency } from 'src/domain/entities/subscription.entity.js';
+import { SubscriptionService } from 'src/domain/services/subscription.service.js';
 
-describe('HandleSubscriptionService (integration)', () => {
-  let handleSubscriptionService: HandleSubscriptionService;
+describe('SubscriptionService (integration)', () => {
+  let subscriptionService: SubscriptionService;
   let emailProvider: EmailProvider;
   let weatherService: WeatherService;
   let subscriptionRepository: SubscriptionRepository;
@@ -16,7 +16,7 @@ describe('HandleSubscriptionService (integration)', () => {
   let getWeatherSpy: MockInstance;
 
   beforeAll(() => {
-    ({ handleSubscriptionService, emailProvider, weatherService, subscriptionRepository } = ctx);
+    ({ subscriptionService, emailProvider, weatherService, subscriptionRepository } = ctx);
   });
 
   beforeEach(async () => {
@@ -46,7 +46,7 @@ describe('HandleSubscriptionService (integration)', () => {
         testSubscriptions.map((subscription) => subscriptionRepository.createSubscription(subscription)),
       );
 
-      await handleSubscriptionService.createWeatherSubscriptionHandler(frequency)();
+      await subscriptionService.createWeatherSubscriptionHandler(frequency)();
 
       expect(getWeatherSpy).toHaveBeenCalledWith(cities[0]);
       expect(getWeatherSpy).toHaveBeenCalledWith(cities[1]);
@@ -73,7 +73,7 @@ describe('HandleSubscriptionService (integration)', () => {
     });
 
     it(`handles empty subscription list correctly`, async () => {
-      await handleSubscriptionService.createWeatherSubscriptionHandler(frequency)();
+      await subscriptionService.createWeatherSubscriptionHandler(frequency)();
 
       expect(getWeatherSpy).not.toHaveBeenCalled();
       expect(sendEmailSpy).not.toHaveBeenCalled();
@@ -95,7 +95,7 @@ describe('HandleSubscriptionService (integration)', () => {
         testSubscriptions.map((subscription) => subscriptionRepository.createSubscription(subscription)),
       );
 
-      await handleSubscriptionService.createWeatherSubscriptionHandler(frequency)();
+      await subscriptionService.createWeatherSubscriptionHandler(frequency)();
 
       expect(getWeatherSpy).toHaveBeenCalledTimes(cities.length);
       expect(sendEmailSpy).toHaveBeenCalledTimes(55);

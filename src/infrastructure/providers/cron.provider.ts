@@ -1,14 +1,21 @@
 import { Cron } from 'croner';
-import { CronProvider } from 'src/domain/providers/cron.provider.js';
+import { CronJob, CronProvider } from 'src/domain/providers/cron.provider.js';
 
 export class CronerCronProvider implements CronProvider {
+  private jobs: CronJob[] = [];
   private crons: Cron[] = [];
 
-  public addJob(pattern: string, handler: () => Promise<void>) {
-    this.crons.push(new Cron(pattern, handler));
+  public addJob(job: CronJob) {
+    this.jobs.push(job);
   }
 
-  public async stopJobs() {
+  public startJobs() {
+    for (const job of this.jobs) {
+      this.crons.push(new Cron(job.pattern, job.handler));
+    }
+  }
+
+  public stopJobs() {
     for (const cron of this.crons) {
       cron.stop();
     }

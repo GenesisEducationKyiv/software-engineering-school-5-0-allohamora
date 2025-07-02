@@ -1,16 +1,16 @@
 import closeWithGrace, { CloseWithGraceAsyncCallback } from 'close-with-grace';
 import { ServerType } from '@hono/node-server';
 import { Server } from './server.js';
-import { CronService } from '../domain/services/cron.service.js';
 import { promisify } from 'node:util';
 import { DbProvider } from './providers/db.provider.js';
 import { Logger, LoggerProvider } from 'src/domain/providers/logger.provider.js';
+import { CronProvider } from 'src/domain/providers/cron.provider.js';
 
 const GRACEFUL_SHUTDOWN_DELAY = 15_000;
 
 type Options = {
   server: Server;
-  cronService: CronService;
+  cronProvider: CronProvider;
   dbProvider: DbProvider;
   loggerProvider: LoggerProvider;
   config: { PORT: number; NODE_ENV: string };
@@ -18,16 +18,16 @@ type Options = {
 
 export class App {
   private server: Server;
-  private cronService: CronService;
+  private cronProvider: CronProvider;
   private dbProvider: DbProvider;
 
   private port: number;
   private nodeEnv: string;
   private logger: Logger;
 
-  constructor({ server, cronService, dbProvider, loggerProvider, config }: Options) {
+  constructor({ server, cronProvider, dbProvider, loggerProvider, config }: Options) {
     this.server = server;
-    this.cronService = cronService;
+    this.cronProvider = cronProvider;
     this.dbProvider = dbProvider;
 
     this.port = config.PORT;
@@ -43,7 +43,7 @@ export class App {
       await promisify<void>((cb) => server.close(cb))();
 
       await this.dbProvider.disconnectFromDb();
-      await this.cronService.stopCron();
+      this.cronProvider.stopJobs();
 
       this.logger.info({ msg: 'Graceful shutdown has been finished', ...props });
     };
@@ -55,7 +55,7 @@ export class App {
     const { info, server } = await this.server.serve(this.port);
 
     await this.dbProvider.runMigrations();
-    await this.cronService.startCron();
+    this.cronProvider.startJobs();
 
     this.setupGracefulShutdown(server);
 

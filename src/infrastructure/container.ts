@@ -13,9 +13,7 @@ import { CacheWeatherProviderProxy } from './providers/weather/cache.provider.js
 import { WeatherService } from 'src/domain/services/weather.service.js';
 import { JsxTemplateProvider } from './providers/template.provider.js';
 import { ResendEmailProvider } from './providers/email.provider.js';
-import { HandleSubscriptionService } from 'src/domain/services/handle-subscription.service.js';
 import { SubscriptionService } from 'src/domain/services/subscription.service.js';
-import { CronService } from 'src/domain/services/cron.service.js';
 import { CronerCronProvider } from './providers/cron.provider.js';
 import { Server } from './server.js';
 import { App } from './app.js';
@@ -51,11 +49,7 @@ export class Container {
 
   public weatherService = new WeatherService(this);
 
-  public handleSubscriptionService = new HandleSubscriptionService(this);
-
   public subscriptionService = new SubscriptionService(this);
-
-  public cronService = new CronService(this);
 
   public server = new Server(this);
 
