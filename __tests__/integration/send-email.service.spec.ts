@@ -72,28 +72,17 @@ describe('ResendEmailProvider (integration)', () => {
   afterAll(() => mockServer.stop());
 
   describe('sendEmail', () => {
-    it('successfully sends an email with HTML content', async () => {
+    it('successfully sends an email with HTML and text content', async () => {
       mockServer.addHandlers(emailApi.ok());
 
       await expect(
         emailProvider.sendEmail({
           to: ['recipient@example.com'],
-          title: 'Test Email',
-          html: '<p>This is a test email</p>',
-        }),
-      ).resolves.not.toThrow();
-
-      expect(errorSpy).not.toHaveBeenCalled();
-    });
-
-    it('successfully sends an email with text content', async () => {
-      mockServer.addHandlers(emailApi.ok());
-
-      await expect(
-        emailProvider.sendEmail({
-          to: ['recipient@example.com'],
-          title: 'Test Email',
-          text: 'This is a test email',
+          template: {
+            title: 'Test Email',
+            html: '<p>This is a test email</p>',
+            text: 'This is a test email',
+          },
         }),
       ).resolves.not.toThrow();
 
@@ -106,8 +95,11 @@ describe('ResendEmailProvider (integration)', () => {
       await expect(
         emailProvider.sendEmail({
           to: ['recipient1@example.com', 'recipient2@example.com'],
-          title: 'Test Email',
-          html: '<p>This is a test email</p>',
+          template: {
+            title: 'Test Email',
+            html: '<p>This is a test email</p>',
+            text: 'This is a test email',
+          },
         }),
       ).resolves.not.toThrow();
 
@@ -120,8 +112,11 @@ describe('ResendEmailProvider (integration)', () => {
       await expect(
         emailProvider.sendEmail({
           to: ['error@example.com'],
-          title: 'Test Email',
-          html: '<p>This is a test email</p>',
+          template: {
+            title: 'Test Email',
+            html: '<p>This is a test email</p>',
+            text: 'This is a test email',
+          },
         }),
       ).rejects.toThrow(Exception);
 
@@ -140,8 +135,11 @@ describe('ResendEmailProvider (integration)', () => {
       await expect(
         emailProvider.sendEmail({
           to: ['error@example.com'],
-          title: 'Test Email',
-          html: '<p>This is a test email</p>',
+          template: {
+            title: 'Test Email',
+            html: '<p>This is a test email</p>',
+            text: 'This is a test email',
+          },
         }),
       ).rejects.toThrow(Exception);
 
@@ -165,8 +163,11 @@ describe('ResendEmailProvider (integration)', () => {
 
       await emailProvider.sendEmail({
         to: ['recipient@example.com'],
-        title: 'Test Email',
-        html: '<p>This is a test email</p>',
+        template: {
+          title: 'Test Email',
+          html: '<p>This is a test email</p>',
+          text: 'This is a test email',
+        },
       });
     });
   });

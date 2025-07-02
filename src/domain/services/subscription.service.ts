@@ -1,9 +1,10 @@
 import { Exception } from 'src/domain/entities/exception.entity.js';
-import { EmailService } from './email.service.js';
 import { WeatherService } from './weather.service.js';
 import { JwtProvider } from '../providers/jwt.provider.js';
 import { SubscriptionRepository } from '../repositories/subscription.repository.js';
 import { Frequency } from '../entities/subscription.entity.js';
+import { EmailProvider } from '../providers/email.provider.js';
+import { TemplateProvider } from '../providers/templates.provider.js';
 
 export type SubscribeOptions = {
   email: string;
@@ -15,7 +16,8 @@ type Options = {
   jwtProvider: JwtProvider;
   subscriptionRepository: SubscriptionRepository;
   weatherService: WeatherService;
-  emailService: EmailService;
+  emailProvider: EmailProvider;
+  templateProvider: TemplateProvider;
   config: { APP_URL: string };
 };
 
@@ -23,15 +25,24 @@ export class SubscriptionService {
   private jwtProvider: JwtProvider;
   private subscriptionRepository: SubscriptionRepository;
   private weatherService: WeatherService;
-  private emailService: EmailService;
+  private emailProvider: EmailProvider;
+  private templateProvider: TemplateProvider;
 
   private appUrl: string;
 
-  constructor({ jwtProvider, subscriptionRepository, weatherService, emailService, config }: Options) {
+  constructor({
+    jwtProvider,
+    subscriptionRepository,
+    weatherService,
+    emailProvider,
+    templateProvider,
+    config,
+  }: Options) {
     this.jwtProvider = jwtProvider;
     this.subscriptionRepository = subscriptionRepository;
     this.weatherService = weatherService;
-    this.emailService = emailService;
+    this.emailProvider = emailProvider;
+    this.templateProvider = templateProvider;
 
     this.appUrl = config.APP_URL;
   }
@@ -56,10 +67,12 @@ export class SubscriptionService {
     const token = await this.jwtProvider.sign(options);
     const confirmationLink = this.makeConfirmationLink(token);
 
-    await this.emailService.sendSubscribeEmail({
-      to: options.email,
-      city: options.city,
-      confirmationLink,
+    await this.emailProvider.sendEmail({
+      to: [options.email],
+      template: this.templateProvider.getSubscribeTemplate({
+        city: options.city,
+        confirmationLink,
+      }),
     });
   }
 

@@ -1,15 +1,17 @@
 import Dataloader from 'dataloader';
-import { EmailService } from './email.service.js';
 import { WeatherService } from './weather.service.js';
 import { Logger, LoggerProvider } from '../providers/logger.provider.js';
 import { Weather } from '../entities/weather.entity.js';
 import { SubscriptionRepository } from '../repositories/subscription.repository.js';
 import { Frequency } from '../entities/subscription.entity.js';
+import { EmailProvider } from '../providers/email.provider.js';
+import { TemplateProvider } from '../providers/templates.provider.js';
 
 type Options = {
   subscriptionRepository: SubscriptionRepository;
   weatherService: WeatherService;
-  emailService: EmailService;
+  emailProvider: EmailProvider;
+  templateProvider: TemplateProvider;
   loggerProvider: LoggerProvider;
   config: { APP_URL: string };
 };
@@ -17,16 +19,25 @@ type Options = {
 export class HandleSubscriptionService {
   private subscriptionRepository: SubscriptionRepository;
   private weatherService: WeatherService;
-  private emailService: EmailService;
+  private emailProvider: EmailProvider;
+  private templateProvider: TemplateProvider;
 
   private appUrl: string;
 
   private logger: Logger;
 
-  constructor({ subscriptionRepository, weatherService, emailService, loggerProvider, config }: Options) {
+  constructor({
+    subscriptionRepository,
+    weatherService,
+    emailProvider,
+    templateProvider,
+    loggerProvider,
+    config,
+  }: Options) {
     this.subscriptionRepository = subscriptionRepository;
     this.weatherService = weatherService;
-    this.emailService = emailService;
+    this.emailProvider = emailProvider;
+    this.templateProvider = templateProvider;
 
     this.appUrl = config.APP_URL;
 
@@ -54,11 +65,13 @@ export class HandleSubscriptionService {
           const weather = await dataloader.load(city);
           const unsubscribeLink = this.makeUnsubscribeLink(id);
 
-          await this.emailService.sendWeatherUpdateEmail({
-            to: email,
-            city,
-            unsubscribeLink,
-            ...weather,
+          await this.emailProvider.sendEmail({
+            to: [email],
+            template: this.templateProvider.getWeatherUpdateTemplate({
+              city,
+              unsubscribeLink,
+              ...weather,
+            }),
           });
         }
       }

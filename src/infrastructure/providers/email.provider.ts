@@ -25,16 +25,12 @@ export class ResendEmailProvider implements EmailProvider {
     this.logger = loggerProvider.createLogger('EmailProvider');
   }
 
-  public async sendEmail({ to, title, html, text }: SendEmailOptions): Promise<void> {
+  public async sendEmail({ to, template: { title, ...rest } }: SendEmailOptions): Promise<void> {
     const { error } = await this.resend.emails.send({
       from: `${this.emailName} <${this.emailFrom}>`,
       to,
       subject: title,
-      html,
-      text,
-
-      // type issues with required react prop
-      react: undefined,
+      ...rest,
     });
 
     if (error) {

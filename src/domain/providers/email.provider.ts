@@ -1,8 +1,8 @@
+import { Template } from './templates.provider.js';
+
 export type SendEmailOptions = {
   to: string[];
-  title: string;
-  html?: string;
-  text?: string;
+  template: Template;
 };
 
 export interface EmailProvider {

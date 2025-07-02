@@ -11,7 +11,7 @@ import { ApiWeatherProvider } from './providers/weather/api-weather.provider.js'
 import { OpenMeteoProvider } from './providers/weather/open-meteo.provider.js';
 import { CacheWeatherProviderProxy } from './providers/weather/cache.provider.js';
 import { WeatherService } from 'src/domain/services/weather.service.js';
-import { EmailService } from 'src/domain/services/email.service.js';
+import { JsxTemplateProvider } from './providers/template.provider.js';
 import { ResendEmailProvider } from './providers/email.provider.js';
 import { HandleSubscriptionService } from 'src/domain/services/handle-subscription.service.js';
 import { SubscriptionService } from 'src/domain/services/subscription.service.js';
@@ -37,6 +37,8 @@ export class Container {
 
   public jwtProvider = new FastJwtProvider(this);
 
+  public templateProvider = new JsxTemplateProvider();
+
   public emailProvider = new ResendEmailProvider(this);
 
   public cronProvider = new CronerCronProvider();
@@ -48,8 +50,6 @@ export class Container {
   );
 
   public weatherService = new WeatherService(this);
-
-  public emailService = new EmailService(this);
 
   public handleSubscriptionService = new HandleSubscriptionService(this);
 
