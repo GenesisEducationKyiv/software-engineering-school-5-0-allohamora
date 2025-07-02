@@ -12,6 +12,8 @@ import { AddressInfo } from 'node:net';
 import { WeatherService } from '../domain/services/weather.service.js';
 import { makeMetricsRoutes } from './controllers/metrics.controller.js';
 import { MetricsProvider } from './providers/metrics.provider.js';
+import { Exception, ExceptionCode } from 'src/domain/exception.js';
+import { HttpStatus } from 'src/infrastructure/types/http.types.js';
 
 export type ServerInfo = {
   info: AddressInfo;
@@ -43,12 +45,26 @@ export class Server {
     this.setup();
   }
 
+  private toHttpCode(code: ExceptionCode) {
+    switch (code) {
+      case ExceptionCode.NOT_FOUND:
+        return HttpStatus.NOT_FOUND;
+      case ExceptionCode.VALIDATION_ERROR:
+        return HttpStatus.BAD_REQUEST;
+      case ExceptionCode.ALREADY_EXISTS:
+        return HttpStatus.CONFLICT;
+      case ExceptionCode.INTERNAL_SERVER_ERROR:
+      default:
+        return HttpStatus.INTERNAL_SERVER_ERROR;
+    }
+  };
+
   private setup() {
     this.app.use(secureHeaders());
 
     this.app.onError((err, c) => {
-      const message = err instanceof HTTPException ? err.message : 'internal server error';
-      const statusCode = err instanceof HTTPException ? err.status : 500;
+      const message = err instanceof Exception ? err.message : 'internal server error';
+      const statusCode = err instanceof Exception ? this.toHttpCode(err.code) : HttpStatus.INTERNAL_SERVER_ERROR;
 
       return c.json({ message }, statusCode);
     });

@@ -1,4 +1,4 @@
-import { Exception } from 'src/exception.js';
+import { Exception } from 'src/domain/exception.js';
 
 vitest.mock('src/domain/services/weather.service.js', async (importOriginal) => {
   const { WeatherService } = await importOriginal<typeof import('src/domain/services/weather.service.js')>();

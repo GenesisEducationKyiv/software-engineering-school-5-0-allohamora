@@ -1,6 +1,3 @@
-import { HTTPException } from 'hono/http-exception';
-import { HttpStatus } from './types/http.types.js';
-
 /*
   This is a set of application-specific exception codes that can be used to identify
   different types of exceptions that may occur in the application.
@@ -15,25 +12,11 @@ export const enum ExceptionCode {
   ALREADY_EXISTS = 'ALREADY_EXISTS',
 }
 
-export const toHttpCode = (code: ExceptionCode) => {
-  switch (code) {
-    case ExceptionCode.NOT_FOUND:
-      return HttpStatus.NOT_FOUND;
-    case ExceptionCode.VALIDATION_ERROR:
-      return HttpStatus.BAD_REQUEST;
-    case ExceptionCode.ALREADY_EXISTS:
-      return HttpStatus.CONFLICT;
-    case ExceptionCode.INTERNAL_SERVER_ERROR:
-    default:
-      return HttpStatus.INTERNAL_SERVER_ERROR;
-  }
-};
-
-export class Exception extends HTTPException {
+export class Exception extends Error {
   public code: ExceptionCode;
 
   constructor(code: ExceptionCode, message: string) {
-    super(toHttpCode(code), { message });
+    super(message);
 
     this.code = code;
   }

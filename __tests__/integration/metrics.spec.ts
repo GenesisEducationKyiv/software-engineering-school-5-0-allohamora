@@ -1,5 +1,5 @@
 import { ctx } from '__tests__/setup-integration-context.js';
-import { HttpStatus } from 'src/types/http.types.js';
+import { HttpStatus } from 'src/infrastructure/types/http.types.js';
 import { Server } from 'src/infrastructure/server.js';
 import { MetricsProvider } from 'src/infrastructure/providers/metrics.provider.js';
 

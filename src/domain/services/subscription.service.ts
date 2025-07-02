@@ -1,4 +1,4 @@
-import { Exception } from 'src/exception.js';
+import { Exception } from 'src/domain/exception.js';
 import { EmailService } from './email.service.js';
 import { WeatherService } from './weather.service.js';
 import { JwtProvider } from '../providers/jwt.provider.js';

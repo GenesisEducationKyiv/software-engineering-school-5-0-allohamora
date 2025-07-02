@@ -1,4 +1,4 @@
-import { Exception } from 'src/exception.js';
+import { Exception } from 'src/domain/exception.js';
 import { HttpProvider, BuildUrlOptions, GetOptions } from './http.provider.js';
 
 export class FetchHttpProvider implements HttpProvider {

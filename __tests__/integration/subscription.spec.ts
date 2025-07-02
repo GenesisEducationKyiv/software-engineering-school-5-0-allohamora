@@ -1,8 +1,8 @@
 import { ctx } from '__tests__/setup-integration-context.js';
 import { SubscribeOptions } from 'src/domain/services/subscription.service.js';
-import { HttpStatus } from 'src/types/http.types.js';
+import { HttpStatus } from 'src/infrastructure/types/http.types.js';
 import { MockInstance } from 'vitest';
-import { Exception } from 'src/exception.js';
+import { Exception } from 'src/domain/exception.js';
 import { randomUUID } from 'node:crypto';
 import { createSigner } from 'fast-jwt';
 import { Server } from 'src/infrastructure/server.js';

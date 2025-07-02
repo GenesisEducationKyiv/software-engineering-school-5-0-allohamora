@@ -1,5 +1,5 @@
 import { Resend } from 'resend';
-import { Exception } from 'src/exception.js';
+import { Exception } from 'src/domain/exception.js';
 import { EmailProvider, SendEmailOptions } from 'src/domain/providers/email.provider.js';
 import { Logger, LoggerProvider } from 'src/domain/providers/logger.provider.js';
 
