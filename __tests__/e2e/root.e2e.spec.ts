@@ -1,3 +1,4 @@
+import '../mocks/config.provider.mock.js';
 import { ServerType } from '@hono/node-server';
 import { Db, DbProvider } from 'src/infrastructure/providers/db.provider.js';
 import { Browser, chromium, Page } from 'playwright';
@@ -8,7 +9,6 @@ import { createMockServer } from '__tests__/utils/mock-server.utils.js';
 import { CacheProvider } from 'src/infrastructure/providers/cache.provider.js';
 import { Chance } from 'chance';
 import { Frequency } from 'src/domain/entities/subscription.entity.js';
-import '../mocks/config.provider.mock.js';
 
 describe('Root Page E2E Tests', () => {
   let BASE_URL: string;
