@@ -1,11 +1,9 @@
 import { secureHeaders } from 'hono/secure-headers';
-import { HTTPException } from 'hono/http-exception';
 import { serveStatic } from '@hono/node-server/serve-static';
 import { swaggerUI } from '@hono/swagger-ui';
-import { OpenAPIHono, createRoute } from '@hono/zod-openapi';
+import { OpenAPIHono } from '@hono/zod-openapi';
 import { makeSubscriptionRoutes } from './controllers/subscription.controller.js';
 import { makeWeatherRoutes } from './controllers/weather.controller.js';
-import { Root } from './root.js';
 import { SubscriptionService } from '../domain/services/subscription.service.js';
 import { serve, ServerType } from '@hono/node-server';
 import { AddressInfo } from 'node:net';
@@ -14,6 +12,7 @@ import { makeMetricsRoutes } from './controllers/metrics.controller.js';
 import { MetricsProvider } from './providers/metrics.provider.js';
 import { Exception, ExceptionCode } from 'src/domain/entities/exception.entity.js';
 import { HttpStatus } from 'src/infrastructure/types/http.types.js';
+import { makeUiRoutes } from './controllers/ui.controller.js';
 
 export type ServerInfo = {
   info: AddressInfo;
@@ -69,11 +68,7 @@ export class Server {
       return c.json({ message }, statusCode);
     });
 
-    // if you specify the 200 schema as a string, you cannot be able to use c.html because of type issues
-    this.app.openapi(
-      createRoute({ method: 'get', path: '/', responses: { 200: { description: 'the root page' } } }),
-      async (ctx) => await ctx.html(<Root />),
-    );
+    makeUiRoutes(this.app);
 
     this.app.doc('/swagger.json', {
       openapi: '3.0.0',

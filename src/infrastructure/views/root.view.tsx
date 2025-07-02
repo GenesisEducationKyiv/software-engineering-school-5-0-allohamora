@@ -1,8 +1,8 @@
 import type { FC } from 'hono/jsx';
 import { html } from 'hono/html';
-import { Frequency } from '../domain/entities/subscription.entity.js';
+import { Frequency } from 'src/domain/entities/subscription.entity.js';
 
-export const Root: FC = () => {
+export const RootView: FC = () => {
   return (
     <>
       {html`<!doctype html>`}
