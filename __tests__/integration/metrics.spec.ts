@@ -1,18 +1,18 @@
 import { ctx } from '__tests__/setup-integration-context.js';
 import { HttpStatus } from 'src/types/http.types.js';
-import { Server } from 'src/server.js';
-import { MetricsService } from 'src/services/metrics.service.js';
+import { Server } from 'src/infrastructure/server.js';
+import { MetricsProvider } from 'src/infrastructure/providers/metrics.provider.js';
 
 describe('metrics controller (integration)', () => {
   let server: Server;
-  let metricsService: MetricsService;
+  let metricsProvider: MetricsProvider;
 
   beforeAll(() => {
-    ({ server, metricsService } = ctx);
+    ({ server, metricsProvider } = ctx);
   });
 
   afterEach(() => {
-    metricsService.clearMetrics();
+    metricsProvider.clearMetrics();
   });
 
   const getMetrics = async (status = HttpStatus.OK) => {
@@ -49,7 +49,7 @@ describe('metrics controller (integration)', () => {
     });
 
     it('creates counter with initial value of 0', async () => {
-      metricsService.getCounter('test_initial_counter_total', 'A test counter to verify initial value');
+      metricsProvider.getCounter('test_initial_counter_total', 'A test counter to verify initial value');
 
       const data = await getMetrics();
 
@@ -60,7 +60,7 @@ describe('metrics controller (integration)', () => {
     });
 
     it('returns updated counter values after increment', async () => {
-      const testCounter = metricsService.getCounter('test_counter_total', 'A test counter for integration testing');
+      const testCounter = metricsProvider.getCounter('test_counter_total', 'A test counter for integration testing');
 
       testCounter.inc();
 

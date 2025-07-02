@@ -1,14 +1,14 @@
-import '../mocks/config.mock.js';
 import { ServerType } from '@hono/node-server';
-import { Db, DbService } from 'src/services/db.service.js';
+import { Db, DbProvider } from 'src/infrastructure/providers/db.provider.js';
 import { Browser, chromium, Page } from 'playwright';
-import { Server } from 'src/server.js';
+import { Server } from 'src/infrastructure/server.js';
 import { http, HttpResponse, JsonBodyType } from 'msw';
-import { Container } from 'src/container.js';
-import { Frequency } from 'src/db.schema.js';
+import { Container } from 'src/infrastructure/container.js';
 import { createMockServer } from '__tests__/utils/mock-server.utils.js';
-import { CacheService } from 'src/services/cache.service.js';
+import { CacheProvider } from 'src/infrastructure/providers/cache.provider.js';
 import { Chance } from 'chance';
+import { Frequency } from 'src/domain/entities/subscription.entity.js';
+import '../mocks/config.provider.mock.js';
 
 describe('Root Page E2E Tests', () => {
   let BASE_URL: string;
@@ -16,8 +16,8 @@ describe('Root Page E2E Tests', () => {
   let browser: Browser;
   let page: Page;
 
-  let dbService: DbService;
-  let cacheService: CacheService;
+  let dbProvider: DbProvider;
+  let cacheProvider: CacheProvider;
   let db: Db;
   let server: Server;
   let httpServer: ServerType;
@@ -220,16 +220,16 @@ describe('Root Page E2E Tests', () => {
   beforeAll(async () => {
     mockServer.start();
 
-    ({ dbService, cacheService, server } = new Container());
+    ({ dbProvider, cacheProvider, server } = new Container());
 
-    db = dbService.getConnection();
+    db = dbProvider.getConnection();
 
     const { info, server: serverInstance } = await server.serve(0);
 
     BASE_URL = `http://localhost:${info.port}`;
     httpServer = serverInstance;
 
-    await dbService.runMigrations();
+    await dbProvider.runMigrations();
     browser = await chromium.launch();
   });
 
@@ -238,8 +238,8 @@ describe('Root Page E2E Tests', () => {
   });
 
   afterEach(async () => {
-    await dbService.clearDb();
-    await cacheService.clearAll();
+    await dbProvider.clearDb();
+    await cacheProvider.clearAll();
     await page.close();
 
     // here is the solution used https://github.com/mswjs/msw/issues/946#issuecomment-1572768939
@@ -252,7 +252,7 @@ describe('Root Page E2E Tests', () => {
   afterAll(async () => {
     mockServer.stop();
 
-    await dbService.disconnectFromDb();
+    await dbProvider.disconnectFromDb();
     await browser.close();
     httpServer.close();
   });

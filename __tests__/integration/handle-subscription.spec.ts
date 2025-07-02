@@ -1,14 +1,14 @@
 import { ctx } from '__tests__/setup-integration-context.js';
-import { Frequency } from 'src/db.schema.js';
-import { HandleSubscriptionService } from 'src/services/handle-subscription.service.js';
-import { SubscriptionRepository } from 'src/repositories/subscription.repository.js';
+import { HandleSubscriptionService } from 'src/domain/services/handle-subscription.service.js';
 import { MockInstance } from 'vitest';
-import { SendEmailService } from 'src/services/send-email.service.js';
-import { WeatherService } from 'src/services/weather.service.js';
+import { WeatherService } from 'src/domain/services/weather.service.js';
+import { SubscriptionRepository } from 'src/domain/repositories/subscription.repository.js';
+import { EmailProvider } from 'src/domain/providers/email.provider.js';
+import { Frequency } from 'src/domain/entities/subscription.entity.js';
 
-describe('WeatherHandleSubscriptionService (integration)', () => {
+describe('HandleSubscriptionService (integration)', () => {
   let handleSubscriptionService: HandleSubscriptionService;
-  let sendEmailService: SendEmailService;
+  let emailProvider: EmailProvider;
   let weatherService: WeatherService;
   let subscriptionRepository: SubscriptionRepository;
 
@@ -16,11 +16,11 @@ describe('WeatherHandleSubscriptionService (integration)', () => {
   let getWeatherSpy: MockInstance;
 
   beforeAll(() => {
-    ({ handleSubscriptionService, sendEmailService, weatherService, subscriptionRepository } = ctx);
+    ({ handleSubscriptionService, emailProvider, weatherService, subscriptionRepository } = ctx);
   });
 
   beforeEach(async () => {
-    sendEmailSpy = vitest.spyOn(sendEmailService, 'sendEmail').mockImplementation(vitest.fn());
+    sendEmailSpy = vitest.spyOn(emailProvider, 'sendEmail').mockImplementation(vitest.fn());
     getWeatherSpy = vitest.spyOn(weatherService, 'getWeather').mockImplementation(async (city) => ({
       temperature: 20,
       humidity: 50,

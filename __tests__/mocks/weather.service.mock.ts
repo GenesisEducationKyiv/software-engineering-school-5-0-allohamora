@@ -1,7 +1,7 @@
 import { Exception } from 'src/exception.js';
 
-vitest.mock('src/services/weather.service.js', async (importOriginal) => {
-  const { WeatherService } = await importOriginal<typeof import('src/services/weather.service.js')>();
+vitest.mock('src/domain/services/weather.service.js', async (importOriginal) => {
+  const { WeatherService } = await importOriginal<typeof import('src/domain/services/weather.service.js')>();
 
   class MockWeatherService extends WeatherService {
     public override async getWeather(city: string) {

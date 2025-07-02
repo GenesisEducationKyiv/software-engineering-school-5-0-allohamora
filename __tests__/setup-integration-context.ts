@@ -1,18 +1,18 @@
-import './mocks';
-import { Container } from 'src/container.js';
+import { Container } from 'src/infrastructure/container.js';
+import './mocks/index.js';
 
 export const ctx = new Container();
 
 beforeAll(async () => {
-  await ctx.dbService.runMigrations();
+  await ctx.dbProvider.runMigrations();
 });
 
 afterEach(async () => {
-  ctx.metricsService.clearMetrics();
-  await ctx.dbService.clearDb();
-  await ctx.cacheService.clearAll();
+  ctx.metricsProvider.clearMetrics();
+  await ctx.dbProvider.clearDb();
+  await ctx.cacheProvider.clearAll();
 });
 
 afterAll(async () => {
-  await ctx.dbService.disconnectFromDb();
+  await ctx.dbProvider.disconnectFromDb();
 });

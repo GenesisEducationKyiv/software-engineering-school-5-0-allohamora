@@ -1,12 +1,12 @@
 import { ctx } from '__tests__/setup-integration-context.js';
-import { CacheService } from 'src/services/cache.service.js';
+import { CacheProvider } from 'src/infrastructure/providers/cache.provider.js';
 import { scheduler } from 'node:timers/promises';
 
 describe('CacheService (integration)', () => {
-  let cacheService: CacheService;
+  let cacheProvider: CacheProvider;
 
   beforeAll(() => {
-    ({ cacheService } = ctx);
+    ({ cacheProvider } = ctx);
   });
 
   describe('set and get', () => {
@@ -15,8 +15,8 @@ describe('CacheService (integration)', () => {
       const value = 'hello world';
       const ttl = 3600;
 
-      await cacheService.set(key, value, ttl);
-      const result = await cacheService.get<string>(key);
+      await cacheProvider.set(key, value, ttl);
+      const result = await cacheProvider.get<string>(key);
 
       expect(result).toBe(value);
     });
@@ -26,8 +26,8 @@ describe('CacheService (integration)', () => {
       const value = 42;
       const ttl = 3600;
 
-      await cacheService.set(key, value, ttl);
-      const result = await cacheService.get<number>(key);
+      await cacheProvider.set(key, value, ttl);
+      const result = await cacheProvider.get<number>(key);
 
       expect(result).toBe(value);
     });
@@ -37,14 +37,14 @@ describe('CacheService (integration)', () => {
       const value = { name: 'John', age: 30 };
       const ttl = 3600;
 
-      await cacheService.set(key, value, ttl);
-      const result = await cacheService.get<typeof value>(key);
+      await cacheProvider.set(key, value, ttl);
+      const result = await cacheProvider.get<typeof value>(key);
 
       expect(result).toEqual(value);
     });
 
     it('returns null for non-existent key', async () => {
-      const result = await cacheService.get<string>('non-existent');
+      const result = await cacheProvider.get<string>('non-existent');
 
       expect(result).toBeNull();
     });
@@ -54,14 +54,14 @@ describe('CacheService (integration)', () => {
       const value = 'expires soon';
       const ttl = 1;
 
-      await cacheService.set(key, value, ttl);
+      await cacheProvider.set(key, value, ttl);
 
-      const immediateResult = await cacheService.get<string>(key);
+      const immediateResult = await cacheProvider.get<string>(key);
       expect(immediateResult).toBe(value);
 
       await scheduler.wait(ttl * 1000 + 100);
 
-      const expiredResult = await cacheService.get<string>(key);
+      const expiredResult = await cacheProvider.get<string>(key);
       expect(expiredResult).toBeNull();
     });
   });
@@ -71,12 +71,12 @@ describe('CacheService (integration)', () => {
       const data = Array.from({ length: 10 }, (_, i) => `test-${i}`);
       const ttl = 3600;
 
-      await Promise.all(data.map((item) => cacheService.set(item, item, ttl)));
+      await Promise.all(data.map((item) => cacheProvider.set(item, item, ttl)));
 
-      await cacheService.clearAll();
+      await cacheProvider.clearAll();
 
       for (const item of data) {
-        const result = await cacheService.get<string>(item);
+        const result = await cacheProvider.get<string>(item);
         expect(result).toBeNull();
       }
     });

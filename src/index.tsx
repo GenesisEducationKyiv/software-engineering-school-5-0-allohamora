@@ -1,4 +1,4 @@
-import { Container } from './container.js';
+import { Container } from './infrastructure/container.js';
 
 const main = async () => {
   const { app } = new Container();

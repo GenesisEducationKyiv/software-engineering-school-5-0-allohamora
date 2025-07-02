@@ -1,7 +1,7 @@
 import * as fsp from 'node:fs/promises';
 import { http, HttpResponse } from 'msw';
-import { LoggerHttpProviderDecorator } from 'src/providers/http/logger.provider.js';
-import { FetchHttpProvider } from 'src/providers/http/fetch.provider.js';
+import { LoggerHttpProviderDecorator } from 'src/infrastructure/providers/http/logger.provider.js';
+import { FetchHttpProvider } from 'src/infrastructure/providers/http/fetch.provider.js';
 import { createMockServer } from '__tests__/utils/mock-server.utils.js';
 import { scheduler } from 'node:timers/promises';
 import { MockInstance } from 'vitest';

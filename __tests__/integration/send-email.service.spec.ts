@@ -1,19 +1,20 @@
 import { Mock } from 'vitest';
 import { http, HttpResponse, JsonBodyType } from 'msw';
-import { SendEmailService } from 'src/services/send-email.service.js';
 import { Exception } from 'src/exception.js';
 import { createMockServer } from '__tests__/utils/mock-server.utils.js';
 import { createMock } from '__tests__/utils/mock.utils.js';
-import { LoggerService } from 'src/services/logger.service.js';
+import { LoggerProvider } from 'src/domain/providers/logger.provider.js';
+import { ResendEmailProvider } from 'src/infrastructure/providers/email.provider.js';
+import { EmailProvider } from 'src/domain/providers/email.provider.js';
 
-describe('SendEmailService (integration)', () => {
+describe('ResendEmailProvider (integration)', () => {
   const EMAIL_NAME = 'Test App';
   const EMAIL_FROM = 'test@example.com';
   const RESEND_API_KEY = 'test_api_key';
 
   let errorSpy: Mock;
 
-  let sendEmailService: SendEmailService;
+  let emailProvider: EmailProvider;
 
   const mockServer = createMockServer();
 
@@ -53,8 +54,8 @@ describe('SendEmailService (integration)', () => {
   beforeEach(() => {
     errorSpy = vitest.fn();
 
-    sendEmailService = new SendEmailService({
-      loggerService: createMock<LoggerService>({ createLogger: () => ({ error: errorSpy, info: vi.fn() }) }),
+    emailProvider = new ResendEmailProvider({
+      loggerProvider: createMock<LoggerProvider>({ createLogger: () => ({ error: errorSpy, info: vi.fn() }) }),
       config: { EMAIL_NAME, EMAIL_FROM, RESEND_API_KEY },
     });
   });
@@ -75,7 +76,7 @@ describe('SendEmailService (integration)', () => {
       mockServer.addHandlers(emailApi.ok());
 
       await expect(
-        sendEmailService.sendEmail({
+        emailProvider.sendEmail({
           to: ['recipient@example.com'],
           title: 'Test Email',
           html: '<p>This is a test email</p>',
@@ -89,7 +90,7 @@ describe('SendEmailService (integration)', () => {
       mockServer.addHandlers(emailApi.ok());
 
       await expect(
-        sendEmailService.sendEmail({
+        emailProvider.sendEmail({
           to: ['recipient@example.com'],
           title: 'Test Email',
           text: 'This is a test email',
@@ -103,7 +104,7 @@ describe('SendEmailService (integration)', () => {
       mockServer.addHandlers(emailApi.ok());
 
       await expect(
-        sendEmailService.sendEmail({
+        emailProvider.sendEmail({
           to: ['recipient1@example.com', 'recipient2@example.com'],
           title: 'Test Email',
           html: '<p>This is a test email</p>',
@@ -117,7 +118,7 @@ describe('SendEmailService (integration)', () => {
       mockServer.addHandlers(emailApi.badRequest());
 
       await expect(
-        sendEmailService.sendEmail({
+        emailProvider.sendEmail({
           to: ['error@example.com'],
           title: 'Test Email',
           html: '<p>This is a test email</p>',
@@ -137,7 +138,7 @@ describe('SendEmailService (integration)', () => {
       mockServer.addHandlers(emailApi.unauthorized());
 
       await expect(
-        sendEmailService.sendEmail({
+        emailProvider.sendEmail({
           to: ['error@example.com'],
           title: 'Test Email',
           html: '<p>This is a test email</p>',
@@ -162,7 +163,7 @@ describe('SendEmailService (integration)', () => {
         }),
       );
 
-      await sendEmailService.sendEmail({
+      await emailProvider.sendEmail({
         to: ['recipient@example.com'],
         title: 'Test Email',
         html: '<p>This is a test email</p>',

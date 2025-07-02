@@ -2,8 +2,8 @@ import { ctx } from '__tests__/setup-integration-context.js';
 import { HttpStatus } from 'src/types/http.types.js';
 import { MockInstance } from 'vitest';
 import { Exception } from 'src/exception.js';
-import { Server } from 'src/server.js';
-import { WeatherService } from 'src/services/weather.service.js';
+import { Server } from 'src/infrastructure/server.js';
+import { WeatherService } from 'src/domain/services/weather.service.js';
 
 describe('weather controller (integration)', () => {
   let server: Server;

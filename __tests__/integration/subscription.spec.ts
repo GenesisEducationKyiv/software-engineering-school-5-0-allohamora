@@ -1,23 +1,23 @@
 import { ctx } from '__tests__/setup-integration-context.js';
-import { Frequency } from 'src/db.schema.js';
-import { SubscribeOptions } from 'src/services/subscription.service.js';
+import { SubscribeOptions } from 'src/domain/services/subscription.service.js';
 import { HttpStatus } from 'src/types/http.types.js';
 import { MockInstance } from 'vitest';
 import { Exception } from 'src/exception.js';
 import { randomUUID } from 'node:crypto';
 import { createSigner } from 'fast-jwt';
-import { SubscriptionRepository } from 'src/repositories/subscription.repository.js';
-import { JwtService } from 'src/services/jwt.service.js';
-import { Server } from 'src/server.js';
-import { Db } from 'src/services/db.service.js';
-import { SendEmailService } from 'src/services/send-email.service.js';
-import { WeatherService } from 'src/services/weather.service.js';
+import { Server } from 'src/infrastructure/server.js';
+import { WeatherService } from 'src/domain/services/weather.service.js';
+import { SubscriptionRepository } from 'src/domain/repositories/subscription.repository.js';
+import { JwtProvider } from 'src/domain/providers/jwt.provider.js';
+import { EmailProvider } from 'src/domain/providers/email.provider.js';
+import { Db } from 'src/infrastructure/providers/db.provider.js';
+import { Frequency } from 'src/domain/entities/subscription.entity.js';
 
 describe('subscription controller (integration)', () => {
   let weatherService: WeatherService;
   let subscriptionRepository: SubscriptionRepository;
-  let jwtService: JwtService;
-  let sendEmailService: SendEmailService;
+  let jwtProvider: JwtProvider;
+  let emailProvider: EmailProvider;
   let server: Server;
   let db: Db;
 
@@ -25,12 +25,12 @@ describe('subscription controller (integration)', () => {
   let sendEmailSpy: MockInstance;
 
   beforeAll(() => {
-    ({ weatherService, subscriptionRepository, jwtService, sendEmailService, server, db } = ctx);
+    ({ weatherService, subscriptionRepository, jwtProvider, emailProvider, server, db } = ctx);
   });
 
   beforeEach(async () => {
     validateCitySpy = vitest.spyOn(weatherService, 'validateCity').mockImplementation(vitest.fn());
-    sendEmailSpy = vitest.spyOn(sendEmailService, 'sendEmail').mockImplementation(vitest.fn());
+    sendEmailSpy = vitest.spyOn(emailProvider, 'sendEmail').mockImplementation(vitest.fn());
   });
 
   afterEach(() => {
@@ -343,7 +343,7 @@ describe('subscription controller (integration)', () => {
         frequency: Frequency.Daily,
       };
 
-      const token = await jwtService.sign(subscribeData);
+      const token = await jwtProvider.sign(subscribeData);
       const { message } = await confirm(token, HttpStatus.OK);
       expect(message).toBe('Subscription confirmed successfully');
 
@@ -382,7 +382,7 @@ describe('subscription controller (integration)', () => {
         frequency: Frequency.Daily,
       });
 
-      const token = await jwtService.sign({
+      const token = await jwtProvider.sign({
         email: 'test@example.com',
         city: 'Berlin',
         frequency: Frequency.Hourly,

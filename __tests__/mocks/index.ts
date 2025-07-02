@@ -1,3 +1,3 @@
-import './config.mock.js';
-import './send-email.service.mock.js';
+import './config.provider.mock.js';
+import './email.provider.mock.js';
 import './weather.service.mock.js';
