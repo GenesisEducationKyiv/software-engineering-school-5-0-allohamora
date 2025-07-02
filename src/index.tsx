@@ -1,4 +1,4 @@
-import { Container } from './primary/adapters/container.js';
+import { Container } from './container.js';
 
 const main = async () => {
   const { app } = new Container();

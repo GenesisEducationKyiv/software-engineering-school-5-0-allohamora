@@ -2,7 +2,7 @@ import { ctx } from '__tests__/setup-integration-context.js';
 import { HttpStatus } from 'src/secondary/types/http.types.js';
 import { MockInstance } from 'vitest';
 import { Exception } from 'src/domain/entities/exception.entity.js';
-import { Server } from 'src/primary/server.js';
+import { Server } from 'src/primary/adapters/server.js';
 import { WeatherService } from 'src/domain/services/weather.service.js';
 
 describe('weather controller (integration)', () => {

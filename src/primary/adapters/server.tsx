@@ -2,17 +2,17 @@ import { secureHeaders } from 'hono/secure-headers';
 import { serveStatic } from '@hono/node-server/serve-static';
 import { swaggerUI } from '@hono/swagger-ui';
 import { OpenAPIHono } from '@hono/zod-openapi';
-import { makeSubscriptionRoutes } from './controllers/subscription.controller.js';
-import { makeWeatherRoutes } from './controllers/weather.controller.js';
-import { SubscriptionService } from '../domain/services/subscription.service.js';
+import { makeSubscriptionRoutes } from '../controllers/subscription.controller.js';
+import { makeWeatherRoutes } from '../controllers/weather.controller.js';
+import { SubscriptionService } from 'src/domain/services/subscription.service.js';
 import { serve, ServerType } from '@hono/node-server';
 import { AddressInfo } from 'node:net';
-import { WeatherService } from '../domain/services/weather.service.js';
-import { makeMetricsRoutes } from './controllers/metrics.controller.js';
-import { MetricsProvider } from '../secondary/adapters/metrics.provider.js';
+import { WeatherService } from 'src/domain/services/weather.service.js';
+import { makeMetricsRoutes } from '../controllers/metrics.controller.js';
+import { MetricsProvider } from 'src/secondary/adapters/metrics.provider.js';
 import { Exception, ExceptionCode } from 'src/domain/entities/exception.entity.js';
 import { HttpStatus } from 'src/secondary/types/http.types.js';
-import { makeUiRoutes } from './controllers/ui.controller.js';
+import { makeUiRoutes } from '../controllers/ui.controller.js';
 
 export type ServerInfo = {
   info: AddressInfo;

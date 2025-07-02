@@ -5,7 +5,7 @@ import { MockInstance } from 'vitest';
 import { Exception } from 'src/domain/entities/exception.entity.js';
 import { randomUUID } from 'node:crypto';
 import { createSigner } from 'fast-jwt';
-import { Server } from 'src/primary/server.js';
+import { Server } from 'src/primary/adapters/server.js';
 import { WeatherService } from 'src/domain/services/weather.service.js';
 import { SubscriptionRepository } from 'src/domain/ports/subscription.repository.js';
 import { JwtProvider } from 'src/domain/ports/jwt.provider.js';

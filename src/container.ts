@@ -15,8 +15,8 @@ import { JsxTemplateProvider } from 'src/secondary/adapters/template.provider.js
 import { ResendEmailProvider } from 'src/secondary/adapters/email.provider.js';
 import { SubscriptionService } from 'src/domain/services/subscription.service.js';
 import { CronerCronProvider } from 'src/secondary/adapters/cron.provider.js';
-import { Server } from '../server.js';
-import { App } from './app.js';
+import { Server } from 'src/primary/adapters/server.js';
+import { App } from 'src/primary/adapters/app.js';
 
 export class Container {
   public configProvider = new ConfigProvider();
