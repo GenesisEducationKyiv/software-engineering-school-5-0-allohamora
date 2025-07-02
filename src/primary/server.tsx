@@ -9,9 +9,9 @@ import { serve, ServerType } from '@hono/node-server';
 import { AddressInfo } from 'node:net';
 import { WeatherService } from '../domain/services/weather.service.js';
 import { makeMetricsRoutes } from './controllers/metrics.controller.js';
-import { MetricsProvider } from './adapters/metrics.provider.js';
+import { MetricsProvider } from '../secondary/adapters/metrics.provider.js';
 import { Exception, ExceptionCode } from 'src/domain/entities/exception.entity.js';
-import { HttpStatus } from 'src/infrastructure/types/http.types.js';
+import { HttpStatus } from 'src/secondary/types/http.types.js';
 import { makeUiRoutes } from './controllers/ui.controller.js';
 
 export type ServerInfo = {

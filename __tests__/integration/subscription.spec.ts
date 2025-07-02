@@ -1,16 +1,16 @@
 import { ctx } from '__tests__/setup-integration-context.js';
 import { SubscribeOptions } from 'src/domain/services/subscription.service.js';
-import { HttpStatus } from 'src/infrastructure/types/http.types.js';
+import { HttpStatus } from 'src/secondary/types/http.types.js';
 import { MockInstance } from 'vitest';
 import { Exception } from 'src/domain/entities/exception.entity.js';
 import { randomUUID } from 'node:crypto';
 import { createSigner } from 'fast-jwt';
-import { Server } from 'src/infrastructure/server.js';
+import { Server } from 'src/primary/server.js';
 import { WeatherService } from 'src/domain/services/weather.service.js';
 import { SubscriptionRepository } from 'src/domain/ports/subscription.repository.js';
 import { JwtProvider } from 'src/domain/ports/jwt.provider.js';
 import { EmailProvider } from 'src/domain/ports/email.provider.js';
-import { Db } from 'src/infrastructure/adapters/db.provider.js';
+import { Db } from 'src/secondary/adapters/db.provider.js';
 import { Frequency } from 'src/domain/entities/subscription.entity.js';
 
 describe('subscription controller (integration)', () => {

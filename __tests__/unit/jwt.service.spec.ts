@@ -1,7 +1,7 @@
 import { JwtProvider } from 'src/domain/ports/jwt.provider.js';
-import { FastJwtProvider } from 'src/infrastructure/adapters/jwt.provider.js';
+import { FastJwtProvider } from 'src/secondary/adapters/jwt.provider.js';
 
-describe('JwtService (unit)', () => {
+describe('FastJwtProvider (unit)', () => {
   const JWT_SECRET = 'test-secret';
   const JWT_EXPIRES_IN = 3600;
 

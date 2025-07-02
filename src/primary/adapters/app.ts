@@ -1,8 +1,8 @@
 import closeWithGrace, { CloseWithGraceAsyncCallback } from 'close-with-grace';
 import { ServerType } from '@hono/node-server';
-import { Server } from './server.js';
+import { Server } from '../server.js';
 import { promisify } from 'node:util';
-import { DbProvider } from './adapters/db.provider.js';
+import { DbProvider } from '../../secondary/adapters/db.provider.js';
 import { Logger, LoggerProvider } from 'src/domain/ports/logger.provider.js';
 import { CronProvider } from 'src/domain/ports/cron.providers.js';
 

@@ -1,5 +1,5 @@
 import './mocks/index.js';
-import { Container } from 'src/infrastructure/container.js';
+import { Container } from 'src/primary/adapters/container.js';
 
 export const ctx = new Container();
 

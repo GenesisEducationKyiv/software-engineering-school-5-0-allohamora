@@ -1,5 +1,5 @@
 import { eq } from 'drizzle-orm';
-import { subscriptions } from 'src/infrastructure/db.schema.js';
+import { subscriptions } from 'src/secondary/db.schema.js';
 import { Exception } from 'src/domain/entities/exception.entity.js';
 import { Db, DbProvider } from './db.provider.js';
 import { SubscriptionRepository } from 'src/domain/ports/subscription.repository.js';

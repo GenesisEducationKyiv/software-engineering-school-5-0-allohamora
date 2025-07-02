@@ -1,5 +1,5 @@
 import { OpenAPIHono, createRoute } from '@hono/zod-openapi';
-import { MetricsProvider } from '../adapters/metrics.provider.js';
+import { MetricsProvider } from 'src/secondary/adapters/metrics.provider.js';
 import { z } from 'zod';
 
 export const makeMetricsRoutes = (app: OpenAPIHono, metricsProvider: MetricsProvider) => {

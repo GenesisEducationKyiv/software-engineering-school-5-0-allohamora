@@ -1,7 +1,7 @@
 import { config } from 'dotenv';
 
-vitest.mock('src/infrastructure/providers/config.provider.js', async (importOriginal) => {
-  const { ConfigProvider } = await importOriginal<typeof import('src/infrastructure/adapters/config.provider.js')>();
+vitest.mock('src/secondary/providers/config.provider.js', async (importOriginal) => {
+  const { ConfigProvider } = await importOriginal<typeof import('src/secondary/adapters/config.provider.js')>();
 
   const result = config({ path: '.env.example' });
   if (result.error) {
@@ -23,7 +23,7 @@ vitest.mock('src/infrastructure/providers/config.provider.js', async (importOrig
         PINO_LEVEL: 'fatal',
 
         WRITE_LOGS_TO_FILES: false,
-      } as import('src/infrastructure/adapters/config.provider.js').Config;
+      } as import('src/secondary/adapters/config.provider.js').Config;
     }
   }
 

@@ -1,21 +1,21 @@
-import { ConfigProvider } from './adapters/config.provider.js';
-import { PinoLoggerProvider } from './adapters/logger.provider.js';
-import { MetricsProvider } from './adapters/metrics.provider.js';
-import { LoggerHttpProviderDecorator } from './adapters/http/logger.provider.js';
-import { FetchHttpProvider } from './adapters/http/fetch.provider.js';
-import { DbProvider } from './adapters/db.provider.js';
-import { CacheProvider } from './adapters/cache.provider.js';
-import { DrizzleSubscriptionRepository } from './adapters/subscription.repository.js';
-import { FastJwtProvider } from './adapters/jwt.provider.js';
-import { ApiWeatherProvider } from './adapters/weather/api-weather.provider.js';
-import { OpenMeteoProvider } from './adapters/weather/open-meteo.provider.js';
-import { CacheWeatherProviderProxy } from './adapters/weather/cache.provider.js';
+import { ConfigProvider } from 'src/secondary/adapters/config.provider.js';
+import { PinoLoggerProvider } from 'src/secondary/adapters/logger.provider.js';
+import { MetricsProvider } from 'src/secondary/adapters/metrics.provider.js';
+import { LoggerHttpProviderDecorator } from 'src/secondary/adapters/http/logger.provider.js';
+import { FetchHttpProvider } from 'src/secondary/adapters/http/fetch.provider.js';
+import { DbProvider } from 'src/secondary/adapters/db.provider.js';
+import { CacheProvider } from 'src/secondary/adapters/cache.provider.js';
+import { DrizzleSubscriptionRepository } from 'src/secondary/adapters/subscription.repository.js';
+import { FastJwtProvider } from 'src/secondary/adapters/jwt.provider.js';
+import { ApiWeatherProvider } from 'src/secondary/adapters/weather/api-weather.provider.js';
+import { OpenMeteoProvider } from 'src/secondary/adapters/weather/open-meteo.provider.js';
+import { CacheWeatherProviderProxy } from 'src/secondary/adapters/weather/cache.provider.js';
 import { WeatherService } from 'src/domain/services/weather.service.js';
-import { JsxTemplateProvider } from './adapters/template.provider.js';
-import { ResendEmailProvider } from './adapters/email.provider.js';
+import { JsxTemplateProvider } from 'src/secondary/adapters/template.provider.js';
+import { ResendEmailProvider } from 'src/secondary/adapters/email.provider.js';
 import { SubscriptionService } from 'src/domain/services/subscription.service.js';
-import { CronerCronProvider } from './adapters/cron.provider.js';
-import { Server } from './server.js';
+import { CronerCronProvider } from 'src/secondary/adapters/cron.provider.js';
+import { Server } from '../server.js';
 import { App } from './app.js';
 
 export class Container {
