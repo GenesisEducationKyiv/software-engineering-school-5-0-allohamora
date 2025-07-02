@@ -3,9 +3,9 @@ import { http, HttpResponse, JsonBodyType } from 'msw';
 import { Exception } from 'src/domain/entities/exception.entity.js';
 import { createMockServer } from '__tests__/utils/mock-server.utils.js';
 import { createMock } from '__tests__/utils/mock.utils.js';
-import { LoggerProvider } from 'src/domain/providers/logger.provider.js';
-import { ResendEmailProvider } from 'src/infrastructure/providers/email.provider.js';
-import { EmailProvider } from 'src/domain/providers/email.provider.js';
+import { LoggerProvider } from 'src/domain/ports/logger.provider.js';
+import { ResendEmailProvider } from 'src/infrastructure/adapters/email.provider.js';
+import { EmailProvider } from 'src/domain/ports/email.provider.js';
 
 describe('ResendEmailProvider (integration)', () => {
   const EMAIL_NAME = 'Test App';

@@ -2,9 +2,9 @@ import closeWithGrace, { CloseWithGraceAsyncCallback } from 'close-with-grace';
 import { ServerType } from '@hono/node-server';
 import { Server } from './server.js';
 import { promisify } from 'node:util';
-import { DbProvider } from './providers/db.provider.js';
-import { Logger, LoggerProvider } from 'src/domain/providers/logger.provider.js';
-import { CronProvider } from 'src/domain/providers/cron.provider.js';
+import { DbProvider } from './adapters/db.provider.js';
+import { Logger, LoggerProvider } from 'src/domain/ports/logger.provider.js';
+import { CronProvider } from 'src/domain/ports/cron.providers.js';
 
 const GRACEFUL_SHUTDOWN_DELAY = 15_000;
 

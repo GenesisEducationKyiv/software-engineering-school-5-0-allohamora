@@ -1,5 +1,5 @@
-import { JwtProvider } from 'src/domain/providers/jwt.provider.js';
-import { FastJwtProvider } from 'src/infrastructure/providers/jwt.provider.js';
+import { JwtProvider } from 'src/domain/ports/jwt.provider.js';
+import { FastJwtProvider } from 'src/infrastructure/adapters/jwt.provider.js';
 
 describe('JwtService (unit)', () => {
   const JWT_SECRET = 'test-secret';

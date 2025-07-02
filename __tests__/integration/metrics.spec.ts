@@ -1,7 +1,7 @@
 import { ctx } from '__tests__/setup-integration-context.js';
 import { HttpStatus } from 'src/infrastructure/types/http.types.js';
 import { Server } from 'src/infrastructure/server.js';
-import { MetricsProvider } from 'src/infrastructure/providers/metrics.provider.js';
+import { MetricsProvider } from 'src/infrastructure/adapters/metrics.provider.js';
 
 describe('metrics controller (integration)', () => {
   let server: Server;

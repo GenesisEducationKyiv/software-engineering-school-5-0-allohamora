@@ -1,5 +1,5 @@
-import { TemplateProvider } from 'src/domain/providers/templates.provider.js';
-import { JsxTemplateProvider } from 'src/infrastructure/providers/template.provider.js';
+import { TemplateProvider } from 'src/domain/ports/templates.provider.js';
+import { JsxTemplateProvider } from 'src/infrastructure/adapters/template.provider.js';
 
 describe('JsxTemplateProvider (unit)', () => {
   let templateProvider: TemplateProvider;

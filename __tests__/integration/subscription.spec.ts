@@ -7,10 +7,10 @@ import { randomUUID } from 'node:crypto';
 import { createSigner } from 'fast-jwt';
 import { Server } from 'src/infrastructure/server.js';
 import { WeatherService } from 'src/domain/services/weather.service.js';
-import { SubscriptionRepository } from 'src/domain/repositories/subscription.repository.js';
-import { JwtProvider } from 'src/domain/providers/jwt.provider.js';
-import { EmailProvider } from 'src/domain/providers/email.provider.js';
-import { Db } from 'src/infrastructure/providers/db.provider.js';
+import { SubscriptionRepository } from 'src/domain/ports/subscription.repository.js';
+import { JwtProvider } from 'src/domain/ports/jwt.provider.js';
+import { EmailProvider } from 'src/domain/ports/email.provider.js';
+import { Db } from 'src/infrastructure/adapters/db.provider.js';
 import { Frequency } from 'src/domain/entities/subscription.entity.js';
 
 describe('subscription controller (integration)', () => {

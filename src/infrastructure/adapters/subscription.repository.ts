@@ -1,8 +1,8 @@
 import { eq } from 'drizzle-orm';
 import { subscriptions } from 'src/infrastructure/db.schema.js';
 import { Exception } from 'src/domain/entities/exception.entity.js';
-import { Db, DbProvider } from '../providers/db.provider.js';
-import { SubscriptionRepository } from 'src/domain/repositories/subscription.repository.js';
+import { Db, DbProvider } from './db.provider.js';
+import { SubscriptionRepository } from 'src/domain/ports/subscription.repository.js';
 import { CreateSubscriptionDto } from 'src/domain/dtos/create-subcription.dto.js';
 import { Frequency } from 'src/domain/entities/subscription.entity.js';
 

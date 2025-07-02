@@ -1,12 +1,12 @@
 import '../mocks/config.provider.mock.js';
 import { ServerType } from '@hono/node-server';
-import { Db, DbProvider } from 'src/infrastructure/providers/db.provider.js';
+import { Db, DbProvider } from 'src/infrastructure/adapters/db.provider.js';
 import { Browser, chromium, Page } from 'playwright';
 import { Server } from 'src/infrastructure/server.js';
 import { http, HttpResponse, JsonBodyType } from 'msw';
 import { Container } from 'src/infrastructure/container.js';
 import { createMockServer } from '__tests__/utils/mock-server.utils.js';
-import { CacheProvider } from 'src/infrastructure/providers/cache.provider.js';
+import { CacheProvider } from 'src/infrastructure/adapters/cache.provider.js';
 import { Chance } from 'chance';
 import { Frequency } from 'src/domain/entities/subscription.entity.js';
 
