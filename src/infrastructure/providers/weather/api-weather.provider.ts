@@ -1,4 +1,4 @@
-import { Exception, ExceptionCode } from 'src/domain/exception.js';
+import { Exception, ExceptionCode } from 'src/domain/entities/exception.entity.js';
 import { WeatherProvider } from 'src/domain/providers/weather.provider.js';
 import { Weather } from 'src/domain/entities/weather.entity.js';
 import { HttpProvider } from '../http/http.provider.js';

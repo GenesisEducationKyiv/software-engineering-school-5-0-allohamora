@@ -1,7 +1,7 @@
 import { ctx } from '__tests__/setup-integration-context.js';
 import { HttpStatus } from 'src/infrastructure/types/http.types.js';
 import { MockInstance } from 'vitest';
-import { Exception } from 'src/domain/exception.js';
+import { Exception } from 'src/domain/entities/exception.entity.js';
 import { Server } from 'src/infrastructure/server.js';
 import { WeatherService } from 'src/domain/services/weather.service.js';
 

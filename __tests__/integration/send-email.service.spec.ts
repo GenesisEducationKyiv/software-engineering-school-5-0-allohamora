@@ -1,6 +1,6 @@
 import { Mock } from 'vitest';
 import { http, HttpResponse, JsonBodyType } from 'msw';
-import { Exception } from 'src/domain/exception.js';
+import { Exception } from 'src/domain/entities/exception.entity.js';
 import { createMockServer } from '__tests__/utils/mock-server.utils.js';
 import { createMock } from '__tests__/utils/mock.utils.js';
 import { LoggerProvider } from 'src/domain/providers/logger.provider.js';

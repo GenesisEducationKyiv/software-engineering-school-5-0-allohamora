@@ -12,7 +12,7 @@ import { AddressInfo } from 'node:net';
 import { WeatherService } from '../domain/services/weather.service.js';
 import { makeMetricsRoutes } from './controllers/metrics.controller.js';
 import { MetricsProvider } from './providers/metrics.provider.js';
-import { Exception, ExceptionCode } from 'src/domain/exception.js';
+import { Exception, ExceptionCode } from 'src/domain/entities/exception.entity.js';
 import { HttpStatus } from 'src/infrastructure/types/http.types.js';
 
 export type ServerInfo = {

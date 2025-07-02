@@ -1,7 +1,7 @@
 import { CacheProvider } from '../cache.provider.js';
 import { WeatherProvider } from 'src/domain/providers/weather.provider.js';
 import { Weather } from 'src/domain/entities/weather.entity.js';
-import { Exception, ExceptionCode } from 'src/domain/exception.js';
+import { Exception, ExceptionCode } from 'src/domain/entities/exception.entity.js';
 
 type Options = {
   cacheProvider: CacheProvider;

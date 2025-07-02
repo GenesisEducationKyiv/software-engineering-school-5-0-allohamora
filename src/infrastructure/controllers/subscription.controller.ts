@@ -1,7 +1,7 @@
 import { OpenAPIHono, createRoute } from '@hono/zod-openapi';
 import { z } from 'zod';
 import { SubscriptionService } from 'src/domain/services/subscription.service.js';
-import { Exception } from 'src/domain/exception.js';
+import { Exception } from 'src/domain/entities/exception.entity.js';
 import { Frequency } from 'src/domain/entities/subscription.entity.js';
 
 export const makeSubscriptionRoutes = (app: OpenAPIHono, subscriptionService: SubscriptionService) => {
