@@ -3,7 +3,7 @@ import { HttpStatus } from 'src/primary/types/http.types.js';
 import { MockInstance } from 'vitest';
 import { Exception } from 'src/domain/entities/exception.entity.js';
 import { Server } from 'src/primary/adapters/server.js';
-import { WeatherService } from 'src/domain/services/weather.service.js';
+import { WeatherService } from 'src/domain/ports/primary/weather.service.js';
 
 describe('weather controller (integration)', () => {
   let server: Server;

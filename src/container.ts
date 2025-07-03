@@ -10,10 +10,10 @@ import { FastJwtProvider } from 'src/secondary/adapters/jwt.provider.js';
 import { ApiWeatherProvider } from 'src/secondary/adapters/weather/api-weather.provider.js';
 import { OpenMeteoProvider } from 'src/secondary/adapters/weather/open-meteo.provider.js';
 import { CacheWeatherProviderProxy } from 'src/secondary/adapters/weather/cache.provider.js';
-import { WeatherService } from 'src/domain/services/weather.service.js';
+import { ChainWeatherService } from 'src/domain/services/chain.weather.service.js';
 import { JsxTemplateProvider } from 'src/secondary/adapters/template.provider.js';
 import { ResendEmailProvider } from 'src/secondary/adapters/email.provider.js';
-import { SubscriptionService } from 'src/domain/services/subscription.service.js';
+import { JwtSubscriptionService } from 'src/domain/services/jwt.subscription.service.js';
 import { CronerCronProvider } from 'src/secondary/adapters/cron.provider.js';
 import { Server } from 'src/primary/adapters/server.js';
 import { App } from 'src/primary/adapters/app.js';
@@ -47,9 +47,9 @@ export class Container {
     (provider) => new CacheWeatherProviderProxy(provider, this),
   );
 
-  public weatherService = new WeatherService(this);
+  public weatherService = new ChainWeatherService(this);
 
-  public subscriptionService = new SubscriptionService(this);
+  public subscriptionService = new JwtSubscriptionService(this);
 
   public server = new Server(this);
 

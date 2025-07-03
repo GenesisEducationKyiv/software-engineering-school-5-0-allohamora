@@ -1,9 +1,9 @@
 import { Exception } from 'src/domain/entities/exception.entity.js';
 
 vitest.mock('src/domain/services/weather.service.js', async (importOriginal) => {
-  const { WeatherService } = await importOriginal<typeof import('src/domain/services/weather.service.js')>();
+  const { ChainWeatherService } = await importOriginal<typeof import('src/domain/services/chain.weather.service.js')>();
 
-  class MockWeatherService extends WeatherService {
+  class MockChainWeatherService extends ChainWeatherService {
     public override async getWeather(city: string) {
       if (city !== 'London') {
         throw Exception.NotFound('No matching location found.');
@@ -23,5 +23,5 @@ vitest.mock('src/domain/services/weather.service.js', async (importOriginal) => 
     }
   }
 
-  return { WeatherService: MockWeatherService };
+  return { ChainWeatherService: MockChainWeatherService };
 });

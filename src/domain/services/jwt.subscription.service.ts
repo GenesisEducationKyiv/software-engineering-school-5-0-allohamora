@@ -1,6 +1,5 @@
 import Dataloader from 'dataloader';
 import { Exception } from 'src/domain/entities/exception.entity.js';
-import { WeatherService } from './weather.service.js';
 import { JwtProvider } from '../ports/secondary/jwt.provider.js';
 import { SubscriptionRepository } from 'src/domain/ports/secondary/subscription.repository.js';
 import { Frequency } from '../entities/subscription.entity.js';
@@ -9,6 +8,8 @@ import { TemplateProvider } from '../ports/secondary/templates.provider.js';
 import { Logger, LoggerProvider } from '../ports/secondary/logger.provider.js';
 import { Weather } from '../entities/weather.entity.js';
 import { CronExpression, CronProvider } from '../ports/secondary/cron.provider.js';
+import { WeatherService } from '../ports/primary/weather.service.js';
+import { SubscriptionService } from '../ports/primary/subscription.service.js';
 
 export type SubscribeOptions = {
   email: string;
@@ -27,7 +28,7 @@ type Options = {
   config: { APP_URL: string };
 };
 
-export class SubscriptionService {
+export class JwtSubscriptionService implements SubscriptionService {
   private jwtProvider: JwtProvider;
   private subscriptionRepository: SubscriptionRepository;
   private weatherService: WeatherService;

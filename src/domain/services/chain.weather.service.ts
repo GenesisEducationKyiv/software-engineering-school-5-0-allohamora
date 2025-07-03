@@ -2,13 +2,14 @@ import { Exception, ExceptionCode } from 'src/domain/entities/exception.entity.j
 import { WeatherProvider } from 'src/domain/ports/secondary/weather.provider.js';
 import { Logger, LoggerProvider } from '../ports/secondary/logger.provider.js';
 import { Weather } from '../entities/weather.entity.js';
+import { WeatherService } from '../ports/primary/weather.service.js';
 
 type Options = {
   weatherProviders: WeatherProvider[];
   loggerProvider: LoggerProvider;
 };
 
-export class WeatherService {
+export class ChainWeatherService implements WeatherService {
   private weatherProviders: WeatherProvider[];
 
   private logger: Logger;
@@ -16,7 +17,7 @@ export class WeatherService {
   constructor({ weatherProviders, loggerProvider }: Options) {
     this.weatherProviders = weatherProviders;
 
-    this.logger = loggerProvider.createLogger('WeatherService');
+    this.logger = loggerProvider.createLogger('ChainWeatherService');
   }
 
   private async chain<T>(fn: (provider: WeatherProvider) => T) {

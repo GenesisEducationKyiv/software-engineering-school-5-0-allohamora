@@ -4,15 +4,15 @@ import { swaggerUI } from '@hono/swagger-ui';
 import { OpenAPIHono } from '@hono/zod-openapi';
 import { makeSubscriptionRoutes } from '../controllers/subscription.controller.js';
 import { makeWeatherRoutes } from '../controllers/weather.controller.js';
-import { SubscriptionService } from 'src/domain/services/subscription.service.js';
 import { serve, ServerType } from '@hono/node-server';
 import { AddressInfo } from 'node:net';
-import { WeatherService } from 'src/domain/services/weather.service.js';
 import { makeMetricsRoutes } from '../controllers/metrics.controller.js';
 import { MetricsProvider } from 'src/secondary/adapters/metrics.provider.js';
 import { Exception, ExceptionCode } from 'src/domain/entities/exception.entity.js';
 import { HttpStatus } from 'src/primary/types/http.types.js';
 import { makeUiRoutes } from '../controllers/ui.controller.js';
+import { WeatherService } from 'src/domain/ports/primary/weather.service.js';
+import { SubscriptionService } from 'src/domain/ports/primary/subscription.service.js';
 
 export type ServerInfo = {
   info: AddressInfo;
