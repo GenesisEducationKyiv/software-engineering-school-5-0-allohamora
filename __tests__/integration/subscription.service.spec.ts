@@ -56,18 +56,22 @@ describe('SubscriptionService (integration)', () => {
       expect(sendEmailSpy).toHaveBeenCalledWith(
         expect.objectContaining({
           to: [`0@example.com`],
-          title: 'Weather update for London',
-          html: expect.stringMatching('London'),
-          text: expect.stringMatching('London'),
+          template: {
+            title: 'Weather update for London',
+            html: expect.stringMatching('London'),
+            text: expect.stringMatching('London'),
+          },
         }),
       );
 
       expect(sendEmailSpy).toHaveBeenCalledWith(
         expect.objectContaining({
           to: [`1@example.com`],
-          title: 'Weather update for Paris',
-          html: expect.stringMatching('Paris'),
-          text: expect.stringMatching('Paris'),
+          template: {
+            title: 'Weather update for Paris',
+            html: expect.stringMatching('Paris'),
+            text: expect.stringMatching('Paris'),
+          },
         }),
       );
     });

@@ -108,7 +108,9 @@ describe('subscription controller (integration)', () => {
       expect(sendEmailSpy).toHaveBeenCalledWith(
         expect.objectContaining({
           to: ['test@example.com'],
-          title: 'Confirm your weather subscription for London',
+          template: expect.objectContaining({
+            title: 'Confirm your weather subscription for London',
+          }),
         }),
       );
     });
@@ -129,7 +131,9 @@ describe('subscription controller (integration)', () => {
       expect(sendEmailSpy).toHaveBeenCalledWith(
         expect.objectContaining({
           to: ['test@example.com'],
-          title: 'Confirm your weather subscription for Paris',
+          template: expect.objectContaining({
+            title: 'Confirm your weather subscription for Paris',
+          }),
         }),
       );
     });
@@ -230,7 +234,9 @@ describe('subscription controller (integration)', () => {
       expect(sendEmailSpy).toHaveBeenCalledWith(
         expect.objectContaining({
           to: ['test@example.com'],
-          title: 'Confirm your weather subscription for London',
+          template: expect.objectContaining({
+            title: 'Confirm your weather subscription for London',
+          }),
         }),
       );
     });
@@ -251,7 +257,9 @@ describe('subscription controller (integration)', () => {
       expect(sendEmailSpy).toHaveBeenCalledWith(
         expect.objectContaining({
           to: ['test@example.com'],
-          title: 'Confirm your weather subscription for Paris',
+          template: expect.objectContaining({
+            title: 'Confirm your weather subscription for Paris',
+          }),
         }),
       );
     });
