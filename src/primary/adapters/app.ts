@@ -4,7 +4,7 @@ import { Server } from './server.js';
 import { promisify } from 'node:util';
 import { DbProvider } from 'src/secondary/adapters/db.provider.js';
 import { Logger, LoggerProvider } from 'src/domain/ports/logger.provider.js';
-import { CronProvider } from 'src/domain/ports/cron.providers.js';
+import { CronProvider } from 'src/domain/ports/cron.provider.js';
 
 const GRACEFUL_SHUTDOWN_DELAY = 15_000;
 

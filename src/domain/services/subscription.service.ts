@@ -8,7 +8,7 @@ import { EmailProvider } from '../ports/email.provider.js';
 import { TemplateProvider } from '../ports/templates.provider.js';
 import { Logger, LoggerProvider } from '../ports/logger.provider.js';
 import { Weather } from '../entities/weather.entity.js';
-import { CronExpression, CronProvider } from '../ports/cron.providers.js';
+import { CronExpression, CronProvider } from '../ports/cron.provider.js';
 
 export type SubscribeOptions = {
   email: string;
