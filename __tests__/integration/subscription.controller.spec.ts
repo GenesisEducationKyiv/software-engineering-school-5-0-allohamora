@@ -1,6 +1,6 @@
 import { ctx } from '__tests__/setup-integration-context.js';
 import { SubscribeOptions } from 'src/domain/services/subscription.service.js';
-import { HttpStatus } from 'src/secondary/types/http.types.js';
+import { HttpStatus } from 'src/primary/types/http.types.js';
 import { MockInstance } from 'vitest';
 import { Exception } from 'src/domain/entities/exception.entity.js';
 import { randomUUID } from 'node:crypto';

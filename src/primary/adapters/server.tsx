@@ -11,7 +11,7 @@ import { WeatherService } from 'src/domain/services/weather.service.js';
 import { makeMetricsRoutes } from '../controllers/metrics.controller.js';
 import { MetricsProvider } from 'src/secondary/adapters/metrics.provider.js';
 import { Exception, ExceptionCode } from 'src/domain/entities/exception.entity.js';
-import { HttpStatus } from 'src/secondary/types/http.types.js';
+import { HttpStatus } from 'src/primary/types/http.types.js';
 import { makeUiRoutes } from '../controllers/ui.controller.js';
 
 export type ServerInfo = {
