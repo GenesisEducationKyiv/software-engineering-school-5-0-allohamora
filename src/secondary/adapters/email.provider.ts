@@ -1,7 +1,7 @@
 import { Resend } from 'resend';
 import { Exception } from 'src/domain/entities/exception.entity.js';
-import { EmailProvider, SendEmailOptions } from 'src/domain/ports/email.provider.js';
-import { Logger, LoggerProvider } from 'src/domain/ports/logger.provider.js';
+import { EmailProvider, SendEmailOptions } from 'src/domain/ports/secondary/email.provider.js';
+import { Logger, LoggerProvider } from 'src/domain/ports/secondary/logger.provider.js';
 
 type Options = {
   loggerProvider: LoggerProvider;

@@ -1,5 +1,5 @@
-import { Frequency, Subscription } from '../entities/subscription.entity.js';
-import { CreateSubscriptionDto } from '../dtos/create-subscription.dto.js';
+import { Frequency, Subscription } from 'src/domain/entities/subscription.entity.js';
+import { CreateSubscriptionDto } from 'src/domain/dtos/create-subscription.dto.js';
 
 export interface SubscriptionRepository {
   createSubscription(dto: CreateSubscriptionDto): Promise<Subscription>;

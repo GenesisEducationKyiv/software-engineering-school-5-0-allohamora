@@ -1,4 +1,4 @@
-import { GetSubscribeTemplateOptions, GetWeatherUpdateTemplateOptions, Template, TemplateProvider } from "src/domain/ports/templates.provider.js";
+import { GetSubscribeTemplateOptions, GetWeatherUpdateTemplateOptions, Template, TemplateProvider } from "src/domain/ports/secondary/templates.provider.js";
 import { SubscribeTemplate, SubscribeTemplateText } from "../templates/subscribe.template.js";
 import { WeatherUpdateTemplate, WeatherUpdateTemplateText } from "../templates/weather-update.template.js";
 

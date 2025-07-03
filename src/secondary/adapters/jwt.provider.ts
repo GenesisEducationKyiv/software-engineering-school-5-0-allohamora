@@ -1,5 +1,5 @@
 import { createSigner, createVerifier, SignerAsync, VerifierAsync } from 'fast-jwt';
-import { JwtProvider } from 'src/domain/ports/jwt.provider.js';
+import { JwtProvider } from 'src/domain/ports/secondary/jwt.provider.js';
 
 type Options = {
   config: { JWT_SECRET: string; JWT_EXPIRES_IN: number };

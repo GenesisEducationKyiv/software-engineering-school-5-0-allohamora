@@ -1,5 +1,5 @@
 import { Logger as Pino, pino } from 'pino';
-import { Logger, LoggerProvider } from 'src/domain/ports/logger.provider.js';
+import { Logger, LoggerProvider } from 'src/domain/ports/secondary/logger.provider.js';
 
 type Options = {
   config: { PINO_LEVEL: string };

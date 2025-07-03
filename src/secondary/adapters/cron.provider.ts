@@ -1,5 +1,5 @@
 import { Cron } from 'croner';
-import { CronJob, CronProvider } from 'src/domain/ports/cron.provider.js';
+import { CronJob, CronProvider } from 'src/domain/ports/secondary/cron.provider.js';
 
 export class CronerCronProvider implements CronProvider {
   private jobs: CronJob[] = [];

@@ -1,14 +1,14 @@
 import Dataloader from 'dataloader';
 import { Exception } from 'src/domain/entities/exception.entity.js';
 import { WeatherService } from './weather.service.js';
-import { JwtProvider } from '../ports/jwt.provider.js';
-import { SubscriptionRepository } from '../ports/subscription.repository.js';
+import { JwtProvider } from '../ports/secondary/jwt.provider.js';
+import { SubscriptionRepository } from 'src/domain/ports/secondary/subscription.repository.js';
 import { Frequency } from '../entities/subscription.entity.js';
-import { EmailProvider } from '../ports/email.provider.js';
-import { TemplateProvider } from '../ports/templates.provider.js';
-import { Logger, LoggerProvider } from '../ports/logger.provider.js';
+import { EmailProvider } from 'src/domain/ports/secondary/email.provider.js';
+import { TemplateProvider } from '../ports/secondary/templates.provider.js';
+import { Logger, LoggerProvider } from '../ports/secondary/logger.provider.js';
 import { Weather } from '../entities/weather.entity.js';
-import { CronExpression, CronProvider } from '../ports/cron.provider.js';
+import { CronExpression, CronProvider } from '../ports/secondary/cron.provider.js';
 
 export type SubscribeOptions = {
   email: string;

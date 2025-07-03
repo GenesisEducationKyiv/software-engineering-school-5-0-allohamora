@@ -1,8 +1,8 @@
 import { ctx } from '__tests__/setup-integration-context.js';
 import { MockInstance } from 'vitest';
 import { WeatherService } from 'src/domain/services/weather.service.js';
-import { SubscriptionRepository } from 'src/domain/ports/subscription.repository.js';
-import { EmailProvider } from 'src/domain/ports/email.provider.js';
+import { SubscriptionRepository } from 'src/domain/ports/secondary/subscription.repository.js';
+import { EmailProvider } from 'src/domain/ports/secondary/email.provider.js';
 import { Frequency } from 'src/domain/entities/subscription.entity.js';
 import { SubscriptionService } from 'src/domain/services/subscription.service.js';
 

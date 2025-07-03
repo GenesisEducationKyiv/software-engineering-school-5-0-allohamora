@@ -7,9 +7,9 @@ import { randomUUID } from 'node:crypto';
 import { createSigner } from 'fast-jwt';
 import { Server } from 'src/primary/adapters/server.js';
 import { WeatherService } from 'src/domain/services/weather.service.js';
-import { SubscriptionRepository } from 'src/domain/ports/subscription.repository.js';
-import { JwtProvider } from 'src/domain/ports/jwt.provider.js';
-import { EmailProvider } from 'src/domain/ports/email.provider.js';
+import { SubscriptionRepository } from 'src/domain/ports/secondary/subscription.repository.js';
+import { JwtProvider } from 'src/domain/ports/secondary/jwt.provider.js';
+import { EmailProvider } from 'src/domain/ports/secondary/email.provider.js';
 import { Db } from 'src/secondary/adapters/db.provider.js';
 import { Frequency } from 'src/domain/entities/subscription.entity.js';
 

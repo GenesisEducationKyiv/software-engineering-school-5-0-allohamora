@@ -1,4 +1,4 @@
-import { JwtProvider } from 'src/domain/ports/jwt.provider.js';
+import { JwtProvider } from 'src/domain/ports/secondary/jwt.provider.js';
 import { FastJwtProvider } from 'src/secondary/adapters/jwt.provider.js';
 
 describe('FastJwtProvider (unit)', () => {
