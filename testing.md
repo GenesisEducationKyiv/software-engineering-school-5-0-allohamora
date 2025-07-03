@@ -84,7 +84,7 @@ Architecture tests to check the structure and dependencies of the codebase.
    npm i
    ```
 
-2. Run unit tests:
+2. Run arch tests:
 
    ```bash
    npm run test:arch
