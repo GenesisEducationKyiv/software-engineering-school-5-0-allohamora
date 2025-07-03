@@ -1,6 +1,6 @@
 import { config } from 'dotenv';
 
-vitest.mock('src/secondary/providers/config.provider.js', async (importOriginal) => {
+vitest.mock('src/secondary/adapters/config.provider.js', async (importOriginal) => {
   const { ConfigProvider } = await importOriginal<typeof import('src/secondary/adapters/config.provider.js')>();
 
   const result = config({ path: '.env.example' });

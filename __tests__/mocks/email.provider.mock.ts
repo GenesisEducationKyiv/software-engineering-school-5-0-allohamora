@@ -1,4 +1,4 @@
-vitest.mock('src/secondary/providers/email.provider.js', async (importOriginal) => {
+vitest.mock('src/secondary/adapters/email.provider.js', async (importOriginal) => {
   const { ResendEmailProvider } = await importOriginal<typeof import('src/secondary/adapters/email.provider.js')>();
 
   class MockResendEmailProvider extends ResendEmailProvider {
