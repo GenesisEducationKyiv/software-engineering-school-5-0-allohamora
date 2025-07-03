@@ -3,7 +3,7 @@ import { subscriptions } from 'src/secondary/db.schema.js';
 import { Exception } from 'src/domain/entities/exception.entity.js';
 import { Db, DbProvider } from './db.provider.js';
 import { SubscriptionRepository } from 'src/domain/ports/subscription.repository.js';
-import { CreateSubscriptionDto } from 'src/domain/dtos/create-subcription.dto.js';
+import { CreateSubscriptionDto } from 'src/domain/dtos/create-subscription.dto.js';
 import { Frequency } from 'src/domain/entities/subscription.entity.js';
 
 type Options = {
