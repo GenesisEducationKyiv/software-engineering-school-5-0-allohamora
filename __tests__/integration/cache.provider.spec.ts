@@ -2,7 +2,7 @@ import { ctx } from '__tests__/setup-integration-context.js';
 import { CacheProvider } from 'src/secondary/adapters/cache.provider.js';
 import { scheduler } from 'node:timers/promises';
 
-describe('CacheService (integration)', () => {
+describe('CacheProvider (integration)', () => {
   let cacheProvider: CacheProvider;
 
   beforeAll(() => {
