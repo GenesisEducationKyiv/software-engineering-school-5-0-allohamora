@@ -53,7 +53,6 @@ describe('metrics controller (integration)', () => {
 
       const data = await getMetrics();
 
-      expect(data).toContain('test_initial_counter_total');
       expect(data).toContain('A test counter to verify initial value');
       expect(data).toContain('test_initial_counter_total 0');
       expect(data).toContain('# TYPE test_initial_counter_total counter');
