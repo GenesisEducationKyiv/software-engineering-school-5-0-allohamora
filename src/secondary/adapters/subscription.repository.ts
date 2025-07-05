@@ -2,8 +2,7 @@ import { eq } from 'drizzle-orm';
 import { subscriptions } from 'src/secondary/db.schema.js';
 import { Exception } from 'src/domain/entities/exception.entity.js';
 import { Db, DbProvider } from './db.provider.js';
-import { SubscriptionRepository } from 'src/domain/ports/secondary/subscription.repository.js';
-import { CreateSubscriptionDto } from 'src/domain/dtos/create-subscription.dto.js';
+import { SubscriptionRepository, CreateSubscriptionData } from 'src/domain/ports/secondary/subscription.repository.js';
 import { Frequency } from 'src/domain/entities/subscription.entity.js';
 
 type Options = {
@@ -17,7 +16,7 @@ export class DrizzleSubscriptionRepository implements SubscriptionRepository {
     this.db = dbProvider.getConnection();
   }
 
-  async createSubscription(data: CreateSubscriptionDto) {
+  async createSubscription(data: CreateSubscriptionData) {
     const [item] = await this.db.insert(subscriptions).values(data).returning();
 
     // type-guard
