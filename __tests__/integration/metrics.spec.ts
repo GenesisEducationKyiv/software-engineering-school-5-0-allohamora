@@ -61,13 +61,15 @@ describe('metrics controller (integration)', () => {
     it('returns updated counter values after increment', async () => {
       const testCounter = metricsService.getCounter('test_counter_total', 'A test counter for integration testing');
 
-      testCounter.inc();
+      for (let i = 0; i < 20; i++) {
+        testCounter.inc();
 
-      const data = await getMetrics();
+        const data = await getMetrics();
 
-      expect(data).toContain('A test counter for integration testing');
-      expect(data).toContain('test_counter_total 1');
-      expect(data).toContain('# TYPE test_counter_total counter');
+        expect(data).toContain('A test counter for integration testing');
+        expect(data).toContain(`test_counter_total ${i + 1}`);
+        expect(data).toContain('# TYPE test_counter_total counter');
+      }
     });
   });
 });
