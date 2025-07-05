@@ -17,6 +17,7 @@ import { JwtSubscriptionService } from 'src/domain/services/jwt.subscription.ser
 import { CronerCronProvider } from 'src/secondary/adapters/cron.provider.js';
 import { Server } from 'src/primary/adapters/server.js';
 import { App } from 'src/primary/adapters/app.js';
+import { CronNotificationService } from './domain/services/cron.notification.service.js';
 
 export class Container {
   public configProvider = new ConfigProvider();
@@ -50,6 +51,8 @@ export class Container {
   public weatherService = new ChainWeatherService(this);
 
   public subscriptionService = new JwtSubscriptionService(this);
+
+  public notificationService = new CronNotificationService(this);
 
   public server = new Server(this);
 

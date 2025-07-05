@@ -46,7 +46,7 @@ describe('JwtSubscriptionService (integration)', () => {
         testSubscriptions.map((subscription) => subscriptionRepository.createSubscription(subscription)),
       );
 
-      await subscriptionService.createWeatherSubscriptionHandler(frequency)();
+      await subscriptionService.handleSubscriptions(frequency);
 
       expect(getWeatherSpy).toHaveBeenCalledWith(cities[0]);
       expect(getWeatherSpy).toHaveBeenCalledWith(cities[1]);
@@ -77,7 +77,7 @@ describe('JwtSubscriptionService (integration)', () => {
     });
 
     it(`handles empty subscription list correctly`, async () => {
-      await subscriptionService.createWeatherSubscriptionHandler(frequency)();
+      await subscriptionService.handleSubscriptions(frequency);
 
       expect(getWeatherSpy).not.toHaveBeenCalled();
       expect(sendEmailSpy).not.toHaveBeenCalled();
@@ -99,7 +99,7 @@ describe('JwtSubscriptionService (integration)', () => {
         testSubscriptions.map((subscription) => subscriptionRepository.createSubscription(subscription)),
       );
 
-      await subscriptionService.createWeatherSubscriptionHandler(frequency)();
+      await subscriptionService.handleSubscriptions(frequency);
 
       expect(getWeatherSpy).toHaveBeenCalledTimes(cities.length);
       expect(sendEmailSpy).toHaveBeenCalledTimes(55);

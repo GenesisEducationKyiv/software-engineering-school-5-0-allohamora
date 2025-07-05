@@ -7,7 +7,7 @@ export type SubscribeOptions = {
 };
 
 export interface SubscriptionService {
-  createWeatherSubscriptionHandler(frequency: Frequency): () => Promise<void>;
+  handleSubscriptions(frequency: Frequency): Promise<void>;
   subscribe(options: SubscribeOptions): Promise<void>;
   confirm(token: string): Promise<void>;
   unsubscribe(subscriptionId: string): Promise<void>;

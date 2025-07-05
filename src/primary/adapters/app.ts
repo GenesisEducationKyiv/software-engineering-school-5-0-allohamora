@@ -4,13 +4,13 @@ import { Server } from './server.js';
 import { promisify } from 'node:util';
 import { DbProvider } from 'src/secondary/adapters/db.provider.js';
 import { Logger, LoggerProvider } from 'src/domain/ports/secondary/logger.provider.js';
-import { CronProvider } from 'src/domain/ports/secondary/cron.provider.js';
+import { NotificationService } from 'src/domain/ports/primary/notification.service.js';
 
 const GRACEFUL_SHUTDOWN_DELAY = 15_000;
 
 type Options = {
   server: Server;
-  cronProvider: CronProvider;
+  notificationService: NotificationService;
   dbProvider: DbProvider;
   loggerProvider: LoggerProvider;
   config: { PORT: number; NODE_ENV: string };
@@ -18,16 +18,16 @@ type Options = {
 
 export class App {
   private server: Server;
-  private cronProvider: CronProvider;
+  private notificationService: NotificationService;
   private dbProvider: DbProvider;
 
   private port: number;
   private nodeEnv: string;
   private logger: Logger;
 
-  constructor({ server, cronProvider, dbProvider, loggerProvider, config }: Options) {
+  constructor({ server, notificationService, dbProvider, loggerProvider, config }: Options) {
     this.server = server;
-    this.cronProvider = cronProvider;
+    this.notificationService = notificationService;
     this.dbProvider = dbProvider;
 
     this.port = config.PORT;
@@ -43,7 +43,7 @@ export class App {
       await promisify<void>((cb) => server.close(cb))();
 
       await this.dbProvider.disconnectFromDb();
-      this.cronProvider.stopJobs();
+      this.notificationService.stopJobs();
 
       this.logger.info({ msg: 'Graceful shutdown has been finished', ...props });
     };
@@ -55,7 +55,7 @@ export class App {
     const { info, server } = await this.server.serve(this.port);
 
     await this.dbProvider.runMigrations();
-    this.cronProvider.startJobs();
+    this.notificationService.startJobs();
 
     this.setupGracefulShutdown(server);
 

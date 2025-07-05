@@ -7,7 +7,6 @@ import { EmailProvider } from 'src/domain/ports/secondary/email.provider.js';
 import { TemplateProvider } from '../ports/secondary/templates.provider.js';
 import { Logger, LoggerProvider } from '../ports/secondary/logger.provider.js';
 import { Weather } from '../entities/weather.entity.js';
-import { CronExpression, CronProvider } from '../ports/secondary/cron.provider.js';
 import { WeatherService } from '../ports/primary/weather.service.js';
 import { SubscriptionService } from '../ports/primary/subscription.service.js';
 
@@ -23,7 +22,6 @@ type Options = {
   weatherService: WeatherService;
   emailProvider: EmailProvider;
   templateProvider: TemplateProvider;
-  cronProvider: CronProvider;
   loggerProvider: LoggerProvider;
   config: { APP_URL: string };
 };
@@ -34,7 +32,6 @@ export class JwtSubscriptionService implements SubscriptionService {
   private weatherService: WeatherService;
   private emailProvider: EmailProvider;
   private templateProvider: TemplateProvider;
-  private cronProvider: CronProvider;
   private logger: Logger;
 
   private appUrl: string;
@@ -45,7 +42,6 @@ export class JwtSubscriptionService implements SubscriptionService {
     weatherService,
     emailProvider,
     templateProvider,
-    cronProvider,
     loggerProvider,
     config,
   }: Options) {
@@ -54,61 +50,44 @@ export class JwtSubscriptionService implements SubscriptionService {
     this.weatherService = weatherService;
     this.emailProvider = emailProvider;
     this.templateProvider = templateProvider;
-    this.cronProvider = cronProvider;
 
     this.logger = loggerProvider.createLogger('SubscriptionService');
 
     this.appUrl = config.APP_URL;
-
-    this.setupJobs();
-  }
-
-  private setupJobs() {
-    this.cronProvider.addJob({
-      pattern: CronExpression.DAILY,
-      handler: this.createWeatherSubscriptionHandler(Frequency.Daily),
-    });
-
-    this.cronProvider.addJob({
-      pattern: CronExpression.HOURLY,
-      handler: this.createWeatherSubscriptionHandler(Frequency.Hourly),
-    });
   }
 
   private makeUnsubscribeLink(subscriptionId: string) {
     return `${this.appUrl}/api/unsubscribe/${subscriptionId}`;
   }
 
-  public createWeatherSubscriptionHandler(frequency: Frequency) {
-    return async () => {
-      this.logger.info({ msg: 'Handling weather subscription has been started', frequency });
+  public async handleSubscriptions(frequency: Frequency) {
+    this.logger.info({ msg: 'Handling weather subscription has been started', frequency });
 
-      const dataloader = new Dataloader<string, Weather>(async (cities) => {
-        return await Promise.all(
-          cities.map(async (city) => {
-            return await this.weatherService.getWeather(city);
+    const dataloader = new Dataloader<string, Weather>(async (cities) => {
+      return await Promise.all(
+        cities.map(async (city) => {
+          return await this.weatherService.getWeather(city);
+        }),
+      );
+    });
+
+    for await (const subscriptions of this.subscriptionRepository.iterateSubscriptions(frequency)) {
+      for (const { id, email, city } of subscriptions) {
+        const weather = await dataloader.load(city);
+        const unsubscribeLink = this.makeUnsubscribeLink(id);
+
+        await this.emailProvider.sendEmail({
+          to: [email],
+          template: this.templateProvider.getWeatherUpdateTemplate({
+            city,
+            unsubscribeLink,
+            ...weather,
           }),
-        );
-      });
-
-      for await (const subscriptions of this.subscriptionRepository.iterateSubscriptions(frequency)) {
-        for (const { id, email, city } of subscriptions) {
-          const weather = await dataloader.load(city);
-          const unsubscribeLink = this.makeUnsubscribeLink(id);
-
-          await this.emailProvider.sendEmail({
-            to: [email],
-            template: this.templateProvider.getWeatherUpdateTemplate({
-              city,
-              unsubscribeLink,
-              ...weather,
-            }),
-          });
-        }
+        });
       }
+    }
 
-      this.logger.info({ msg: 'Handling weather subscription has been finished', frequency });
-    };
+    this.logger.info({ msg: 'Handling weather subscription has been finished', frequency });
   }
 
   private async assertIsSubscriptionExists(email: string) {
