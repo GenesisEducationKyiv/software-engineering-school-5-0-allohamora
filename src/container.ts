@@ -16,7 +16,7 @@ import { FetchHttpProvider } from './providers/http/fetch.provider.js';
 import { LoggerHttpProviderDecorator } from './providers/http/logger.provider.js';
 import { HttpProvider } from './providers/http/http.provider.js';
 import { CacheService } from './services/cache.service.js';
-import { CacheWeatherProviderProxy } from './providers/weather/cache.provider.js';
+import { CachedWeatherProviderProxy } from './providers/weather/cached.provider.js';
 import { WeatherService } from './services/weather.service.js';
 import { MetricsService } from './services/metrics.service.js';
 
@@ -40,7 +40,7 @@ export class Container {
   public jwtService = new JwtService(this);
 
   public weatherProviders = [new ApiWeatherProvider(this), new OpenMeteoProvider(this)].map(
-    (provider) => new CacheWeatherProviderProxy(provider, this),
+    (provider) => new CachedWeatherProviderProxy(provider, this),
   );
   public weatherService = new WeatherService(this);
 

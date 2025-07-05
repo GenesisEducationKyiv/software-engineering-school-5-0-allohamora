@@ -7,7 +7,7 @@ type Options = {
   config: { WEATHER_TTL_SECONDS: number };
 };
 
-export class CacheWeatherProviderProxy implements WeatherProvider {
+export class CachedWeatherProviderProxy implements WeatherProvider {
   private weatherProvider: WeatherProvider;
   private cacheService: CacheService;
 
