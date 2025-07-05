@@ -66,7 +66,6 @@ describe('metrics controller (integration)', () => {
 
       const data = await getMetrics();
 
-      expect(data).toContain('test_counter_total');
       expect(data).toContain('A test counter for integration testing');
       expect(data).toContain('test_counter_total 1');
       expect(data).toContain('# TYPE test_counter_total counter');
