@@ -53,7 +53,6 @@ describe('metrics controller (integration)', () => {
 
       const data = await getMetrics();
 
-      expect(data).toContain('test_initial_counter_total');
       expect(data).toContain('A test counter to verify initial value');
       expect(data).toContain('test_initial_counter_total 0');
       expect(data).toContain('# TYPE test_initial_counter_total counter');
@@ -62,14 +61,15 @@ describe('metrics controller (integration)', () => {
     it('returns updated counter values after increment', async () => {
       const testCounter = metricsProvider.getCounter('test_counter_total', 'A test counter for integration testing');
 
-      testCounter.inc();
+      for (let i = 0; i < 20; i++) {
+        testCounter.inc();
 
-      const data = await getMetrics();
+        const data = await getMetrics();
 
-      expect(data).toContain('test_counter_total');
-      expect(data).toContain('A test counter for integration testing');
-      expect(data).toContain('test_counter_total 1');
-      expect(data).toContain('# TYPE test_counter_total counter');
+        expect(data).toContain('A test counter for integration testing');
+        expect(data).toContain(`test_counter_total ${i + 1}`);
+        expect(data).toContain('# TYPE test_counter_total counter');
+      }
     });
   });
 });

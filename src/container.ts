@@ -9,7 +9,7 @@ import { DrizzleSubscriptionRepository } from 'src/secondary/adapters/subscripti
 import { FastJwtProvider } from 'src/secondary/adapters/jwt.provider.js';
 import { ApiWeatherProvider } from 'src/secondary/adapters/weather/api-weather.provider.js';
 import { OpenMeteoProvider } from 'src/secondary/adapters/weather/open-meteo.provider.js';
-import { CacheWeatherProviderProxy } from 'src/secondary/adapters/weather/cache.provider.js';
+import { CachedWeatherProviderProxy } from 'src/secondary/adapters/weather/cached.provider.js';
 import { ChainWeatherService } from 'src/domain/services/chain.weather.service.js';
 import { JsxTemplateProvider } from 'src/secondary/adapters/template.provider.js';
 import { ResendEmailProvider } from 'src/secondary/adapters/email.provider.js';
@@ -45,7 +45,7 @@ export class Container {
   public subscriptionRepository = new DrizzleSubscriptionRepository(this);
 
   public weatherProviders = [new ApiWeatherProvider(this), new OpenMeteoProvider(this)].map(
-    (provider) => new CacheWeatherProviderProxy(provider, this),
+    (provider) => new CachedWeatherProviderProxy(provider, this),
   );
 
   public weatherService = new ChainWeatherService(this);
