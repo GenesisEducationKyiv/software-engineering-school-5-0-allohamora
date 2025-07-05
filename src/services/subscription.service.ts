@@ -11,16 +11,28 @@ export type SubscribeOptions = {
   frequency: Frequency;
 };
 
+type Options = {
+  jwtService: JwtService;
+  subscriptionRepository: SubscriptionRepository;
+  weatherService: WeatherService;
+  sendEmailTemplateService: SendEmailTemplateService;
+  config: { APP_URL: string };
+};
+
 export class SubscriptionService {
+  private jwtService: JwtService;
+  private subscriptionRepository: SubscriptionRepository;
+  private weatherService: WeatherService;
+  private sendEmailTemplateService: SendEmailTemplateService;
+
   private appUrl: string;
 
-  constructor(
-    private jwtService: JwtService,
-    private subscriptionRepository: SubscriptionRepository,
-    private weatherService: WeatherService,
-    private sendEmailTemplateService: SendEmailTemplateService,
-    config: { APP_URL: string },
-  ) {
+  constructor({ jwtService, subscriptionRepository, weatherService, sendEmailTemplateService, config }: Options) {
+    this.jwtService = jwtService;
+    this.subscriptionRepository = subscriptionRepository;
+    this.weatherService = weatherService;
+    this.sendEmailTemplateService = sendEmailTemplateService;
+
     this.appUrl = config.APP_URL;
   }
 

@@ -8,19 +8,28 @@ import { promisify } from 'node:util';
 
 const GRACEFUL_SHUTDOWN_DELAY = 15_000;
 
+type Options = {
+  server: Server;
+  cronService: CronService;
+  dbService: DbService;
+  loggerService: LoggerService;
+  config: { PORT: number; NODE_ENV: string };
+};
+
 export class App {
+  private server: Server;
+  private cronService: CronService;
+  private dbService: DbService;
+
   private port: number;
   private nodeEnv: string;
-
   private logger: Logger;
 
-  constructor(
-    private server: Server,
-    private cronService: CronService,
-    private dbService: DbService,
-    loggerService: LoggerService,
-    config: { PORT: number; NODE_ENV: string },
-  ) {
+  constructor({ server, cronService, dbService, loggerService, config }: Options) {
+    this.server = server;
+    this.cronService = cronService;
+    this.dbService = dbService;
+
     this.port = config.PORT;
     this.nodeEnv = config.NODE_ENV;
 

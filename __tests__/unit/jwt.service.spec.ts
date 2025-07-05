@@ -7,7 +7,7 @@ describe('JwtService (unit)', () => {
   let jwtService: JwtService;
 
   beforeEach(() => {
-    jwtService = new JwtService({ JWT_SECRET, JWT_EXPIRES_IN });
+    jwtService = new JwtService({ config: { JWT_SECRET, JWT_EXPIRES_IN } });
   });
 
   describe('sign', () => {
@@ -51,7 +51,9 @@ describe('JwtService (unit)', () => {
 
     it('throws an error when verifying a token with wrong secret', async () => {
       const payload = { userId: '123' };
-      const jwtServiceWithDifferentSecret = new JwtService({ JWT_SECRET: 'different-secret', JWT_EXPIRES_IN });
+      const jwtServiceWithDifferentSecret = new JwtService({
+        config: { JWT_SECRET: 'different-secret', JWT_EXPIRES_IN },
+      });
       const token = await jwtService.sign(payload);
 
       await expect(jwtServiceWithDifferentSecret.verify(token)).rejects.toThrow();
@@ -59,7 +61,7 @@ describe('JwtService (unit)', () => {
 
     it('throws an error when verifying an expired token', async () => {
       const payload = { userId: '123' };
-      const jwtServiceWithShortExpiry = new JwtService({ JWT_SECRET, JWT_EXPIRES_IN: -1 });
+      const jwtServiceWithShortExpiry = new JwtService({ config: { JWT_SECRET, JWT_EXPIRES_IN: -1 } });
       const token = await jwtServiceWithShortExpiry.sign(payload);
 
       await expect(jwtServiceWithShortExpiry.verify(token)).rejects.toThrow();

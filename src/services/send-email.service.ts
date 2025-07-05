@@ -11,17 +11,20 @@ export type SendEmailOptions = {
   react?: JSX.Element;
 };
 
+type Options = {
+  loggerService: LoggerService;
+  config: { RESEND_API_KEY: string; EMAIL_NAME: string; EMAIL_FROM: string };
+};
+
 export class SendEmailService {
   private emailName: string;
   private emailFrom: string;
+
   private resend: Resend;
 
   private logger: Logger;
 
-  constructor(
-    loggerService: LoggerService,
-    config: { RESEND_API_KEY: string; EMAIL_NAME: string; EMAIL_FROM: string },
-  ) {
+  constructor({ loggerService, config }: Options) {
     this.emailName = config.EMAIL_NAME;
     this.emailFrom = config.EMAIL_FROM;
 

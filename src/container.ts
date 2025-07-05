@@ -1,11 +1,11 @@
 import { CronService } from './services/cron.service.js';
 import { SubscriptionRepository } from './repositories/subscription.repository.js';
 import { JwtService } from './services/jwt.service.js';
-import { HandleSubscriptionService } from 'src/services/handle-subscription.service.js';
+import { HandleSubscriptionService } from './services/handle-subscription.service.js';
 import { SubscriptionService } from './services/subscription.service.js';
 import { Server } from './server.js';
 import { App } from './app.js';
-import { SendEmailService } from 'src/services/send-email.service.js';
+import { SendEmailService } from './services/send-email.service.js';
 import { SendEmailTemplateService } from './services/send-email-template.service.js';
 import { LoggerService } from './services/logger.service.js';
 import { DbService } from './services/db.service.js';
@@ -15,69 +15,46 @@ import { OpenMeteoProvider } from './providers/weather/open-meteo.provider.js';
 import { FetchHttpProvider } from './providers/http/fetch.provider.js';
 import { LoggerHttpProviderDecorator } from './providers/http/logger.provider.js';
 import { HttpProvider } from './providers/http/http.provider.js';
+import { CacheService } from './services/cache.service.js';
+import { CachedWeatherProviderProxy } from './providers/weather/cached.provider.js';
 import { WeatherService } from './services/weather.service.js';
+import { MetricsService } from './services/metrics.service.js';
 
-export const createContainer = () => {
-  const configService = new ConfigService();
-  const config = configService.getConfig();
+export class Container {
+  public configService = new ConfigService();
+  public config = this.configService.getConfig();
 
-  const loggerService = new LoggerService(config);
+  public metricsService = new MetricsService();
 
-  const httpProvider: HttpProvider = new LoggerHttpProviderDecorator(new FetchHttpProvider(), config);
+  public loggerService = new LoggerService(this);
 
-  const dbService = new DbService(config);
+  public httpProvider: HttpProvider = new LoggerHttpProviderDecorator(new FetchHttpProvider(), this);
 
-  const subscriptionRepository = new SubscriptionRepository(dbService);
+  public dbService = new DbService(this);
+  public db = this.dbService.getConnection();
 
-  const jwtService = new JwtService(config);
+  public cacheService = new CacheService(this);
 
-  const weatherService = new WeatherService(
-    [new ApiWeatherProvider(httpProvider, config), new OpenMeteoProvider(httpProvider)],
-    loggerService,
+  public subscriptionRepository = new SubscriptionRepository(this);
+
+  public jwtService = new JwtService(this);
+
+  public weatherProviders = [new ApiWeatherProvider(this), new OpenMeteoProvider(this)].map(
+    (provider) => new CachedWeatherProviderProxy(provider, this),
   );
+  public weatherService = new WeatherService(this);
 
-  const sendEmailService = new SendEmailService(loggerService, config);
+  public sendEmailService = new SendEmailService(this);
 
-  const sendEmailTemplateService = new SendEmailTemplateService(sendEmailService, loggerService);
+  public sendEmailTemplateService = new SendEmailTemplateService(this);
 
-  const handleSubscriptionService = new HandleSubscriptionService(
-    subscriptionRepository,
-    weatherService,
-    sendEmailTemplateService,
-    loggerService,
-    config,
-  );
+  public handleSubscriptionService = new HandleSubscriptionService(this);
 
-  const subscriptionService = new SubscriptionService(
-    jwtService,
-    subscriptionRepository,
-    weatherService,
-    sendEmailTemplateService,
-    config,
-  );
+  public subscriptionService = new SubscriptionService(this);
 
-  const cronService = new CronService(handleSubscriptionService);
+  public cronService = new CronService(this);
 
-  const server = new Server(weatherService, subscriptionService);
+  public server = new Server(this);
 
-  const app = new App(server, cronService, dbService, loggerService, config);
-
-  return {
-    app,
-    server,
-    cronService,
-    handleSubscriptionService,
-    subscriptionService,
-    sendEmailService,
-    sendEmailTemplateService,
-    weatherService,
-    jwtService,
-    subscriptionRepository,
-    dbService,
-    httpProvider,
-    loggerService,
-    configService,
-  };
-};
-
-export type Container = ReturnType<typeof createContainer>;
+  public app = new App(this);
+}

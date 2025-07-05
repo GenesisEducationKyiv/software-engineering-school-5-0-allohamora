@@ -3,10 +3,14 @@ import { Frequency, subscriptions } from 'src/db.schema.js';
 import { Exception } from 'src/exception.js';
 import { Db, DbService } from 'src/services/db.service.js';
 
+type Options = {
+  dbService: DbService;
+};
+
 export class SubscriptionRepository {
   private db: Db;
 
-  constructor(dbService: DbService) {
+  constructor({ dbService }: Options) {
     this.db = dbService.getConnection();
   }
 
