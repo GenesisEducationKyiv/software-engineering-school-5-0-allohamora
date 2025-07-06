@@ -53,8 +53,11 @@ export class Server {
       case ExceptionCode.ALREADY_EXISTS:
         return HttpStatus.CONFLICT;
       case ExceptionCode.INTERNAL_SERVER_ERROR:
-      default:
         return HttpStatus.INTERNAL_SERVER_ERROR;
+      default: {
+        const exhaustiveCheck: never = code; // Type error if 'code' is not 'never'
+        throw Exception.InternalServerError(`Unknown exception code: ${exhaustiveCheck}`);
+      }
     }
   };
 
