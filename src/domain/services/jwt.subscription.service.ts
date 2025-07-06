@@ -90,7 +90,7 @@ export class JwtSubscriptionService implements SubscriptionService {
     this.logger.info({ msg: 'Handling weather subscription has been finished', frequency });
   }
 
-  private async assertIsSubscriptionExists(email: string) {
+  private async assertSubscriptionExists(email: string) {
     const isSubscriptionExists = await this.subscriptionRepository.isSubscriptionExists(email);
 
     if (isSubscriptionExists) {
@@ -103,7 +103,7 @@ export class JwtSubscriptionService implements SubscriptionService {
   }
 
   public async subscribe(options: SubscribeOptions) {
-    await this.assertIsSubscriptionExists(options.email);
+    await this.assertSubscriptionExists(options.email);
 
     await this.weatherService.validateCity(options.city);
 
@@ -122,7 +122,7 @@ export class JwtSubscriptionService implements SubscriptionService {
   public async confirm(token: string) {
     const options = await this.jwtProvider.verify<SubscribeOptions>(token);
 
-    await this.assertIsSubscriptionExists(options.email);
+    await this.assertSubscriptionExists(options.email);
 
     await this.subscriptionRepository.createSubscription(options);
   }
