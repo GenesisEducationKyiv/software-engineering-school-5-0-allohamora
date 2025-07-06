@@ -156,6 +156,8 @@ describe('ResendEmailProvider (integration)', () => {
           text: 'This is a test email',
         },
       });
+
+      expect.assertions(1);
     });
   });
 });
