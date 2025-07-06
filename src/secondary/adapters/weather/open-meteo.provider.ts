@@ -84,14 +84,14 @@ const weatherCodeToDescription: Record<number, string> = {
   99: 'Thunderstorm with heavy hail',
 };
 
-type Options = {
+type Dependencies = {
   httpProvider: HttpProvider;
 };
 
 export class OpenMeteoProvider implements WeatherProvider {
   private httpProvider: HttpProvider;
 
-  constructor({ httpProvider }: Options) {
+  constructor({ httpProvider }: Dependencies) {
     this.httpProvider = httpProvider;
   }
 

@@ -1,7 +1,7 @@
 import { createSigner, createVerifier, SignerAsync, VerifierAsync } from 'fast-jwt';
 import { JwtProvider } from 'src/domain/ports/secondary/jwt.provider.js';
 
-type Options = {
+type Dependencies = {
   config: { JWT_SECRET: string; JWT_EXPIRES_IN: number };
 };
 
@@ -9,7 +9,7 @@ export class FastJwtProvider implements JwtProvider {
   private signer: typeof SignerAsync;
   private verifier: typeof VerifierAsync;
 
-  constructor({ config }: Options) {
+  constructor({ config }: Dependencies) {
     this.signer = createSigner({ key: async () => config.JWT_SECRET, expiresIn: config.JWT_EXPIRES_IN });
     this.verifier = createVerifier({ key: async () => config.JWT_SECRET });
   }

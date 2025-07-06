@@ -3,7 +3,7 @@ import { NotificationService } from '../ports/primary/notification.service.js';
 import { SubscriptionService } from '../ports/primary/subscription.service.js';
 import { CronExpression, CronProvider } from '../ports/secondary/cron.provider.js';
 
-type Options = {
+type Dependencies = {
   subscriptionService: SubscriptionService;
   cronProvider: CronProvider;
 };
@@ -12,7 +12,7 @@ export class CronNotificationService implements NotificationService {
   private subscriptionService: SubscriptionService;
   private cronProvider: CronProvider;
 
-  constructor({ subscriptionService, cronProvider }: Options) {
+  constructor({ subscriptionService, cronProvider }: Dependencies) {
     this.subscriptionService = subscriptionService;
     this.cronProvider = cronProvider;
   }

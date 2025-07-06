@@ -19,7 +19,7 @@ export type ServerInfo = {
   server: ServerType;
 }
 
-type Options = {
+type Dependencies = {
   weatherService: WeatherService;
   subscriptionService: SubscriptionService;
   metricsProvider: MetricsProvider;
@@ -36,7 +36,7 @@ export class Server {
     weatherService,
     subscriptionService,
     metricsProvider
-  }: Options) {
+  }: Dependencies) {
     this.weatherService = weatherService;
     this.subscriptionService = subscriptionService;
     this.metricsProvider = metricsProvider;

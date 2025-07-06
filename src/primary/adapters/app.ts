@@ -8,7 +8,7 @@ import { NotificationService } from 'src/domain/ports/primary/notification.servi
 
 const GRACEFUL_SHUTDOWN_DELAY = 15_000;
 
-type Options = {
+type Dependencies = {
   server: Server;
   notificationService: NotificationService;
   dbProvider: DbProvider;
@@ -25,7 +25,7 @@ export class App {
   private nodeEnv: string;
   private logger: Logger;
 
-  constructor({ server, notificationService, dbProvider, loggerProvider, config }: Options) {
+  constructor({ server, notificationService, dbProvider, loggerProvider, config }: Dependencies) {
     this.server = server;
     this.notificationService = notificationService;
     this.dbProvider = dbProvider;

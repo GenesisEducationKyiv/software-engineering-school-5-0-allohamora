@@ -3,7 +3,7 @@ import { Exception } from 'src/domain/entities/exception.entity.js';
 import { EmailProvider, SendEmailOptions } from 'src/domain/ports/secondary/email.provider.js';
 import { Logger, LoggerProvider } from 'src/domain/ports/secondary/logger.provider.js';
 
-type Options = {
+type Dependencies = {
   loggerProvider: LoggerProvider;
   config: { RESEND_API_KEY: string; EMAIL_NAME: string; EMAIL_FROM: string };
 };
@@ -16,7 +16,7 @@ export class ResendEmailProvider implements EmailProvider {
 
   private logger: Logger;
 
-  constructor({ loggerProvider, config }: Options) {
+  constructor({ loggerProvider, config }: Dependencies) {
     this.emailName = config.EMAIL_NAME;
     this.emailFrom = config.EMAIL_FROM;
 

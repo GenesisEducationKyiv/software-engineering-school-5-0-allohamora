@@ -1,14 +1,14 @@
 import { Logger as Pino, pino } from 'pino';
 import { Logger, LoggerProvider } from 'src/domain/ports/secondary/logger.provider.js';
 
-type Options = {
+type Dependencies = {
   config: { PINO_LEVEL: string };
 };
 
 export class PinoLoggerProvider implements LoggerProvider {
   private pino: Pino;
 
-  constructor({ config }: Options) {
+  constructor({ config }: Dependencies) {
     this.pino = pino({
       level: config.PINO_LEVEL,
       transport: {

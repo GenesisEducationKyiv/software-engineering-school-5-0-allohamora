@@ -5,14 +5,14 @@ import { Db, DbProvider } from './db.provider.js';
 import { SubscriptionRepository, CreateSubscriptionData } from 'src/domain/ports/secondary/subscription.repository.js';
 import { Frequency } from 'src/domain/entities/subscription.entity.js';
 
-type Options = {
+type Dependencies = {
   dbProvider: DbProvider;
 };
 
 export class DrizzleSubscriptionRepository implements SubscriptionRepository {
   private db: Db;
 
-  constructor({ dbProvider }: Options) {
+  constructor({ dbProvider }: Dependencies) {
     this.db = dbProvider.getConnection();
   }
 

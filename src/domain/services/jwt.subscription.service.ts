@@ -16,7 +16,7 @@ export type SubscribeOptions = {
   frequency: Frequency;
 };
 
-type Options = {
+type Dependencies = {
   jwtProvider: JwtProvider;
   subscriptionRepository: SubscriptionRepository;
   weatherService: WeatherService;
@@ -44,7 +44,7 @@ export class JwtSubscriptionService implements SubscriptionService {
     templateProvider,
     loggerProvider,
     config,
-  }: Options) {
+  }: Dependencies) {
     this.jwtProvider = jwtProvider;
     this.subscriptionRepository = subscriptionRepository;
     this.weatherService = weatherService;

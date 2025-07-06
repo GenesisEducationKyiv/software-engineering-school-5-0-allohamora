@@ -4,7 +4,7 @@ import { Logger, LoggerProvider } from '../ports/secondary/logger.provider.js';
 import { Weather } from '../entities/weather.entity.js';
 import { WeatherService } from '../ports/primary/weather.service.js';
 
-type Options = {
+type Dependencies = {
   weatherProviders: WeatherProvider[];
   loggerProvider: LoggerProvider;
 };
@@ -14,7 +14,7 @@ export class ChainWeatherService implements WeatherService {
 
   private logger: Logger;
 
-  constructor({ weatherProviders, loggerProvider }: Options) {
+  constructor({ weatherProviders, loggerProvider }: Dependencies) {
     this.weatherProviders = weatherProviders;
 
     this.logger = loggerProvider.createLogger('ChainWeatherService');

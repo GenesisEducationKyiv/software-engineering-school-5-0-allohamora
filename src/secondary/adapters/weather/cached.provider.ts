@@ -3,7 +3,7 @@ import { WeatherProvider } from 'src/domain/ports/secondary/weather.provider.js'
 import { Weather } from 'src/domain/entities/weather.entity.js';
 import { Exception, ExceptionCode } from 'src/domain/entities/exception.entity.js';
 
-type Options = {
+type Dependencies = {
   cacheProvider: CacheProvider;
   config: { WEATHER_TTL_SECONDS: number };
 };
@@ -14,7 +14,7 @@ export class CachedWeatherProviderProxy implements WeatherProvider {
 
   private weatherTtlSeconds: number;
 
-  constructor(weatherProvider: WeatherProvider, { cacheProvider, config }: Options) {
+  constructor(weatherProvider: WeatherProvider, { cacheProvider, config }: Dependencies) {
     this.weatherProvider = weatherProvider;
     this.cacheProvider = cacheProvider;
 

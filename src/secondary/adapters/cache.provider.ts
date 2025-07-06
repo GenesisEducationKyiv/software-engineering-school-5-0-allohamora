@@ -1,7 +1,7 @@
 import { Redis } from 'ioredis';
 import { Counter, MetricsProvider } from './metrics.provider.js';
 
-type Options = {
+type Dependencies = {
   metricsProvider: MetricsProvider;
   config: { REDIS_URL: string };
 };
@@ -12,7 +12,7 @@ export class CacheProvider {
 
   private redis: Redis;
 
-  constructor({ metricsProvider: metricsService, config }: Options) {
+  constructor({ metricsProvider: metricsService, config }: Dependencies) {
     this.hitCounter = metricsService.getCounter('cache_hits', 'Number of cache hits', ['key']);
 
     this.missCounter = metricsService.getCounter('cache_misses', 'Number of cache misses', ['key']);
