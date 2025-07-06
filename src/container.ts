@@ -1,58 +1,58 @@
-import { CronService } from './services/cron.service.js';
-import { SubscriptionRepository } from './repositories/subscription.repository.js';
-import { JwtService } from './services/jwt.service.js';
-import { HandleSubscriptionService } from './services/handle-subscription.service.js';
-import { SubscriptionService } from './services/subscription.service.js';
-import { Server } from './server.js';
-import { App } from './app.js';
-import { SendEmailService } from './services/send-email.service.js';
-import { SendEmailTemplateService } from './services/send-email-template.service.js';
-import { LoggerService } from './services/logger.service.js';
-import { DbService } from './services/db.service.js';
-import { ConfigService } from './services/config.service.js';
-import { ApiWeatherProvider } from './providers/weather/api-weather.provider.js';
-import { OpenMeteoProvider } from './providers/weather/open-meteo.provider.js';
-import { FetchHttpProvider } from './providers/http/fetch.provider.js';
-import { LoggerHttpProviderDecorator } from './providers/http/logger.provider.js';
-import { HttpProvider } from './providers/http/http.provider.js';
-import { CacheService } from './services/cache.service.js';
-import { CachedWeatherProviderProxy } from './providers/weather/cached.provider.js';
-import { WeatherService } from './services/weather.service.js';
-import { MetricsService } from './services/metrics.service.js';
+import { ConfigProvider } from 'src/secondary/adapters/config.provider.js';
+import { PinoLoggerProvider } from 'src/secondary/adapters/logger.provider.js';
+import { MetricsProvider } from 'src/secondary/adapters/metrics.provider.js';
+import { LoggerHttpProviderDecorator } from 'src/secondary/adapters/http/logger.provider.js';
+import { FetchHttpProvider } from 'src/secondary/adapters/http/fetch.provider.js';
+import { DbProvider } from 'src/secondary/adapters/db.provider.js';
+import { CacheProvider } from 'src/secondary/adapters/cache.provider.js';
+import { DrizzleSubscriptionRepository } from 'src/secondary/adapters/subscription.repository.js';
+import { FastJwtProvider } from 'src/secondary/adapters/jwt.provider.js';
+import { ApiWeatherProvider } from 'src/secondary/adapters/weather/api-weather.provider.js';
+import { OpenMeteoProvider } from 'src/secondary/adapters/weather/open-meteo.provider.js';
+import { CachedWeatherProviderProxy } from 'src/secondary/adapters/weather/cached.provider.js';
+import { ChainWeatherService } from 'src/domain/services/chain.weather.service.js';
+import { JsxTemplateProvider } from 'src/secondary/adapters/template.provider.js';
+import { ResendEmailProvider } from 'src/secondary/adapters/email.provider.js';
+import { JwtSubscriptionService } from 'src/domain/services/jwt.subscription.service.js';
+import { CronerCronProvider } from 'src/secondary/adapters/cron.provider.js';
+import { Server } from 'src/primary/adapters/server.js';
+import { App } from 'src/primary/adapters/app.js';
+import { CronNotificationService } from './domain/services/cron.notification.service.js';
 
 export class Container {
-  public configService = new ConfigService();
-  public config = this.configService.getConfig();
+  public configProvider = new ConfigProvider();
+  public config = this.configProvider.getConfig();
 
-  public metricsService = new MetricsService();
+  public metricsProvider = new MetricsProvider();
 
-  public loggerService = new LoggerService(this);
+  public loggerProvider = new PinoLoggerProvider(this);
 
-  public httpProvider: HttpProvider = new LoggerHttpProviderDecorator(new FetchHttpProvider(), this);
+  public httpProvider = new LoggerHttpProviderDecorator(new FetchHttpProvider(), this);
 
-  public dbService = new DbService(this);
-  public db = this.dbService.getConnection();
+  public dbProvider = new DbProvider(this);
+  public db = this.dbProvider.getConnection();
 
-  public cacheService = new CacheService(this);
+  public cacheProvider = new CacheProvider(this);
 
-  public subscriptionRepository = new SubscriptionRepository(this);
+  public jwtProvider = new FastJwtProvider(this);
 
-  public jwtService = new JwtService(this);
+  public templateProvider = new JsxTemplateProvider();
+
+  public emailProvider = new ResendEmailProvider(this);
+
+  public cronProvider = new CronerCronProvider();
+
+  public subscriptionRepository = new DrizzleSubscriptionRepository(this);
 
   public weatherProviders = [new ApiWeatherProvider(this), new OpenMeteoProvider(this)].map(
     (provider) => new CachedWeatherProviderProxy(provider, this),
   );
-  public weatherService = new WeatherService(this);
 
-  public sendEmailService = new SendEmailService(this);
+  public weatherService = new ChainWeatherService(this);
 
-  public sendEmailTemplateService = new SendEmailTemplateService(this);
+  public subscriptionService = new JwtSubscriptionService(this);
 
-  public handleSubscriptionService = new HandleSubscriptionService(this);
-
-  public subscriptionService = new SubscriptionService(this);
-
-  public cronService = new CronService(this);
+  public notificationService = new CronNotificationService(this);
 
   public server = new Server(this);
 

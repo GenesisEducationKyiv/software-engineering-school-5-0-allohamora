@@ -74,6 +74,24 @@ E2E tests validate the entire application flow from a user's perspective.
 
    **Location:** `__tests__/e2e/`
 
+## Arch Tests
+
+Architecture tests to check the structure and dependencies of the codebase.
+
+1. Install dependencies:
+
+   ```bash
+   npm i
+   ```
+
+2. Run arch tests:
+
+   ```bash
+   npm run test:arch
+   ```
+
+   **Location:** `__tests__/arch/`
+
 ## Running All Tests at Once
 
 Run all test suites with a single sequence of commands:
@@ -92,7 +110,7 @@ Run all test suites with a single sequence of commands:
 
 3. Run all test suites sequentially:
    ```bash
-   npm test && npm run test:integration && npm run test:e2e
+   npm test:all
    ```
 
 ## Tips
