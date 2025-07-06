@@ -71,19 +71,27 @@ export class JwtSubscriptionService implements SubscriptionService {
       );
     });
 
-    for await (const subscriptions of this.subscriptionRepository.iterateSubscriptions(frequency)) {
+    iterateSubscription: for await (const subscriptions of this.subscriptionRepository.iterateSubscriptions(
+      frequency,
+    )) {
       for (const { id, email, city } of subscriptions) {
-        const weather = await dataloader.load(city);
-        const unsubscribeLink = this.makeUnsubscribeLink(id);
+        try {
+          const weather = await dataloader.load(city);
+          const unsubscribeLink = this.makeUnsubscribeLink(id);
 
-        await this.emailProvider.sendEmail({
-          to: [email],
-          template: this.templateProvider.getWeatherUpdateTemplate({
-            city,
-            unsubscribeLink,
-            ...weather,
-          }),
-        });
+          await this.emailProvider.sendEmail({
+            to: [email],
+            template: this.templateProvider.getWeatherUpdateTemplate({
+              city,
+              unsubscribeLink,
+              ...weather,
+            }),
+          });
+        } catch (err) {
+          this.logger.info({ msg: 'Handling weather subscription has been failed', err });
+
+          break iterateSubscription;
+        }
       }
     }
 
