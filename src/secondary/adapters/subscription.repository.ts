@@ -36,7 +36,7 @@ export class DrizzleSubscriptionRepository implements SubscriptionRepository {
   }
 
   async removeSubscriptionById(id: string) {
-    await this.db.delete(subscriptions).where(eq(subscriptions.id, id)).returning();
+    await this.db.delete(subscriptions).where(eq(subscriptions.id, id));
   }
 
   async *iterateSubscriptions(frequency: Frequency, limit = 50) {
