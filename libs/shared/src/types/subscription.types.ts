@@ -1,4 +1,4 @@
-export const enum Frequency {
+export enum Frequency {
   Hourly = 'hourly',
   Daily = 'daily',
 }

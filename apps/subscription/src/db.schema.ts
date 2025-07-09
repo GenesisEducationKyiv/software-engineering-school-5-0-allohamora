@@ -1,6 +1,5 @@
-import { Frequency } from '@weather-subscription/shared';
 import { pgTable, uuid, varchar, timestamp } from 'drizzle-orm/pg-core';
-
+import { Frequency } from '@weather-subscription/shared';
 
 export const subscriptions = pgTable('subscriptions', {
   id: uuid().notNull().defaultRandom().primaryKey(),
