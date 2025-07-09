@@ -1,6 +1,6 @@
 import { OpenAPIHono, createRoute } from '@hono/zod-openapi';
 import { Client } from 'nice-grpc';
-import { SubscriptionServiceDefinition, Frequency as GrpcFrequency } from '@weather-subscription/proto/subscription';
+import { SubscriptionServiceDefinition, Frequency as GrpcFrequency } from 'libs/proto/dist/subscription.js';
 import { z } from 'zod';
 import { Exception } from 'src/exception.js';
 import { Frequency } from 'src/types/subscription.types.js';

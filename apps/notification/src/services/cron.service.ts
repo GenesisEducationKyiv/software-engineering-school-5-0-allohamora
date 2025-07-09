@@ -1,6 +1,6 @@
 import { Cron } from 'croner';
 import { Client } from 'nice-grpc';
-import { Frequency, SubscriptionServiceDefinition } from '@weather-subscription/proto/subscription';
+import { Frequency, SubscriptionServiceDefinition } from '../../../../libs/proto/dist/subscription.js';
 
 export const enum CronExpression {
   DAILY = '0 0 * * *',

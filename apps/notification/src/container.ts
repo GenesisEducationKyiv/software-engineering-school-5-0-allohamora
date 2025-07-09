@@ -3,7 +3,7 @@ import { LoggerService } from './services/logger.service.js';
 import { CronService } from './services/cron.service.js';
 import { App } from './app.js';
 import { createChannel, createClient } from 'nice-grpc';
-import { SubscriptionServiceDefinition } from '@weather-subscription/proto/subscription';
+import { SubscriptionServiceDefinition } from '../../../libs/proto/dist/subscription.js';
 
 export class Container {
   public configService = new ConfigService();

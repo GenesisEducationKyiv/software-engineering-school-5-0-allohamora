@@ -1,6 +1,6 @@
 import { Server } from 'nice-grpc';
 import { SubscriptionService } from 'src/services/subscription.service.js';
-import { Frequency as GrpcFrequency, SubscriptionServiceDefinition } from '@weather-subscription/proto/subscription';
+import { Frequency as GrpcFrequency, SubscriptionServiceDefinition } from 'libs/proto/dist/subscription.js';
 import { Frequency } from 'src/db.schema.js';
 import { Exception } from 'src/exception.js';
 

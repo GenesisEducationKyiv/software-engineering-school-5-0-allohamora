@@ -1,6 +1,6 @@
 import { Server } from 'nice-grpc';
 import { WeatherService } from 'src/services/weather.service.js';
-import { WeatherServiceDefinition } from '@weather-subscription/proto/weather';
+import { WeatherServiceDefinition } from 'libs/proto/dist/weather.js';
 import { MetricsService } from 'src/services/metrics.service.js';
 
 export const makeWeatherRoutes = (server: Server, weatherService: WeatherService, metricsService: MetricsService) => {

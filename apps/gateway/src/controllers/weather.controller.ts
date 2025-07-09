@@ -1,6 +1,6 @@
 import { OpenAPIHono, createRoute } from '@hono/zod-openapi';
 import { Client } from 'nice-grpc';
-import { WeatherServiceDefinition } from '@weather-subscription/proto/weather';
+import { WeatherServiceDefinition } from 'libs/proto/dist/weather.js';
 import { z } from 'zod';
 
 export const makeWeatherRoutes = (app: OpenAPIHono, weatherClient: Client<WeatherServiceDefinition>) => {
