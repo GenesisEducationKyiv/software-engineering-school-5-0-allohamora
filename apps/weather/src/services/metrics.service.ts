@@ -9,12 +9,11 @@ export class MetricsService {
     collectDefaultMetrics({ register: this.register });
   }
 
-  public getMetricsContentType() {
-    return this.register.contentType;
-  }
-
-  public async getMetrics() {
-    return await this.register.metrics();
+  public async collectMetrics() {
+    return {
+      metrics: await this.register.metrics(),
+      contentType: this.register.contentType,
+    };
   }
 
   public getCounter(name: string, description: string, labelNames: string[] = []) {

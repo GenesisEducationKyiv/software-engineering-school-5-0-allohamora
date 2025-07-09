@@ -13,6 +13,7 @@ import { WeatherServiceDefinition } from '@weather-subscription/proto/weather';
 import { SubscriptionServiceDefinition } from '@weather-subscription/proto/subscription';
 import { HttpStatus } from './types/http.types.js';
 import { AddressInfo } from 'node:net';
+import { makeMetricsRoutes } from './controllers/metrics.controller.js';
 
 export type ServerInfo = {
   info: AddressInfo;
@@ -79,6 +80,7 @@ export class Server {
     const apiRouter = new OpenAPIHono();
     makeWeatherRoutes(apiRouter, this.weatherClient);
     makeSubscriptionRoutes(apiRouter, this.subscriptionClient);
+    makeMetricsRoutes(apiRouter, this.weatherClient);
 
     this.app.route('/api', apiRouter);
 
