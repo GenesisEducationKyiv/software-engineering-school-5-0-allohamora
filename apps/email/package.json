@@ -1,0 +1,47 @@
+{
+  "name": "@weather-subscription/email",
+  "version": "0.0.1",
+  "type": "module",
+  "main": "src/index.ts",
+  "private": true,
+  "scripts": {
+    "dev": "tsx watch --clear-screen=false src/index.ts",
+    "build": "tsc -p ./tsconfig.build.json",
+    "postbuild": "tsc-alias -p ./tsconfig.build.json",
+    "start": "node dist/index.js",
+    "format": "prettier . --check",
+    "format:fix": "prettier --write .",
+    "lint": "eslint \"**/*.ts\"",
+    "lint:fix": "eslint \"**/*.ts\" --fix"
+  },
+  "dependencies": {
+    "@weather-subscription/proto": "*",
+    "close-with-grace": "^2.2.0",
+    "dotenv": "^16.5.0",
+    "nice-grpc": "^2.1.12",
+    "pino": "^9.6.0",
+    "pino-pretty": "^13.0.0",
+    "hono": "^4.7.9",
+    "znv": "^0.5.0",
+    "zod": "^3.24.4"
+  },
+  "devDependencies": {
+    "@commitlint/cli": "^19.8.1",
+    "@commitlint/config-conventional": "^19.8.1",
+    "@eslint/js": "^9.26.0",
+    "eslint": "^9.26.0",
+    "eslint-config-prettier": "^10.1.5",
+    "eslint-plugin-beautiful-sort": "^3.0.1",
+    "eslint-plugin-prettier": "^5.4.0",
+    "globals": "^16.1.0",
+    "prettier": "^3.5.3",
+    "tsc-alias": "^1.8.16",
+    "tsx": "^4.19.4",
+    "typescript": "^5.8.3",
+    "typescript-eslint": "^8.32.1"
+  },
+  "lint-staged": {
+    "*.{js,cjs,mjs,json,yml,md}": "prettier --write",
+    "*.ts": "eslint --fix"
+  }
+}
