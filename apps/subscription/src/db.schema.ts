@@ -1,9 +1,6 @@
+import { Frequency } from '@weather-subscription/shared';
 import { pgTable, uuid, varchar, timestamp } from 'drizzle-orm/pg-core';
 
-export const enum Frequency {
-  Hourly = 'hourly',
-  Daily = 'daily',
-}
 
 export const subscriptions = pgTable('subscriptions', {
   id: uuid().notNull().defaultRandom().primaryKey(),

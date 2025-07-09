@@ -1,4 +1,5 @@
 import { Status } from 'nice-grpc';
+import { HttpStatus } from './types/http.types.js';
 
 /*
   This is a set of application-specific exception codes that can be used to identify
@@ -23,8 +24,8 @@ export class Exception extends Error {
     this.code = code;
   }
 
-  public toGrpcCode(code: ExceptionCode) {
-    switch (code) {
+  public getGrpcStatus() {
+    switch (this.code) {
       case ExceptionCode.NOT_FOUND:
         return Status.NOT_FOUND;
       case ExceptionCode.VALIDATION_ERROR:
@@ -34,6 +35,20 @@ export class Exception extends Error {
       case ExceptionCode.INTERNAL_SERVER_ERROR:
       default:
         return Status.INTERNAL;
+    }
+  }
+
+  public getHttpCode() {
+    switch (this.code) {
+      case ExceptionCode.NOT_FOUND:
+        return HttpStatus.NOT_FOUND;
+      case ExceptionCode.VALIDATION_ERROR:
+        return HttpStatus.BAD_REQUEST;
+      case ExceptionCode.ALREADY_EXISTS:
+        return HttpStatus.CONFLICT;
+      case ExceptionCode.INTERNAL_SERVER_ERROR:
+      default:
+        return HttpStatus.INTERNAL_SERVER_ERROR;
     }
   }
 

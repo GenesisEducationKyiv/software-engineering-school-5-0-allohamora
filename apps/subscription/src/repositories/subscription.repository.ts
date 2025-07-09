@@ -1,6 +1,6 @@
+import { Exception, Frequency } from '@weather-subscription/shared';
 import { eq } from 'drizzle-orm';
-import { Frequency, subscriptions } from 'src/db.schema.js';
-import { Exception } from 'src/exception.js';
+import { subscriptions } from 'src/db.schema.js';
 import { Db, DbService } from 'src/services/db.service.js';
 
 type Options = {

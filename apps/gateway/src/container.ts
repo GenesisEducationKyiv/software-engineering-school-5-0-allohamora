@@ -1,10 +1,10 @@
 import { ConfigService } from 'src/services/config.service.js';
-import { LoggerService } from './services/logger.service.js';
+import { LoggerService } from '@weather-subscription/shared';
 import { Server } from './server.js';
 import { App } from './app.js';
 import { createChannel, createClient } from 'nice-grpc';
-import { SubscriptionServiceDefinition } from 'libs/proto/dist/subscription.js';
-import { WeatherServiceDefinition } from 'libs/proto/dist/weather.js';
+import { SubscriptionServiceDefinition } from '@weather-subscription/proto/subscription';
+import { WeatherServiceDefinition } from '@weather-subscription/proto/weather';
 
 export class Container {
   public configService = new ConfigService();

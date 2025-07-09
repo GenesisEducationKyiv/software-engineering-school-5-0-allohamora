@@ -1,42 +1,32 @@
-import { createServer, Status, ServerError } from 'nice-grpc';
+import { createServer } from 'nice-grpc';
 import { WeatherService } from './services/weather.service.js';
-import { Exception } from './exception.js';
 import { makeWeatherRoutes } from './controllers/weather.controller.js';
-import { LoggerService } from './services/logger.service.js';
+import { LoggerService, grpcErrorMiddleware } from '@weather-subscription/shared';
+import { MetricsService } from './services/metrics.service.js';
 
 type Options = {
   weatherService: WeatherService;
+  metricsService: MetricsService;
   loggerService: LoggerService;
 };
 
 export class Server {
   private weatherService: WeatherService;
+  private metricsService: MetricsService;
 
   private server = createServer();
 
-  constructor({ weatherService }: Options) {
+  constructor({ weatherService, metricsService }: Options) {
     this.weatherService = weatherService;
+    this.metricsService = metricsService;
 
     this.setup();
   }
 
   private setup() {
-    this.server.use(async function* (call, context) {
-      try {
-        yield* call.next(call.request, context);
-      } catch (err) {
-        if (err instanceof Exception) {
-          const message = err instanceof Exception ? err.message : 'internal server error';
-          const statusCode = err instanceof Exception ? err.toGrpcCode(err.code) : Status.INTERNAL;
+    this.server.use(grpcErrorMiddleware);
 
-          throw new ServerError(statusCode, message);
-        }
-
-        throw new ServerError(Status.UNKNOWN, 'internal server error');
-      }
-    });
-
-    makeWeatherRoutes(this.server, this.weatherService);
+    makeWeatherRoutes(this.server, this.weatherService, this.metricsService);
   }
 
   public async listen(port: number) {

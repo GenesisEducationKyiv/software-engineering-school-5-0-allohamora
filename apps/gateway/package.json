@@ -14,10 +14,11 @@
     "lint:fix": "eslint \"**/*.ts\" --fix"
   },
   "dependencies": {
+    "@weather-subscription/proto": "*",
+    "@weather-subscription/shared": "*",
     "@hono/node-server": "^1.14.1",
     "@hono/swagger-ui": "^0.5.1",
     "@hono/zod-openapi": "^0.19.6",
-    "@weather-subscription/proto": "*",
     "close-with-grace": "^2.2.0",
     "dotenv": "^16.5.0",
     "hono": "^4.7.9",

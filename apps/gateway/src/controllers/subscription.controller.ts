@@ -1,24 +1,8 @@
 import { OpenAPIHono, createRoute } from '@hono/zod-openapi';
-import { Client } from 'nice-grpc';
-import { SubscriptionServiceDefinition, Frequency as GrpcFrequency } from 'libs/proto/dist/subscription.js';
 import { z } from 'zod';
-import { Exception } from 'src/exception.js';
-import { Frequency } from 'src/types/subscription.types.js';
+import { Frequency, Exception, SubscriptionClient, toGrpcFrequency } from '@weather-subscription/shared';
 
-const toGrpcFrequency = (frequency: Frequency) => {
-  switch (frequency) {
-    case Frequency.Hourly:
-      return GrpcFrequency.DAILY;
-    case Frequency.Daily:
-      return GrpcFrequency.HOURLY;
-    default: {
-      const exhaustiveCheck: never = frequency;
-      throw Exception.InternalServerError(`Unexpected frequency: ${exhaustiveCheck}`);
-    }
-  }
-};
-
-export const makeSubscriptionRoutes = (app: OpenAPIHono, subscriptionClient: Client<SubscriptionServiceDefinition>) => {
+export const makeSubscriptionRoutes = (app: OpenAPIHono, subscriptionClient: SubscriptionClient) => {
   const subscribeSchema = z.object({
     email: z.string().email().describe('Email address to subscribe'),
     city: z.string().min(1).describe('City for weather updates'),

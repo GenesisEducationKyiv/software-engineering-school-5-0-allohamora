@@ -1,6 +1,6 @@
 import { ParsedSchema, parseEnv } from 'znv';
 import { z } from 'zod';
-import 'dotenv/config';
+import { BaseConfigService } from '@weather-subscription/shared';
 
 const configSchema = {
   NODE_ENV: z.enum(['development', 'test', 'production']).optional().default('development'),
@@ -19,22 +19,8 @@ const configSchema = {
 
 export type Config = ParsedSchema<typeof configSchema>;
 
-export class ConfigService {
-  protected config: Config;
-
-  constructor() {
-    this.setConfig();
-  }
-
-  protected setConfig() {
+export class ConfigService extends BaseConfigService<Config> {
+  protected override setConfig() {
     this.config = parseEnv(process.env, configSchema);
-  }
-
-  public get<T extends keyof Config>(key: T): Config[T] {
-    return this.config[key];
-  }
-
-  public getConfig(): Config {
-    return this.config;
   }
 }

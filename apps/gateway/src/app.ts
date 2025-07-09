@@ -2,7 +2,7 @@ import closeWithGrace, { CloseWithGraceAsyncCallback } from 'close-with-grace';
 import { ServerType } from '@hono/node-server';
 import { Server } from './server.js';
 import { promisify } from 'node:util';
-import { Logger, LoggerService } from './services/logger.service.js';
+import { Logger, LoggerService } from '@weather-subscription/shared';
 
 const GRACEFUL_SHUTDOWN_DELAY = 15_000;
 

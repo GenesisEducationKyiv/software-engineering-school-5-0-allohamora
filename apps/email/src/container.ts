@@ -1,5 +1,5 @@
 import { ConfigService } from 'src/services/config.service.js';
-import { LoggerService } from './services/logger.service.js';
+import { LoggerService } from '@weather-subscription/shared';
 import { TemplateService } from './services/template.service.js';
 import { EmailService } from './services/email.service.js';
 import { Server } from './server.js';

@@ -1,6 +1,6 @@
 import type { FC } from 'hono/jsx';
 import { html } from 'hono/html';
-import { Frequency } from 'src/types/subscription.types.js';
+import { Frequency } from '@weather-subscription/shared';
 
 export const RootView: FC = () => {
   return (

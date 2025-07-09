@@ -1,25 +1,12 @@
 import { Server } from 'nice-grpc';
 import { SubscriptionService } from 'src/services/subscription.service.js';
-import { Frequency as GrpcFrequency, SubscriptionServiceDefinition } from 'libs/proto/dist/subscription.js';
-import { Frequency } from 'src/db.schema.js';
-import { Exception } from 'src/exception.js';
-
-const toFrequency = (frequency: GrpcFrequency) => {
-  switch (frequency) {
-    case GrpcFrequency.DAILY:
-      return Frequency.Daily;
-    case GrpcFrequency.HOURLY:
-      return Frequency.Hourly;
-    default: {
-      throw Exception.InternalServerError(`Unknown frequency: ${frequency}`);
-    }
-  }
-};
+import { SubscriptionServiceDefinition } from '@weather-subscription/proto/subscription';
+import { fromGrpcFrequency } from '@weather-subscription/shared';
 
 export const makeSubscription = (server: Server, subscriptionService: SubscriptionService) => {
   server.add(SubscriptionServiceDefinition, {
     subscribe: async ({ frequency, ...rest }) => {
-      await subscriptionService.subscribe({ frequency: toFrequency(frequency), ...rest });
+      await subscriptionService.subscribe({ frequency: fromGrpcFrequency(frequency), ...rest });
 
       return { message: 'Subscription successful. Confirmation email sent.' };
     },
@@ -34,7 +21,7 @@ export const makeSubscription = (server: Server, subscriptionService: Subscripti
       return { message: 'Unsubscribed successfully' };
     },
     handleSubscriptions: async (options) => {
-      await subscriptionService.handleSubscriptions(toFrequency(options.frequency));
+      await subscriptionService.handleSubscriptions(fromGrpcFrequency(options.frequency));
 
       return {};
     },

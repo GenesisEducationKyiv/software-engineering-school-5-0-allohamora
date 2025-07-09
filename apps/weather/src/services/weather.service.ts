@@ -1,6 +1,5 @@
 import { Weather, WeatherProvider } from 'src/providers/weather/weather.provider.js';
-import { Logger, LoggerService } from './logger.service.js';
-import { Exception } from 'src/exception.js';
+import { Exception, Logger, LoggerService } from '@weather-subscription/shared';
 
 type Options = {
   weatherProviders: WeatherProvider[];

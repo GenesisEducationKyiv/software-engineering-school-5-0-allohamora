@@ -1,6 +1,6 @@
 import closeWithGrace, { CloseWithGraceAsyncCallback } from 'close-with-grace';
 import { Server } from './server.js';
-import { Logger, LoggerService } from './services/logger.service.js';
+import { Logger, LoggerService } from '@weather-subscription/shared';
 import { DbService } from './services/db.service.js';
 
 const GRACEFUL_SHUTDOWN_DELAY = 15_000;

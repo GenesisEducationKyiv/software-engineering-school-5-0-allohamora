@@ -1,5 +1,5 @@
 import closeWithGrace, { CloseWithGraceAsyncCallback } from 'close-with-grace';
-import { Logger, LoggerService } from './services/logger.service.js';
+import { Logger, LoggerService } from '@weather-subscription/shared';
 import { CronService } from './services/cron.service.js';
 
 const GRACEFUL_SHUTDOWN_DELAY = 15_000;

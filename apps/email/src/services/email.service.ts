@@ -1,6 +1,5 @@
 import { Resend } from 'resend';
-import { Logger, LoggerService } from './logger.service.js';
-import { Exception } from 'src/exception.js';
+import { Logger, LoggerService, Exception } from '@weather-subscription/shared';
 import {
   GetSubscribeTemplateOptions,
   GetWeatherUpdateTemplateOptions,

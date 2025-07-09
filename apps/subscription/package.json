@@ -16,6 +16,7 @@
   },
   "dependencies": {
     "@weather-subscription/proto": "*",
+    "@weather-subscription/shared": "*",
     "close-with-grace": "^2.2.0",
     "dataloader": "^2.2.3",
     "dotenv": "^16.5.0",

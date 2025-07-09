@@ -1,7 +1,6 @@
-import { createServer, Status, ServerError } from 'nice-grpc';
+import { createServer } from 'nice-grpc';
 import { SubscriptionService } from './services/subscription.service.js';
-import { Exception } from './exception.js';
-import { LoggerService } from './services/logger.service.js';
+import { LoggerService, grpcErrorMiddleware } from '@weather-subscription/shared';
 import { makeSubscription } from './controllers/subscription.controller.js';
 
 type Options = {
@@ -21,20 +20,7 @@ export class Server {
   }
 
   private setup() {
-    this.server.use(async function* (call, context) {
-      try {
-        yield* call.next(call.request, context);
-      } catch (err) {
-        if (err instanceof Exception) {
-          const message = err instanceof Exception ? err.message : 'internal server error';
-          const statusCode = err instanceof Exception ? err.toGrpcCode(err.code) : Status.INTERNAL;
-
-          throw new ServerError(statusCode, message);
-        }
-
-        throw new ServerError(Status.UNKNOWN, 'internal server error');
-      }
-    });
+    this.server.use(grpcErrorMiddleware);
 
     makeSubscription(this.server, this.subscriptionService);
   }

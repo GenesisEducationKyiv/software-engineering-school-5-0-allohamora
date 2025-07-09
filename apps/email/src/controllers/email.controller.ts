@@ -1,6 +1,6 @@
 import { Server } from 'nice-grpc';
 import { EmailService } from 'src/services/email.service.js';
-import { EmailServiceDefinition } from 'libs/proto/dist/email.js';
+import { EmailServiceDefinition } from '@weather-subscription/proto/email';
 
 export const makeEmailRoutes = (server: Server, emailService: EmailService) => {
   server.add(EmailServiceDefinition, {

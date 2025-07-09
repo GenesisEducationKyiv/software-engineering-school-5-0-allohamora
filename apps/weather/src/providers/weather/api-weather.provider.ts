@@ -1,4 +1,4 @@
-import { Exception } from 'src/exception.js';
+import { Exception } from '@weather-subscription/shared';
 import { WeatherProvider } from './weather.provider.js';
 import { HttpProvider } from '../http/http.provider.js';
 

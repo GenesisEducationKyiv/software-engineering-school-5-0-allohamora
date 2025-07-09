@@ -1,13 +1,8 @@
 import Dataloader from 'dataloader';
-import { Frequency } from 'src/db.schema.js';
 import { JwtService } from './jwt.service.js';
 import { SubscriptionRepository } from 'src/repositories/subscription.repository.js';
-import { Client } from 'nice-grpc';
-import { WeatherServiceDefinition } from 'libs/proto/dist/weather.js';
-import type { Weather } from 'libs/proto/dist/weather.js';
-import { EmailServiceDefinition } from 'libs/proto/dist/email.js';
-import { Logger, LoggerService } from './logger.service.js';
-import { Exception } from 'src/exception.js';
+import type { Weather } from '@weather-subscription/proto/weather';
+import { Exception, Logger, LoggerService, WeatherClient, EmailClient, Frequency } from '@weather-subscription/shared';
 
 export type SubscribeOptions = {
   email: string;
@@ -18,8 +13,8 @@ export type SubscribeOptions = {
 type Options = {
   jwtService: JwtService;
   subscriptionRepository: SubscriptionRepository;
-  weatherClient: Client<WeatherServiceDefinition>;
-  emailClient: Client<EmailServiceDefinition>;
+  weatherClient: WeatherClient;
+  emailClient: EmailClient;
   loggerService: LoggerService;
   config: { APP_URL: string };
 };
@@ -27,8 +22,8 @@ type Options = {
 export class SubscriptionService {
   private jwtService: JwtService;
   private subscriptionRepository: SubscriptionRepository;
-  private weatherClient: Client<WeatherServiceDefinition>;
-  private emailClient: Client<EmailServiceDefinition>;
+  private weatherClient: WeatherClient;
+  private emailClient: EmailClient;
 
   private logger: Logger;
 
