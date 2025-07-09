@@ -30,8 +30,7 @@
       "src/*": ["src/*"]
     },
     "strictPropertyInitialization": false,
-    "strictNullChecks": true,
-    "composite": true
+    "strictNullChecks": true
   },
   "exclude": ["node_modules", "dist"]
 }
