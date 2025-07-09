@@ -5,7 +5,6 @@ import 'dotenv/config';
 const configSchema = {
   NODE_ENV: z.enum(['development', 'test', 'production']).optional().default('development'),
   PORT: z.number().optional().default(4002),
-  APP_URL: z.string().url().optional().default('http://localhost:3000'),
 
   PINO_LEVEL: z.enum(['debug', 'info', 'warn', 'error', 'silent', 'fatal']).optional().default('info'),
 
