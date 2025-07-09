@@ -1,0 +1,58 @@
+syntax = "proto3";
+
+package subscription;
+
+import "google/protobuf/empty.proto";
+import "google/protobuf/timestamp.proto";
+
+enum Frequency {
+  // https://protobuf.dev/best-practices/dos-donts/#unspecified-enum
+  UNSPECIFIED = 0;
+  HOURLY = 1;
+  DAILY = 2;
+}
+
+message Subscription {
+  string id = 1;
+  string email = 2;
+  string city = 3;
+  Frequency frequency = 4;
+  google.protobuf.Timestamp created_at = 5;
+}
+
+message SubscribeRequest {
+  string email = 1;
+  string city = 2;
+  Frequency frequency = 3;
+}
+
+message SubscribeResponse {
+  string message = 1;
+}
+
+message ConfirmRequest {
+  string token = 1;
+}
+
+message ConfirmResponse {
+  string message = 2;
+}
+
+message UnsubscribeRequest {
+  string token = 1;
+}
+
+message UnsubscribeResponse {
+  string message = 2;
+}
+
+message HandleSubscriptionsRequest {
+  Frequency frequency = 1;
+}
+
+service SubscriptionService {
+  rpc Subscribe(SubscribeRequest) returns (SubscribeResponse);
+  rpc Confirm(ConfirmRequest) returns (ConfirmResponse);
+  rpc Unsubscribe(UnsubscribeRequest) returns (UnsubscribeResponse);
+  rpc HandleSubscriptions(HandleSubscriptionsRequest) returns (google.protobuf.Empty);
+}

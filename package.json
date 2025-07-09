@@ -1,5 +1,5 @@
 {
-  "name": "weather-subscription",
+  "name": "@weather-subscription/root",
   "version": "0.0.1",
   "description": "a weather subscription app",
   "type": "module",
@@ -68,6 +68,9 @@
     "vite-tsconfig-paths": "^5.1.4",
     "vitest": "^3.1.3"
   },
+  "workspaces": [
+    "packages/*"
+  ],
   "overrides": {
     "esbuild": "^0.25.0"
   },
