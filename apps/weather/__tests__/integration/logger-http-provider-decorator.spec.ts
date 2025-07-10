@@ -24,6 +24,10 @@ describe('LoggerHttpProviderDecorator (integration)', () => {
   });
 
   afterEach(() => {
+    // here is the solution used https://github.com/mswjs/msw/issues/946#issuecomment-1572768939
+    expect(mockServer.onUnhandledRequest).not.toHaveBeenCalled();
+    mockServer.onUnhandledRequest.mockClear();
+
     mockServer.clearHandlers();
 
     appendFileMock.mockRestore();
