@@ -13,24 +13,24 @@ import { Timestamp } from "./google/protobuf/timestamp.js";
 export const protobufPackage = "subscription";
 
 export enum Frequency {
-  /** UNSPECIFIED - https://protobuf.dev/best-practices/dos-donts/#unspecified-enum */
-  UNSPECIFIED = 0,
-  HOURLY = 1,
-  DAILY = 2,
+  /** Unspecified - https://protobuf.dev/best-practices/dos-donts/#unspecified-enum */
+  Unspecified = 0,
+  Hourly = 1,
+  Daily = 2,
   UNRECOGNIZED = -1,
 }
 
 export function frequencyFromJSON(object: any): Frequency {
   switch (object) {
     case 0:
-    case "UNSPECIFIED":
-      return Frequency.UNSPECIFIED;
+    case "Unspecified":
+      return Frequency.Unspecified;
     case 1:
-    case "HOURLY":
-      return Frequency.HOURLY;
+    case "Hourly":
+      return Frequency.Hourly;
     case 2:
-    case "DAILY":
-      return Frequency.DAILY;
+    case "Daily":
+      return Frequency.Daily;
     case -1:
     case "UNRECOGNIZED":
     default:
@@ -40,12 +40,12 @@ export function frequencyFromJSON(object: any): Frequency {
 
 export function frequencyToJSON(object: Frequency): string {
   switch (object) {
-    case Frequency.UNSPECIFIED:
-      return "UNSPECIFIED";
-    case Frequency.HOURLY:
-      return "HOURLY";
-    case Frequency.DAILY:
-      return "DAILY";
+    case Frequency.Unspecified:
+      return "Unspecified";
+    case Frequency.Hourly:
+      return "Hourly";
+    case Frequency.Daily:
+      return "Daily";
     case Frequency.UNRECOGNIZED:
     default:
       return "UNRECOGNIZED";

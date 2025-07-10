@@ -5,9 +5,9 @@ import { Frequency } from 'src/types/subscription.types.js';
 export const toGrpcFrequency = (frequency: Frequency) => {
   switch (frequency) {
     case Frequency.Hourly:
-      return GrpcFrequency.DAILY;
+      return GrpcFrequency.Daily;
     case Frequency.Daily:
-      return GrpcFrequency.HOURLY;
+      return GrpcFrequency.Hourly;
     default: {
       const exhaustiveCheck: never = frequency;
       throw Exception.InternalServerError(`Unexpected frequency: ${exhaustiveCheck}`);
@@ -17,9 +17,9 @@ export const toGrpcFrequency = (frequency: Frequency) => {
 
 export const fromGrpcFrequency = (frequency: GrpcFrequency): Frequency => {
   switch (frequency) {
-    case GrpcFrequency.DAILY:
+    case GrpcFrequency.Daily:
       return Frequency.Hourly;
-    case GrpcFrequency.HOURLY:
+    case GrpcFrequency.Hourly:
       return Frequency.Daily;
     default:
       throw Exception.InternalServerError(`Unexpected frequency: ${frequency}`);

@@ -3,8 +3,8 @@ import { SubscriptionClient } from '@weather-subscription/shared';
 import { Frequency } from '@weather-subscription/proto/subscription';
 
 export const enum CronExpression {
-  DAILY = '0 0 * * *',
-  HOURLY = '0 * * * *',
+  Daily = '0 0 * * *',
+  Hourly = '0 * * * *',
 }
 
 interface Dependencies {
@@ -22,14 +22,14 @@ export class CronService {
 
   public startJobs() {
     this.crons.push(
-      new Cron(CronExpression.DAILY, async () => {
-        await this.subscriptionClient.handleSubscriptions({ frequency: Frequency.DAILY });
+      new Cron(CronExpression.Daily, async () => {
+        await this.subscriptionClient.handleSubscriptions({ frequency: Frequency.Daily });
       }),
     );
 
     this.crons.push(
-      new Cron(CronExpression.HOURLY, async () => {
-        await this.subscriptionClient.handleSubscriptions({ frequency: Frequency.HOURLY });
+      new Cron(CronExpression.Hourly, async () => {
+        await this.subscriptionClient.handleSubscriptions({ frequency: Frequency.Hourly });
       }),
     );
   }

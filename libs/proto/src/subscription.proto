@@ -7,9 +7,9 @@ import "google/protobuf/timestamp.proto";
 
 enum Frequency {
   // https://protobuf.dev/best-practices/dos-donts/#unspecified-enum
-  UNSPECIFIED = 0;
-  HOURLY = 1;
-  DAILY = 2;
+  Unspecified = 0;
+  Hourly = 1;
+  Daily = 2;
 }
 
 message Subscription {
