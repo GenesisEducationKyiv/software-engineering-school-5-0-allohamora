@@ -5,10 +5,9 @@ import { createSigner } from 'fast-jwt';
 import { SubscriptionRepository } from 'src/repositories/subscription.repository.js';
 import { JwtService } from 'src/services/jwt.service.js';
 import { DbService } from 'src/services/db.service.js';
-import { Frequency, EmailClient, WeatherClient, toGrpcFrequency } from '@weather-subscription/shared';
+import { EmailClient, Frequency, WeatherClient } from '@weather-subscription/shared';
 import { createChannel, createClient } from 'nice-grpc';
-import { SubscriptionServiceDefinition } from '@weather-subscription/proto/subscription';
-import type { SubscribeOptions } from 'src/services/subscription.service.js';
+import { Frequency as GrpcFrequency, SubscriptionServiceDefinition } from '@weather-subscription/proto/subscription';
 import { Server } from 'src/server.js';
 
 describe('subscription controller (integration)', () => {
@@ -45,27 +44,12 @@ describe('subscription controller (integration)', () => {
     sendEmailSpy.mockRestore();
   });
 
-  const subscribe = async (options: SubscribeOptions) => {
-    return await subscriptionClient.subscribe({
-      ...options,
-      frequency: toGrpcFrequency(options.frequency),
-    });
-  };
-
-  const confirm = async (token: string) => {
-    return await subscriptionClient.confirm({ token });
-  };
-
-  const unsubscribe = async (token: string) => {
-    return await subscriptionClient.unsubscribe({ token });
-  };
-
   describe('Subscribe', () => {
     it('subscribes with success to the city with daily frequency', async () => {
-      const { message } = await subscribe({
+      const { message } = await subscriptionClient.subscribe({
         city: 'London',
         email: 'test@example.com',
-        frequency: Frequency.Daily,
+        frequency: GrpcFrequency.Daily,
       });
 
       expect(message).toBe('Subscription successful. Confirmation email sent.');
@@ -80,10 +64,10 @@ describe('subscription controller (integration)', () => {
     });
 
     it('subscribes with success to the city with hourly frequency', async () => {
-      const { message } = await subscribe({
+      const { message } = await subscriptionClient.subscribe({
         city: 'Paris',
         email: 'test@example.com',
-        frequency: Frequency.Hourly,
+        frequency: GrpcFrequency.Hourly,
       });
 
       expect(message).toBe('Subscription successful. Confirmation email sent.');
@@ -105,10 +89,10 @@ describe('subscription controller (integration)', () => {
       });
 
       await expect(
-        subscribe({
+        subscriptionClient.subscribe({
           city: 'London',
           email: 'test@example.com',
-          frequency: Frequency.Daily,
+          frequency: GrpcFrequency.Daily,
         }),
       ).rejects.toThrow();
 
@@ -120,10 +104,10 @@ describe('subscription controller (integration)', () => {
       validateCitySpy.mockImplementationOnce(async () => ({ isValid: false }));
 
       await expect(
-        subscribe({
+        subscriptionClient.subscribe({
           city: 'InvalidCity',
           email: 'test@example.com',
-          frequency: Frequency.Daily,
+          frequency: GrpcFrequency.Daily,
         }),
       ).rejects.toThrow();
 
@@ -141,7 +125,7 @@ describe('subscription controller (integration)', () => {
       };
 
       const token = await jwtService.sign(subscribeData);
-      const { message } = await confirm(token);
+      const { message } = await subscriptionClient.confirm({ token });
       expect(message).toBe('Subscription confirmed successfully');
 
       const db = dbService.getConnection();
@@ -161,7 +145,7 @@ describe('subscription controller (integration)', () => {
 
       const jwt = await signer({ test: true });
 
-      await expect(confirm(jwt)).rejects.toThrow();
+      await expect(subscriptionClient.confirm({ token: jwt })).rejects.toThrow();
 
       const db = dbService.getConnection();
       const subscriptionInDb = await db.query.subscriptions.findMany();
@@ -169,7 +153,7 @@ describe('subscription controller (integration)', () => {
     });
 
     it('throws error for invalid token', async () => {
-      await expect(confirm('invalid-token')).rejects.toThrow();
+      await expect(subscriptionClient.confirm({ token: 'invalid-token' })).rejects.toThrow();
 
       const db = dbService.getConnection();
       const subscriptionInDb = await db.query.subscriptions.findMany();
@@ -189,7 +173,7 @@ describe('subscription controller (integration)', () => {
         frequency: Frequency.Hourly,
       });
 
-      await expect(confirm(token)).rejects.toThrow();
+      await expect(subscriptionClient.confirm({ token })).rejects.toThrow();
 
       const db = dbService.getConnection();
       const subscriptionInDb = await db.query.subscriptions.findMany({
@@ -209,7 +193,7 @@ describe('subscription controller (integration)', () => {
         frequency: Frequency.Daily,
       });
 
-      const { message } = await unsubscribe(subscription.id);
+      const { message } = await subscriptionClient.unsubscribe({ token: subscription.id });
 
       expect(message).toBe('Unsubscribed successfully');
 
@@ -222,7 +206,7 @@ describe('subscription controller (integration)', () => {
 
     it('handles non-existent subscription gracefully', async () => {
       const nonExistentId = randomUUID();
-      const { message } = await unsubscribe(nonExistentId);
+      const { message } = await subscriptionClient.unsubscribe({ token: nonExistentId });
 
       expect(message).toBe('Unsubscribed successfully');
 
@@ -232,7 +216,7 @@ describe('subscription controller (integration)', () => {
     });
 
     it('throws error for wrong token format', async () => {
-      await expect(unsubscribe('test')).rejects.toThrow();
+      await expect(subscriptionClient.unsubscribe({ token: 'test' })).rejects.toThrow();
     });
   });
 });
