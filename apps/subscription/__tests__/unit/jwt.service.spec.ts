@@ -63,7 +63,6 @@ describe('JwtService (unit)', () => {
       const payload = { userId: '123', email: 'test@example.com' };
       const token = await shortExpiryService.sign(payload);
 
-      // Wait for token to expire
       await new Promise((resolve) => setTimeout(resolve, 1100));
 
       await expect(shortExpiryService.verify(token)).rejects.toThrow();

@@ -126,7 +126,6 @@ describe('Root Page E2E Tests', () => {
   it.each([Frequency.Daily, Frequency.Hourly])(
     'submits form and handles successful response with %s frequency',
     async (frequency: Frequency) => {
-      // Set up successful subscription response
       subscribeSpy.mockResolvedValue({
         message: 'Subscription successful. Confirmation email sent.',
       });
@@ -155,7 +154,6 @@ describe('Root Page E2E Tests', () => {
   it.each([Frequency.Daily, Frequency.Hourly])(
     'does not send email when invalid city is provided with %s frequency',
     async (frequency: Frequency) => {
-      // Set up error response for invalid city
       subscribeSpy.mockRejectedValue(new Error('City not found'));
 
       await page.goto(BASE_URL);
@@ -169,9 +167,8 @@ describe('Root Page E2E Tests', () => {
       await form.submit();
 
       const response = await responsePromise;
-      expect(response.status()).toBe(500); // Error should result in 500
+      expect(response.status()).toBe(500);
 
-      // Check that the subscription client was called
       expect(subscribeSpy).toHaveBeenCalled();
     },
   );
@@ -179,7 +176,6 @@ describe('Root Page E2E Tests', () => {
   it.each([Frequency.Daily, Frequency.Hourly])(
     'falls back to open-meteo when weather API fails for %s frequency',
     async (frequency: Frequency) => {
-      // Set up successful subscription response
       subscribeSpy.mockResolvedValue({
         message: 'Subscription successful. Confirmation email sent.',
       });
