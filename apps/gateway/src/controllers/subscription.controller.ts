@@ -60,7 +60,10 @@ export const makeSubscriptionRoutes = (app: OpenAPIHono, subscriptionClient: Sub
       };
 
       const options = getSubscribeBody();
-      const { message } = await subscriptionClient.subscribe({ ...options, frequency: toGrpcFrequency(options.frequency) });
+      const { message } = await subscriptionClient.subscribe({
+        ...options,
+        frequency: toGrpcFrequency(options.frequency),
+      });
 
       return ctx.json({ message }, 200);
     },

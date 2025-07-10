@@ -12,7 +12,10 @@ export class Container {
 
   public loggerService = new LoggerService(this);
 
-  public subscriptionClient = createClient(SubscriptionServiceDefinition, createChannel(this.config.SUBSCRIPTION_SERVICE_URL));
+  public subscriptionClient = createClient(
+    SubscriptionServiceDefinition,
+    createChannel(this.config.SUBSCRIPTION_SERVICE_URL),
+  );
   public weatherClient = createClient(WeatherServiceDefinition, createChannel(this.config.WEATHER_SERVICE_URL));
 
   public server = new Server(this);

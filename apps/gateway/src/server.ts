@@ -14,7 +14,7 @@ import { makeMetricsRoutes } from './controllers/metrics.controller.js';
 export type ServerInfo = {
   info: AddressInfo;
   server: ServerType;
-}
+};
 
 type Options = {
   weatherClient: WeatherClient;
@@ -28,10 +28,7 @@ export class Server {
 
   private app = new OpenAPIHono();
 
-  constructor({
-    weatherClient,
-    subscriptionClient,
-  }: Options) {
+  constructor({ weatherClient, subscriptionClient }: Options) {
     this.weatherClient = weatherClient;
     this.subscriptionClient = subscriptionClient;
 
@@ -82,5 +79,4 @@ export class Server {
   public async request(input: RequestInfo | URL, requestInit?: RequestInit) {
     return await this.app.request(input, requestInit);
   }
-};
-
+}

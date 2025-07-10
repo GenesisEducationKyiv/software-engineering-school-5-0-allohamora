@@ -1,14 +1,14 @@
-import { createChannel, createClient } from "nice-grpc";
-import { ConfigService } from "./services/config.service.js";
-import { DbService } from "./services/db.service.js";
-import { JwtService } from "./services/jwt.service.js";
-import { LoggerService } from "@weather-subscription/shared";
-import { EmailServiceDefinition } from "@weather-subscription/proto/email";
-import { WeatherServiceDefinition } from "@weather-subscription/proto/weather";
-import { SubscriptionRepository } from "./repositories/subscription.repository.js";
-import { SubscriptionService } from "./services/subscription.service.js";
-import { Server } from "./server.js";
-import { App } from "./app.js";
+import { createChannel, createClient } from 'nice-grpc';
+import { ConfigService } from './services/config.service.js';
+import { DbService } from './services/db.service.js';
+import { JwtService } from './services/jwt.service.js';
+import { LoggerService } from '@weather-subscription/shared';
+import { EmailServiceDefinition } from '@weather-subscription/proto/email';
+import { WeatherServiceDefinition } from '@weather-subscription/proto/weather';
+import { SubscriptionRepository } from './repositories/subscription.repository.js';
+import { SubscriptionService } from './services/subscription.service.js';
+import { Server } from './server.js';
+import { App } from './app.js';
 
 export class Container {
   public configService = new ConfigService();
