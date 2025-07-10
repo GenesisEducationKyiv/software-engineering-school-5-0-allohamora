@@ -56,26 +56,11 @@ describe('email controller (integration)', () => {
     mockServer.stop();
   });
 
-  const sendSubscribeEmail = async (options: { to: string[]; city: string; confirmationLink: string }) => {
-    return await emailClient.sendSubscribeEmail(options);
-  };
-
-  const sendWeatherUpdateEmail = async (options: {
-    to: string[];
-    city: string;
-    unsubscribeLink: string;
-    temperature: number;
-    humidity: number;
-    description: string;
-  }) => {
-    return await emailClient.sendWeatherUpdateEmail(options);
-  };
-
   describe('sendSubscribeEmail', () => {
     it('successfully sends subscription email', async () => {
       mockServer.addHandlers(emailApi.ok());
 
-      const result = await sendSubscribeEmail({
+      const result = await emailClient.sendSubscribeEmail({
         to: ['test@example.com'],
         city: 'London',
         confirmationLink: 'https://example.com/confirm/token123',
@@ -87,7 +72,7 @@ describe('email controller (integration)', () => {
     it('successfully sends subscription email to multiple recipients', async () => {
       mockServer.addHandlers(emailApi.ok());
 
-      const result = await sendSubscribeEmail({
+      const result = await emailClient.sendSubscribeEmail({
         to: ['test1@example.com', 'test2@example.com'],
         city: 'Paris',
         confirmationLink: 'https://example.com/confirm/token456',
@@ -100,7 +85,7 @@ describe('email controller (integration)', () => {
       mockServer.addHandlers(emailApi.badRequest());
 
       await expect(
-        sendSubscribeEmail({
+        emailClient.sendSubscribeEmail({
           to: ['error@example.com'],
           city: 'London',
           confirmationLink: 'https://example.com/confirm/token123',
@@ -112,7 +97,7 @@ describe('email controller (integration)', () => {
       mockServer.addHandlers(emailApi.unauthorized());
 
       await expect(
-        sendSubscribeEmail({
+        emailClient.sendSubscribeEmail({
           to: ['error@example.com'],
           city: 'London',
           confirmationLink: 'https://example.com/confirm/token123',
@@ -125,7 +110,7 @@ describe('email controller (integration)', () => {
     it('successfully sends weather update email', async () => {
       mockServer.addHandlers(emailApi.ok());
 
-      const result = await sendWeatherUpdateEmail({
+      const result = await emailClient.sendWeatherUpdateEmail({
         to: ['subscriber@example.com'],
         city: 'London',
         unsubscribeLink: 'https://example.com/unsubscribe/token789',
@@ -140,7 +125,7 @@ describe('email controller (integration)', () => {
     it('successfully sends weather update email to multiple recipients', async () => {
       mockServer.addHandlers(emailApi.ok());
 
-      const result = await sendWeatherUpdateEmail({
+      const result = await emailClient.sendWeatherUpdateEmail({
         to: ['subscriber1@example.com', 'subscriber2@example.com'],
         city: 'Tokyo',
         unsubscribeLink: 'https://example.com/unsubscribe/token999',
@@ -156,7 +141,7 @@ describe('email controller (integration)', () => {
       mockServer.addHandlers(emailApi.badRequest());
 
       await expect(
-        sendWeatherUpdateEmail({
+        emailClient.sendWeatherUpdateEmail({
           to: ['error@example.com'],
           city: 'London',
           unsubscribeLink: 'https://example.com/unsubscribe/token789',
@@ -171,7 +156,7 @@ describe('email controller (integration)', () => {
       mockServer.addHandlers(emailApi.unauthorized());
 
       await expect(
-        sendWeatherUpdateEmail({
+        emailClient.sendWeatherUpdateEmail({
           to: ['error@example.com'],
           city: 'London',
           unsubscribeLink: 'https://example.com/unsubscribe/token789',
