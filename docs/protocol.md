@@ -15,9 +15,7 @@ This document compares the performance of HTTP and gRPC protocols on high-traffi
 
 ---
 
-## Detailed Results
-
-### Weather Endpoint
+## Weather Endpoint
 
 **Test Command:**
 ```bash
@@ -91,7 +89,7 @@ Req/Bytes counts sampled once per second.
 
 ---
 
-### Metrics Endpoint
+## Metrics Endpoint
 
 **Test Command:**
 ```bash
@@ -165,9 +163,7 @@ Req/Bytes counts sampled once per second.
 
 ---
 
-## Results
-
-### Performance Analysis
+## Performance Analysis
 
 Based on the benchmark results:
 
@@ -176,7 +172,7 @@ Based on the benchmark results:
 3. **Metrics endpoint**: HTTP achieves 52% higher throughput (2,997 vs 1,974 req/sec)
 4. **Latency**: HTTP consistently shows lower latency across both endpoints
 
-### Summary
+## Summary
 
 **Use HTTP for these high-traffic endpoints** due to:
 - Eliminates gRPC serialization/deserialization overhead when converting between different data formats (JSON to Protocol Buffers and back)
