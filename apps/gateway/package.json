@@ -11,7 +11,8 @@
     "format:fix": "prettier --write .",
     "lint": "eslint \"**/*.ts\"",
     "lint:fix": "eslint \"**/*.ts\" --fix",
-    "test:arch": "vitest --config vitest.arch.config.ts"
+    "test:arch": "vitest --config vitest.arch.config.ts",
+    "test:e2e": "vitest --config vitest.e2e.config.ts"
   },
   "dependencies": {
     "@weather-subscription/proto": "*",
@@ -33,6 +34,8 @@
     "eslint-plugin-prettier": "^5.4.0",
     "globals": "^16.1.0",
     "prettier": "^3.5.3",
+    "msw": "^2.10.2",
+    "playwright": "^1.53.0",
     "tsarch": "^5.4.1",
     "tsc-alias": "^1.8.16",
     "tsx": "^4.19.4",
