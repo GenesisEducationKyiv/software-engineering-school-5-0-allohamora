@@ -165,7 +165,7 @@ Req/Bytes counts sampled once per second.
 
 ---
 
-## Decision & Recommendations
+## Results
 
 ### Performance Analysis
 
@@ -176,7 +176,7 @@ Based on the benchmark results:
 3. **Metrics endpoint**: HTTP achieves 52% higher throughput (2,997 vs 1,974 req/sec)
 4. **Latency**: HTTP consistently shows lower latency across both endpoints
 
-### Final Recommendation
+### Summary
 
 **Use HTTP for these high-traffic endpoints** due to:
 - Eliminates gRPC serialization/deserialization overhead when converting between different data formats (JSON to Protocol Buffers and back)
