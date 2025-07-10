@@ -56,7 +56,7 @@ Before running the application, you'll need:
    cp .env.example .env
    ```
 
-4. Fill the `.env` file with your API keys and configuration
+4. Fill the `.env` file with your API keys and configuration for each service
 
 5. Start the required services with Docker:
 
@@ -73,6 +73,42 @@ Before running the application, you'll need:
 7. Access the application:
    - Subscribe form: [http://localhost:3000](http://localhost:3000)
    - Swagger API documentation: [http://localhost:3000/swagger](http://localhost:3000/swagger)
+
+8. Stop the required services with Docker:
+
+  ```bash
+  docker compose down -d
+  ```
+
+## Running in Docker
+
+For a full production-like environment:
+
+1. Clone the repository
+
+2. Create a `.env` file from the template for each service:
+
+   ```bash
+   cp .env.example .env
+   ```
+
+3. Fill the `.env` file with your API keys and configuration for each service
+
+4. Start the application and all services using Docker:
+
+   ```bash
+   docker compose --profile production up -d
+   ```
+
+5. Access the application:
+   - Subscribe form: [http://localhost:3000](http://localhost:3000)
+   - Swagger API documentation: [http://localhost:3000/swagger](http://localhost:3000/swagger)
+
+6. Stop the application and all services using Docker:
+
+   ```bash
+   docker compose --profile production down
+   ```
 
 ## Database Management
 

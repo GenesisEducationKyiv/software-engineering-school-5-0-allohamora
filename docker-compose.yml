@@ -35,6 +35,92 @@ services:
     volumes:
       - grafana-data:/var/lib/grafana
 
+  weather:
+    build:
+      context: .
+      dockerfile: ./apps/weather/Dockerfile
+    env_file:
+      - ./apps/weather/.env
+    environment:
+      - NODE_ENV=production
+      - PORT=4001
+      - REDIS_URL=redis://:example@redis:6379/0
+    ports:
+      - 4001:4001
+    depends_on:
+      - redis
+      - prometheus
+    profiles:
+      - production
+
+  email:
+    build:
+      context: .
+      dockerfile: ./apps/email/Dockerfile
+    env_file:
+      - ./apps/email/.env
+    environment:
+      - NODE_ENV=production
+      - PORT=4002
+    ports:
+      - 4002:4002
+    profiles:
+      - production
+
+  subscription:
+    build:
+      context: .
+      dockerfile: ./apps/subscription/Dockerfile
+    env_file:
+      - ./apps/subscription/.env
+    environment:
+      - NODE_ENV=production
+      - PORT=4003
+      - POSTGRES_URL=postgres://app:example@pg:5432/app
+      - WEATHER_SERVICE_URL=http://weather:4001
+      - EMAIL_SERVICE_URL=http://email:4002
+    ports:
+      - 4003:4003
+    depends_on:
+      - pg
+      - weather
+      - email
+    profiles:
+      - production
+
+  notification:
+    build:
+      context: .
+      dockerfile: ./apps/notification/Dockerfile
+    env_file:
+      - ./apps/notification/.env
+    environment:
+      - NODE_ENV=production
+      - SUBSCRIPTION_SERVICE_URL=http://subscription:4003
+    depends_on:
+      - subscription
+    profiles:
+      - production
+
+  gateway:
+    build:
+      context: .
+      dockerfile: ./apps/gateway/Dockerfile
+    env_file:
+      - ./apps/gateway/.env
+    environment:
+      - NODE_ENV=production
+      - WEATHER_SERVICE_URL=http://weather:4001
+      - SUBSCRIPTION_SERVICE_URL=http://subscription:4003
+      - PORT=3000
+    ports:
+      - 3000:3000
+    depends_on:
+      - weather
+      - subscription
+    profiles:
+      - production
+
 volumes:
   pg-data:
   redis-data:

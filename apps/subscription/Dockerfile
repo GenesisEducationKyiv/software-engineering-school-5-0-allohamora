@@ -1,4 +1,4 @@
-FROM node:22.13.0-alpine as prunner
+FROM node:22.13.0-alpine AS prunner
 
 # turborepo deps
 RUN apk add --no-cache libc6-compat
@@ -7,7 +7,7 @@ WORKDIR /app
 COPY . .
 RUN npx turbo prune --scope=@weather-subscription/subscription --docker
 
-FROM node:22.13.0-alpine as runner
+FROM node:22.13.0-alpine AS runner
 
 # turborepo deps
 RUN apk add --no-cache libc6-compat
@@ -26,5 +26,7 @@ COPY --from=prunner /app/out/full .
 RUN npx turbo run build --filter @weather-subscription/subscription
 
 ENV NODE_ENV=production
+
+EXPOSE ${PORT}
 
 CMD ["node", "apps/subscription/dist/index.js"]

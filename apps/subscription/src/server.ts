@@ -26,7 +26,7 @@ export class Server {
   }
 
   public async listen(port: number) {
-    return await this.server.listen(`localhost:${port}`);
+    return await this.server.listen(`0.0.0.0:${port}`);
   }
 
   public async close() {
