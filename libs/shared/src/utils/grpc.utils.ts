@@ -3,7 +3,7 @@ import { Exception } from 'src/exception.js';
 
 export const grpcErrorMiddleware: ServerMiddleware = async function* (call, context) {
   try {
-    yield* call.next(call.request, context);
+    return yield* call.next(call.request, context);
   } catch (err) {
     if (err instanceof Exception) {
       const message = err instanceof Exception ? err.message : 'internal server error';

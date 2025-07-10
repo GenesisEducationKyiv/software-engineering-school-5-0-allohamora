@@ -20,13 +20,13 @@ export class Server {
   }
 
   private setup() {
-    this.server.use(grpcErrorMiddleware);
+    this.server = this.server.use(grpcErrorMiddleware);
 
     makeSubscription(this.server, this.subscriptionService);
   }
 
   public async listen(port: number) {
-    await this.server.listen(`localhost:${port}`);
+    return await this.server.listen(`localhost:${port}`);
   }
 
   public async close() {

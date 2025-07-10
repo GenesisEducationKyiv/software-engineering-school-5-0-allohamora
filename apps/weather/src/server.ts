@@ -24,7 +24,7 @@ export class Server {
   }
 
   private setup() {
-    this.server.use(grpcErrorMiddleware);
+    this.server = this.server.use(grpcErrorMiddleware);
 
     makeWeatherRoutes(this.server, this.weatherService, this.metricsService);
   }
