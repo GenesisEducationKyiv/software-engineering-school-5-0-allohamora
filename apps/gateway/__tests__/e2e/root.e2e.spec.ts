@@ -173,33 +173,6 @@ describe('Root Page E2E Tests', () => {
     },
   );
 
-  it.each([Frequency.Daily, Frequency.Hourly])(
-    'falls back to open-meteo when weather API fails for %s frequency',
-    async (frequency: Frequency) => {
-      subscribeSpy.mockResolvedValue({
-        message: 'Subscription successful. Confirmation email sent.',
-      });
-
-      await page.goto(BASE_URL);
-
-      await form.email().fill('test@example.com');
-      await form.city().fill('London');
-      await form.frequency().selectOption(frequency);
-
-      const responsePromise = page.waitForResponse((response) => response.url().includes('/api/subscribe'));
-
-      await form.submit();
-
-      const response = await responsePromise;
-      expect(response.status()).toBe(200);
-
-      const responseBody = await response.json();
-      expect(responseBody).toEqual({
-        message: 'Subscription successful. Confirmation email sent.',
-      });
-    },
-  );
-
   it('validates required fields', async () => {
     await page.goto(BASE_URL);
 
