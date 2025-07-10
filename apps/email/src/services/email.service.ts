@@ -45,7 +45,7 @@ export class EmailService {
     this.logger = loggerService.createLogger('EmailService');
   }
 
-  private async sendEmail({ to, template: { title, ...rest } }: SendEmailOptions) {
+  public async sendEmail({ to, template: { title, ...rest } }: SendEmailOptions) {
     const { error } = await this.resend.emails.send({
       from: `${this.emailName} <${this.emailFrom}>`,
       to,
