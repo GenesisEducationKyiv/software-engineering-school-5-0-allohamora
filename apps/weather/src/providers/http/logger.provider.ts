@@ -2,7 +2,7 @@ import { join } from 'node:path';
 import { appendFile } from 'node:fs/promises';
 import { HttpProvider, GetOptions } from './http.provider.js';
 
-const TEMP_DIR = join(import.meta.dirname, '..', '..', '..', '..', '..', '.temp');
+const TEMP_DIR = join(import.meta.dirname, '..', '..', '..', '.temp');
 
 type Options = {
   config: { WRITE_LOGS_TO_FILES: boolean };
