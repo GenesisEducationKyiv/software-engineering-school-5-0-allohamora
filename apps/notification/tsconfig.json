@@ -29,9 +29,7 @@
       "src/*": ["src/*"]
     },
     "strictPropertyInitialization": false,
-    "strictNullChecks": true,
-    "jsx": "react-jsx",
-    "jsxImportSource": "hono/jsx"
+    "strictNullChecks": true
   },
   "exclude": ["node_modules", "dist"]
 }

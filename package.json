@@ -18,15 +18,19 @@
     "format": "turbo run format",
     "format:fix": "turbo run format:fix",
     "lint": "turbo run lint",
-    "lint:fix": "turbo run lint:fix"
+    "lint:fix": "turbo run lint:fix",
+    "knip": "knip"
   },
   "devDependencies": {
     "@commitlint/cli": "^19.8.1",
     "@commitlint/config-conventional": "^19.8.1",
+    "@types/node": "^24.0.12",
     "husky": "^9.1.7",
-    "playwright": "^1.53.0",
+    "knip": "^5.61.3",
     "lint-staged": "^16.0.0",
-    "turbo": "^2.5.4"
+    "playwright": "^1.53.0",
+    "turbo": "^2.5.4",
+    "typescript": "^5.8.3"
   },
   "workspaces": [
     "libs/*",
