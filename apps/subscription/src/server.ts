@@ -1,35 +1,47 @@
-import { createServer } from 'nice-grpc';
+import { Hono } from 'hono';
+import { serve } from '@hono/node-server';
 import { SubscriptionService } from './services/subscription.service.js';
-import { LoggerService, grpcErrorMiddleware } from '@weather-subscription/shared';
-import { makeSubscription } from './controllers/subscription.controller.js';
-
-type Options = {
-  subscriptionService: SubscriptionService;
-  loggerService: LoggerService;
-};
 
 export class Server {
   private subscriptionService: SubscriptionService;
+  private app = new Hono();
 
-  private server = createServer();
-
-  constructor({ subscriptionService }: Options) {
+  constructor({ subscriptionService }: { subscriptionService: SubscriptionService }) {
     this.subscriptionService = subscriptionService;
-
     this.setup();
   }
 
   private setup() {
-    this.server = this.server.use(grpcErrorMiddleware);
+    this.app.post('/subscription/subscribe', async (c) => {
+      const options = await c.req.json();
+      await this.subscriptionService.subscribe(options);
+      return c.json({ message: 'Subscription successful. Confirmation email sent.' });
+    });
 
-    makeSubscription(this.server, this.subscriptionService);
+    this.app.post('/subscription/confirm', async (c) => {
+      const { token } = await c.req.json();
+      await this.subscriptionService.confirm(token);
+      return c.json({ message: 'Subscription confirmed successfully' });
+    });
+
+    this.app.post('/subscription/unsubscribe', async (c) => {
+      const { token } = await c.req.json();
+      await this.subscriptionService.unsubscribe(token);
+      return c.json({ message: 'Unsubscribed successfully' });
+    });
+
+    this.app.post('/subscription/handle', async (c) => {
+      const { frequency } = await c.req.json();
+      await this.subscriptionService.handleSubscriptions(frequency);
+      return c.json({});
+    });
   }
 
   public async listen(port: number) {
-    return await this.server.listen(`0.0.0.0:${port}`);
+    serve({ fetch: this.app.fetch, port });
   }
 
   public async close() {
-    await this.server.shutdown();
+    // No direct close for hono/node-server, but you can add logic if needed
   }
 }

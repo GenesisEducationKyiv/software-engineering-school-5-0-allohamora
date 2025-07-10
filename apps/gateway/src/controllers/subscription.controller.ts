@@ -1,8 +1,15 @@
 import { OpenAPIHono, createRoute } from '@hono/zod-openapi';
 import { z } from 'zod';
-import { Frequency, Exception, SubscriptionClient, toGrpcFrequency } from '@weather-subscription/shared';
+import { Frequency, Exception } from '@weather-subscription/shared';
 
-export const makeSubscriptionRoutes = (app: OpenAPIHono, subscriptionClient: SubscriptionClient) => {
+type SubscriptionClientHTTP = {
+  subscribe: (options: any) => Promise<any>;
+  confirm: (args: { token?: string }) => Promise<any>;
+  unsubscribe: (args: { token?: string }) => Promise<any>;
+  handleSubscriptions: (args: { frequency?: string }) => Promise<void>;
+};
+
+export const makeSubscriptionRoutes = (app: OpenAPIHono, subscriptionClient: SubscriptionClientHTTP) => {
   const subscribeSchema = z.object({
     email: z.string().email().describe('Email address to subscribe'),
     city: z.string().min(1).describe('City for weather updates'),
@@ -62,7 +69,7 @@ export const makeSubscriptionRoutes = (app: OpenAPIHono, subscriptionClient: Sub
       const options = getSubscribeBody();
       const { message } = await subscriptionClient.subscribe({
         ...options,
-        frequency: toGrpcFrequency(options.frequency),
+        frequency: options.frequency,
       });
 
       return ctx.json({ message }, 200);

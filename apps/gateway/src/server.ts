@@ -6,7 +6,7 @@ import { makeSubscriptionRoutes } from './controllers/subscription.controller.js
 import { makeWeatherRoutes } from './controllers/weather.controller.js';
 import { serve, ServerType } from '@hono/node-server';
 import { makeUiRoutes } from './controllers/ui.controller.js';
-import { Exception, SubscriptionClient, WeatherClient } from '@weather-subscription/shared';
+import { Exception } from '@weather-subscription/shared';
 import { LoggerService, HttpStatus } from '@weather-subscription/shared';
 import { AddressInfo } from 'node:net';
 import { makeMetricsRoutes } from './controllers/metrics.controller.js';
@@ -17,14 +17,23 @@ export type ServerInfo = {
 };
 
 type Options = {
-  weatherClient: WeatherClient;
-  subscriptionClient: SubscriptionClient;
+  weatherClient: {
+    getWeather: (args: { city?: string }) => Promise<any>;
+    validateCity: (args: { city?: string }) => Promise<any>;
+    collectMetrics: () => Promise<{ metrics: string; contentType: string }>;
+  };
+  subscriptionClient: {
+    subscribe: (options: any) => Promise<any>;
+    confirm: (args: { token?: string }) => Promise<any>;
+    unsubscribe: (args: { token?: string }) => Promise<any>;
+    handleSubscriptions: (args: { frequency?: string }) => Promise<void>;
+  };
   loggerService: LoggerService;
 };
 
 export class Server {
-  private weatherClient: WeatherClient;
-  private subscriptionClient: SubscriptionClient;
+  private weatherClient: Options['weatherClient'];
+  private subscriptionClient: Options['subscriptionClient'];
 
   private app = new OpenAPIHono();
 

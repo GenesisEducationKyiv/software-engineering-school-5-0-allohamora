@@ -1,34 +1,35 @@
-import { createServer } from 'nice-grpc';
+import { Hono } from 'hono';
+import { serve } from '@hono/node-server';
 import { EmailService } from './services/email.service.js';
-import { makeEmailRoutes } from './controllers/email.controller.js';
-import { grpcErrorMiddleware } from '@weather-subscription/shared';
-
-type Options = {
-  emailService: EmailService;
-};
 
 export class Server {
   private emailService: EmailService;
+  private app = new Hono();
 
-  private server = createServer();
-
-  constructor({ emailService }: Options) {
+  constructor({ emailService }: { emailService: EmailService }) {
     this.emailService = emailService;
-
     this.setup();
   }
 
   private setup() {
-    this.server = this.server.use(grpcErrorMiddleware);
+    this.app.post('/email/subscribe', async (c) => {
+      const options = await c.req.json();
+      await this.emailService.sendSubscribeEmail(options);
+      return c.json({});
+    });
 
-    makeEmailRoutes(this.server, this.emailService);
+    this.app.post('/email/weather-update', async (c) => {
+      const options = await c.req.json();
+      await this.emailService.sendWeatherUpdateEmail(options);
+      return c.json({});
+    });
   }
 
   public async listen(port: number) {
-    return await this.server.listen(`0.0.0.0:${port}`);
+    serve({ fetch: this.app.fetch, port });
   }
 
   public async close() {
-    await this.server.shutdown();
+    // No direct close for hono/node-server, but you can add logic if needed
   }
 }

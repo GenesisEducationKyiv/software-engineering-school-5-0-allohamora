@@ -1,5 +1,4 @@
 import { Cron } from 'croner';
-import { SubscriptionClient } from '@weather-subscription/shared';
 import { Frequency } from '@weather-subscription/proto/subscription';
 
 export const enum CronExpression {
@@ -7,29 +6,28 @@ export const enum CronExpression {
   HOURLY = '0 * * * *',
 }
 
-interface Dependencies {
-  subscriptionClient: SubscriptionClient;
+export interface SubscriptionClientHTTP {
+  handleSubscriptions: ({ frequency }: { frequency: string }) => Promise<void>;
 }
 
 export class CronService {
-  private subscriptionClient: SubscriptionClient;
-
+  private subscriptionClient: SubscriptionClientHTTP;
   private crons: Cron[] = [];
 
-  constructor({ subscriptionClient }: Dependencies) {
+  constructor({ subscriptionClient }: { subscriptionClient: SubscriptionClientHTTP }) {
     this.subscriptionClient = subscriptionClient;
   }
 
   public startJobs() {
     this.crons.push(
       new Cron(CronExpression.DAILY, async () => {
-        await this.subscriptionClient.handleSubscriptions({ frequency: Frequency.DAILY });
+        await this.subscriptionClient.handleSubscriptions({ frequency: Frequency.DAILY.toString() });
       }),
     );
 
     this.crons.push(
       new Cron(CronExpression.HOURLY, async () => {
-        await this.subscriptionClient.handleSubscriptions({ frequency: Frequency.HOURLY });
+        await this.subscriptionClient.handleSubscriptions({ frequency: Frequency.HOURLY.toString() });
       }),
     );
   }
@@ -38,7 +36,6 @@ export class CronService {
     for (const cron of this.crons) {
       cron.stop();
     }
-
     this.crons = [];
   }
 }

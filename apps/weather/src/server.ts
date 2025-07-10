@@ -1,39 +1,46 @@
-import { createServer } from 'nice-grpc';
+import { Hono } from 'hono';
+import { serve } from '@hono/node-server';
 import { WeatherService } from './services/weather.service.js';
-import { makeWeatherRoutes } from './controllers/weather.controller.js';
-import { LoggerService, grpcErrorMiddleware } from '@weather-subscription/shared';
 import { MetricsService } from './services/metrics.service.js';
-
-type Options = {
-  weatherService: WeatherService;
-  metricsService: MetricsService;
-  loggerService: LoggerService;
-};
 
 export class Server {
   private weatherService: WeatherService;
   private metricsService: MetricsService;
+  private app = new Hono();
 
-  private server = createServer();
-
-  constructor({ weatherService, metricsService }: Options) {
+  constructor({ weatherService, metricsService }: { weatherService: WeatherService; metricsService: MetricsService }) {
     this.weatherService = weatherService;
     this.metricsService = metricsService;
-
     this.setup();
   }
 
   private setup() {
-    this.server = this.server.use(grpcErrorMiddleware);
+    this.app.get('/weather', async (c) => {
+      const city = c.req.query('city');
+      if (!city) return c.json({ error: 'city is required' }, 400);
+      const weather = await this.weatherService.getWeather(city);
+      return c.json({ weather });
+    });
 
-    makeWeatherRoutes(this.server, this.weatherService, this.metricsService);
+    this.app.get('/weather/validate', async (c) => {
+      const city = c.req.query('city');
+      if (!city) return c.json({ error: 'city is required' }, 400);
+      const isValid = await this.weatherService.validateCity(city);
+      return c.json({ isValid });
+    });
+
+    this.app.get('/metrics', async (c) => {
+      const { metrics, contentType } = await this.metricsService.collectMetrics();
+      c.header('Content-Type', contentType);
+      return c.body(metrics);
+    });
   }
 
   public async listen(port: number) {
-    return await this.server.listen(`0.0.0.0:${port}`);
+    serve({ fetch: this.app.fetch, port });
   }
 
   public async close() {
-    await this.server.shutdown();
+    // No direct close for hono/node-server, but you can add logic if needed
   }
 }
