@@ -1,3 +1,4 @@
+import '../mocks/config.service.mock.js';
 import { ServerType } from '@hono/node-server';
 import { Browser, chromium, Page } from 'playwright';
 import { Server } from 'src/server.js';
@@ -5,7 +6,6 @@ import { Container } from 'src/container.js';
 import { Frequency } from '@weather-subscription/shared';
 import { describe, it, expect, beforeAll, beforeEach, afterEach, afterAll, vi, MockInstance } from 'vitest';
 import { createMockServer } from '__tests__/utils/mock-server.utils.js';
-import '../mocks/config.service.mock.js';
 
 describe('Root Page E2E Tests', () => {
   let BASE_URL: string;
