@@ -50,7 +50,7 @@ Before running the application, you'll need:
    npm install
    ```
 
-3. Create a `.env` file from the template:
+3. Create a `.env` file from the template for each service:
 
    ```bash
    cp .env.example .env
@@ -74,35 +74,11 @@ Before running the application, you'll need:
    - Subscribe form: [http://localhost:3000](http://localhost:3000)
    - Swagger API documentation: [http://localhost:3000/swagger](http://localhost:3000/swagger)
 
-## Running in Docker
-
-For a full production-like environment:
-
-1. Clone the repository
-
-2. Create a `.env` file from the template:
-
-   ```bash
-   cp .env.example .env
-   ```
-
-3. Fill the `.env` file with your API keys and configuration
-
-4. Start the application and all services using Docker:
-
-   ```bash
-   docker compose --profile production up -d
-   ```
-
-5. Access the application:
-   - Subscribe form: [http://localhost:3000](http://localhost:3000)
-   - Swagger API documentation: [http://localhost:3000/swagger](http://localhost:3000/swagger)
-
 ## Database Management
 
 Database migrations are automatically run when the application starts.
 
-To generate a new migration after making schema changes:
+To generate a new migration after making schema changes in a service:
 
 ```bash
 npm run migrations:generate
