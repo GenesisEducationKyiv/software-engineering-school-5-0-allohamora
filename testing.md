@@ -1,6 +1,6 @@
 # Testing Guide
 
-This guide provides instructions for running different types of tests in the weather-subscription application.
+This guide provides instructions for running different types of tests in the weather-subscription services.
 
 ## Prerequisites
 

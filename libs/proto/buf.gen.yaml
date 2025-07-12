@@ -1,0 +1,11 @@
+version: v2
+inputs:
+  - directory: src
+plugins:
+  - local: protoc-gen-ts_proto
+    out: generated
+    opt:
+      - outputServices=nice-grpc
+      - outputServices=generic-definitions
+      - useExactTypes=false
+      - importSuffix=.js
