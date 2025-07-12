@@ -2,6 +2,11 @@
 
 This document compares the performance of HTTP and gRPC protocols on high-traffic endpoints. All tests were run 3 times and the median result is reported below.
 
+## Environment
+- Apple Silicon M1 Pro chip
+- 32GB RAM
+- macOS Sequoia 15.5
+
 ## Executive Summary
 
 | Endpoint | HTTP Req/sec | gRPC Req/sec | HTTP Advantage | HTTP Latency | gRPC Latency |
