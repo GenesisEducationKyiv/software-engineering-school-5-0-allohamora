@@ -4,6 +4,7 @@ import eslint from '@eslint/js';
 import tseslint from 'typescript-eslint';
 import beautifulSort from 'eslint-plugin-beautiful-sort';
 import eslintPluginPrettierRecommended from 'eslint-plugin-prettier/recommended';
+import noRelativeImportPaths from 'eslint-plugin-no-relative-import-paths';
 
 export default tseslint.config(
   eslint.configs.recommended,
@@ -13,7 +14,10 @@ export default tseslint.config(
   {
     files: ['**/*.ts'],
     languageOptions: { globals: { ...globals.node }, parserOptions: { project: true } },
-    plugins: { 'beautiful-sort': beautifulSort },
+    plugins: {
+      'beautiful-sort': beautifulSort,
+      'no-relative-import-paths': noRelativeImportPaths,
+    },
     rules: {
       'object-shorthand': 'warn',
       'no-async-promise-executor': 'warn',
@@ -30,6 +34,7 @@ export default tseslint.config(
           order: ['special', 'namespace', 'default', 'defaultObj', 'obj', 'none'],
         },
       ],
+      'no-relative-import-paths/no-relative-import-paths': ['error', { allowSameFolder: true, allowedDepth: 1 }],
     },
   },
 );
