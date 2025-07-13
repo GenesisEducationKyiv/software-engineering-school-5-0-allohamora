@@ -24,7 +24,9 @@ export const RootView: FC = () => {
               <div class="px-6 pb-8">
                 <form id="subscribe-form" method="post" action="/api/subscribe" class="space-y-4">
                   <div class="mb-5">
-                    <label for="email" class="block mb-2 font-medium text-gray-700 tracking-wide">Email Address</label>
+                    <label for="email" class="block mb-2 font-medium text-gray-700 tracking-wide">
+                      Email Address
+                    </label>
                     <input
                       type="email"
                       id="email"
@@ -35,7 +37,9 @@ export const RootView: FC = () => {
                     />
                   </div>
                   <div class="mb-5">
-                    <label for="city" class="block mb-2 font-medium text-gray-700 tracking-wide">City</label>
+                    <label for="city" class="block mb-2 font-medium text-gray-700 tracking-wide">
+                      City
+                    </label>
                     <input
                       type="text"
                       id="city"
@@ -46,7 +50,9 @@ export const RootView: FC = () => {
                     />
                   </div>
                   <div class="mb-6">
-                    <label for="frequency" class="block mb-2 font-medium text-gray-700 tracking-wide">Update Frequency</label>
+                    <label for="frequency" class="block mb-2 font-medium text-gray-700 tracking-wide">
+                      Update Frequency
+                    </label>
                     <select
                       id="frequency"
                       name="frequency"

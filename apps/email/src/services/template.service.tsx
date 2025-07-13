@@ -1,5 +1,5 @@
-import { SubscribeTemplate, SubscribeTemplateText } from "../templates/subscribe.template.js";
-import { WeatherUpdateTemplate, WeatherUpdateTemplateText } from "../templates/weather-update.template.js";
+import { SubscribeTemplate, SubscribeTemplateText } from '../templates/subscribe.template.js';
+import { WeatherUpdateTemplate, WeatherUpdateTemplateText } from '../templates/weather-update.template.js';
 
 export type Template = {
   title: string;
@@ -38,6 +38,6 @@ export class TemplateService {
       title: `Weather update for ${props.city}`,
       html: template.toString(),
       text: WeatherUpdateTemplateText(props),
-    }
+    };
   }
 }

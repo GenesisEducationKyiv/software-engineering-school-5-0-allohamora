@@ -1,4 +1,4 @@
-import { FC } from "hono/jsx";
+import { FC } from 'hono/jsx';
 
 export type WeatherUpdateTemplateProps = {
   city: string;
@@ -10,7 +10,8 @@ export type WeatherUpdateTemplateProps = {
 
 const styles = {
   body: {
-    fontFamily: "ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji'",
+    fontFamily:
+      "ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji'",
     lineHeight: 1.6,
     color: '#1e293b',
     margin: '0',
@@ -123,7 +124,7 @@ export const WeatherUpdateTemplate: FC<WeatherUpdateTemplateProps> = ({
       month: 'long',
       day: 'numeric',
       hour: '2-digit',
-      minute: '2-digit'
+      minute: '2-digit',
     };
     return now.toLocaleDateString('en-US', options);
   };
@@ -165,17 +166,13 @@ export const WeatherUpdateTemplate: FC<WeatherUpdateTemplateProps> = ({
                     <table width="100%" cellPadding="0" cellSpacing="0" border={0}>
                       <tr>
                         <td style={styles.footer}>
-                          <p>
-                            You're receiving this update because you subscribed to weather updates.
-                          </p>
+                          <p>You're receiving this update because you subscribed to weather updates.</p>
                           <p>
                             <a href={unsubscribeLink} style={styles.unsubscribeLink}>
                               Unsubscribe from weather updates
                             </a>
                           </p>
-                          <p style={styles.note}>
-                            This is an automated message. Please do not reply to this email.
-                          </p>
+                          <p style={styles.note}>This is an automated message. Please do not reply to this email.</p>
                         </td>
                       </tr>
                     </table>
