@@ -7,6 +7,7 @@
     "build": "tsc"
   },
   "devDependencies": {
+    "@weather-subscription/tsconfig": "*",
     "@bufbuild/buf": "^1.55.1",
     "@bufbuild/protobuf": "^2.6.0",
     "nice-grpc": "^2.1.12",

@@ -20,18 +20,17 @@
     "pino-pretty": "^13.0.0"
   },
   "devDependencies": {
-    "@eslint/js": "^9.26.0",
+    "@weather-subscription/tsconfig": "*",
+    "@weather-subscription/eslint-config": "*",
+    "@weather-subscription/prettier-config": "*",
     "eslint": "^9.26.0",
-    "eslint-config-prettier": "^10.1.5",
-    "eslint-plugin-beautiful-sort": "^3.0.1",
-    "eslint-plugin-prettier": "^5.4.0",
-    "globals": "^16.1.0",
     "prettier": "^3.5.3",
     "tsc-alias": "^1.8.16",
     "tsx": "^4.19.4",
     "typescript": "^5.8.3",
     "typescript-eslint": "^8.32.1"
   },
+  "prettier": "@weather-subscription/prettier-config",
   "lint-staged": {
     "*.{js,cjs,mjs,json,yml,md}": "prettier --write",
     "*.ts": "eslint --fix"
