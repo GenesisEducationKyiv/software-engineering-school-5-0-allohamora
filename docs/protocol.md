@@ -16,6 +16,58 @@ This document compares the performance of HTTP and gRPC protocols on high-traffi
 
 **Key Finding:** HTTP consistently outperforms gRPC by 52-80% in throughput with lower latency.
 
+**Additional Observations:**
+<details>
+<summary>HTTP appears to use keep-alive connections, reducing TCP handshake overhead</summary>
+
+```js
+server.on('connection', (socket) => {
+  console.count('New connection established');
+
+  socket.on('close', () => {
+    console.count('Socket closed');
+  });
+
+  socket.on('end', () => {
+    console.count('Socket ended');
+  });
+});
+```
+
+```bash
+@weather-subscription/weather:dev: New connection established: 1
+@weather-subscription/weather:dev: New connection established: 2
+@weather-subscription/weather:dev: New connection established: 3
+@weather-subscription/weather:dev: New connection established: 4
+@weather-subscription/weather:dev: New connection established: 5
+@weather-subscription/weather:dev: New connection established: 6
+@weather-subscription/weather:dev: New connection established: 7
+@weather-subscription/weather:dev: New connection established: 8
+@weather-subscription/weather:dev: New connection established: 9
+@weather-subscription/weather:dev: New connection established: 10
+@weather-subscription/weather:dev: Socket ended: 1
+@weather-subscription/weather:dev: Socket closed: 1
+@weather-subscription/weather:dev: Socket ended: 2
+@weather-subscription/weather:dev: Socket ended: 3
+@weather-subscription/weather:dev: Socket ended: 4
+@weather-subscription/weather:dev: Socket ended: 5
+@weather-subscription/weather:dev: Socket ended: 6
+@weather-subscription/weather:dev: Socket ended: 7
+@weather-subscription/weather:dev: Socket ended: 8
+@weather-subscription/weather:dev: Socket ended: 9
+@weather-subscription/weather:dev: Socket closed: 2
+@weather-subscription/weather:dev: Socket closed: 3
+@weather-subscription/weather:dev: Socket closed: 4
+@weather-subscription/weather:dev: Socket closed: 5
+@weather-subscription/weather:dev: Socket closed: 6
+@weather-subscription/weather:dev: Socket closed: 7
+@weather-subscription/weather:dev: Socket closed: 8
+@weather-subscription/weather:dev: Socket closed: 9
+@weather-subscription/weather:dev: Socket ended: 10
+@weather-subscription/weather:dev: Socket closed: 10
+```
+</details>
+
 > **Note:** You can reproduce these results yourself by checking out the `hw9-http` branch and running the benchmark tests included in the repository.
 
 ---
@@ -29,10 +81,10 @@ npx autocannon "http://localhost:3000/api/weather?city=Chernivtsi"
 
 **Performance Comparison:**
 
-| Protocol | Total Requests | Duration | Avg Req/sec | Avg Latency | Throughput |
-|----------|----------------|----------|-------------|-------------|------------|
-| HTTP     | 86,000         | 11s      | 7,840       | 1.03 ms     | 4.83 MB/s  |
-| gRPC     | 44,000         | 10s      | 4,362       | 1.89 ms     | 2.63 MB/s  |
+| Protocol | Total Requests | Duration | Avg Req/sec | Avg Latency | Throughput | Response Size |
+|----------|----------------|----------|-------------|-------------|------------|---------------|
+| HTTP     | 86,000         | 11s      | 7,840       | 1.03 ms     | 4.83 MB/s  | 68 bytes      |
+| gRPC     | 44,000         | 10s      | 4,362       | 1.89 ms     | 2.63 MB/s  | -             |
 
 **Raw Test Output:**
 
