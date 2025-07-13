@@ -52,46 +52,50 @@
 ## 3. High-Level Architecture
 
 ```mermaid
-flowchart TD
+graph TB
     subgraph Client
         User["User Browser"]
     end
 
-    subgraph Primary
-        App
-    end
-
-    subgraph Domain
-        Core[Business Logic & Services]
-    end
-
-    subgraph Secondary
-        DB[(PostgreSQL)]
+    subgraph Microservices
+        Gateway[API Gateway Service]
+        Weather[Weather Service]
+        Subscription[Subscription Service]
+        Notification[Notification Service]
         Email[Email Service]
-        Weather[Weather API]
-        Scheduler[Scheduler]
     end
 
-    Client --> |HTTP| Primary
+    subgraph External Services
+        PostgreSQL[("PostgreSQL")]
+        Redis[("Redis Cache")]
+        WeatherAPI[Weather API]
+        OpenMeteo[OpenMeteo API]
+        Resend[Resend API]
+    end
 
-    Primary --> Domain
+    User --> |HTTP/REST| Gateway
+    Gateway --> |gRPC| Weather
+    Gateway --> |gRPC| Subscription
+    Notification --> |gRPC| Subscription
+    Notification --> |gRPC| Weather
+    Notification --> |gRPC| Email
 
-    Domain --> |SQL| DB
-    Domain --> |HTTP| Email
-    Domain --> |HTTP| Weather
-    Domain --> Scheduler
+    Subscription --> |SQL| PostgreSQL
+    Weather --> |Redis| Redis
+    Weather --> |HTTP| WeatherAPI
+    Weather --> |HTTP| OpenMeteo
+    Email --> |HTTP| Resend
 ```
 
 ## 4. Detailed Components Design
 
-### 4.1 API Service
+### 4.1 API Gateway Service
 
 - **Responsibilities:**
-  - Handle incoming API requests
-  - Validate and process subscription requests
-  - Fetch weather data from external API
-  - Send email notifications
-  - Manage user subscriptions
+  - Handle incoming HTTP/REST API requests from clients
+  - Route requests to appropriate microservices
+  - Provide OpenAPI documentation and Swagger UI
+  - Handle cross-cutting concerns (logging, validation)
 - **Endpoints:**
   - `POST /api/subscribe`: Create a new subscription
   - `GET /api/confirm/:token`: Confirm a subscription
@@ -99,103 +103,158 @@ flowchart TD
   - `GET /api/weather?city=:city`: Fetch current weather data
 - **Technologies:**
   - Node.js with TypeScript
-  - Hono framework for routing and OpenAPI integration
-  - Pino for structured logging
+  - Hono framework for HTTP routing and OpenAPI integration
   - Zod for request validation and schema definition
-  - Fast-JWT for secure token generation and verification
+  - gRPC clients for internal service communication
 
-### 4.2 Database Service
-
-- **Responsibilities:**
-  - Store user subscription data
-  - Maintain data consistency
-  - Support efficient querying
-- **Schema:**
-  - `subscriptions` table:
-    - `id`: UUID (Primary Key)
-    - `email`: VARCHAR (255)
-    - `city`: VARCHAR (255)
-    - `frequency`: VARCHAR (10) - 'hourly' or 'daily'
-    - `created_at`: TIMESTAMP (3) WITH TIME ZONE
-- **Technologies:**
-  - PostgreSQL
-  - Drizzle ORM for type-safe database interactions
-  - Drizzle Kit for schema migrations and version control
-
-### 4.3 Weather Service
+### 4.2 Weather Service
 
 - **Responsibilities:**
-  - Fetch weather data from external API
+  - Fetch weather data from external weather APIs
   - Validate city names
-  - Format weather data for consumption
+  - Cache weather data for performance
+  - Provide metrics for monitoring
 - **Features:**
-  - Error handling for API failures
-  - City validation before subscription
+  - Chain of responsibility pattern for multiple weather providers (WeatherAPI, OpenMeteo)
+  - Redis caching with TTL for weather data
+  - Circuit breaker pattern for external API failures
+  - Prometheus metrics collection
 - **Technologies:**
-  - WeatherAPI.com as the external weather data provider
+  - Node.js with TypeScript
+  - gRPC server for internal communication
+  - Redis for caching
+  - Multiple weather API providers (WeatherAPI.com, OpenMeteo)
+
+### 4.3 Subscription Service
+
+- **Responsibilities:**
+  - Subscription lifecycle management (create, confirm, delete)
+  - JWT token generation and validation
+  - Database operations for subscription data
+  - Batch processing for notification service
+- **Features:**
+  - JWT-based subscription confirmation with 30-minute expiration
+  - PostgreSQL database with Drizzle ORM
+  - Iterator pattern for batch processing subscriptions
+  - Dataloader for efficient weather data fetching
+- **Technologies:**
+  - Node.js with TypeScript
+  - gRPC server for internal communication
+  - PostgreSQL with Drizzle ORM
+  - Fast-JWT for token management
 
 ### 4.4 Email Service
 
 - **Responsibilities:**
   - Send confirmation emails for new subscriptions
-  - Deliver weather updates to subscribers
-  - Provide unsubscribe links in all emails
-- **Email Types:**
-  - Subscription confirmation emails with verification link
-  - Daily weather updates with current conditions
-  - Hourly weather updates with current conditions
-- **Technologies:**
-  - Resend for reliable email delivery
+  - Deliver weather update emails to subscribers
+  - Render email templates
+  - Handle email delivery failures
+- **Features:**
   - React-based JSX templates for email content
+  - Subscription confirmation emails with verification links
+  - Weather update emails with unsubscribe links
+  - Integration with Resend API for reliable delivery
+- **Technologies:**
+  - Node.js with TypeScript
+  - gRPC server for internal communication
+  - Resend API for email delivery
+  - React JSX for email templates
 
-### 4.5 Scheduler Service
+### 4.5 Notification Service
 
 - **Responsibilities:**
   - Schedule recurring weather updates
+  - Orchestrate weather data fetching and email sending
   - Execute jobs based on subscription frequency
+  - Coordinate between Subscription, Weather, and Email services
 - **Features:**
-  - Daily scheduler for daily subscriptions (runs at midnight)
-  - Hourly scheduler for hourly subscriptions (runs at the top of each hour)
+  - Cron-based scheduling (daily at midnight, hourly at the top of each hour)
+  - Batch processing of subscriptions
+  - gRPC communication with other services
+  - Fault tolerance and error handling
 - **Technologies:**
+  - Node.js with TypeScript
   - Croner for cron-based job scheduling
+  - gRPC clients for service communication
 
 ## 5. Data Flow
 
 ### 5.1 Subscription Flow
 
-1. User submits subscription request with email, city, and frequency
-2. System validates the city with Weather API
-3. System generates a confirmation token using JWT with a 30-minute expiration
-4. System sends confirmation email with token link
-5. User clicks confirmation link within the expiration period
-6. System verifies token and creates subscription record
-7. System includes subscription in the appropriate scheduler based on frequency
+1. User submits subscription request to API Gateway via HTTP/REST
+2. API Gateway forwards request to Subscription Service via gRPC
+3. Subscription Service calls Weather Service via gRPC to validate city
+4. Subscription Service generates JWT token with 30-minute expiration
+5. Subscription Service calls Email Service via gRPC to send confirmation email
+6. Email Service sends confirmation email with token link via Resend API
+7. User clicks confirmation link within expiration period
+8. API Gateway routes confirmation to Subscription Service
+9. Subscription Service verifies token and creates subscription record in PostgreSQL
 
 ### 5.2 Weather Update Flow
 
-1. Scheduler triggers job based on subscription frequency (hourly or daily)
-2. System fetches active subscriptions for the current frequency
-3. For each subscription, system fetches current weather data for the subscribed city
-4. System formats weather data into a React-based email template
-5. System sends email with weather update and unsubscribe link
+1. Notification Service cron job triggers based on frequency (hourly/daily)
+2. Notification Service calls Subscription Service via gRPC to fetch active subscriptions
+3. Notification Service calls Weather Service via gRPC for each unique city
+4. Weather Service fetches data from external APIs (with Redis caching)
+5. Notification Service calls Email Service via gRPC to send weather updates
+6. Email Service formats weather data into React-based email templates
+7. Email Service sends emails with weather updates and unsubscribe links via Resend API
 
 ### 5.3 Unsubscription Flow
 
 1. User clicks unsubscribe link from email
-2. System identifies the subscription by ID (UUID)
-3. System removes subscription record from database
+2. API Gateway routes request to Subscription Service via gRPC
+3. Subscription Service identifies subscription by UUID and removes from PostgreSQL
+
+### 5.4 Weather Data Retrieval Flow
+
+1. User requests weather data via API Gateway
+2. API Gateway forwards request to Weather Service via gRPC
+3. Weather Service checks Redis cache for existing data
+4. If cache miss, Weather Service fetches from external APIs (WeatherAPI/OpenMeteo)
+5. Weather Service stores result in Redis cache with TTL
+6. Weather Service returns data to API Gateway via gRPC
+7. API Gateway returns formatted response to user
 
 ## 6. Deployment Strategy
 
-### 6.1 Containerization
+### 6.1 Microservices Architecture
 
-- Docker for application packaging
+The application is deployed as five independent microservices:
+
+- **API Gateway Service** (Port 3000): External HTTP/REST interface
+- **Weather Service** (Port 4001): Weather data operations with Redis caching
+- **Email Service** (Port 4002): Email delivery and template rendering
+- **Subscription Service** (Port 4003): Subscription management with PostgreSQL
+- **Notification Service**: Background service for scheduled notifications (single instance only)
+
+### 6.2 Containerization
+
+- Docker containers for each microservice
+- Multi-stage builds for optimized production images
 - Docker Compose for local development and testing
+- Separate Docker profiles for development and production environments
 
-### 6.2 CI/CD
+### 6.3 Service Communication
+
+- **External Communication**: HTTP/REST API via API Gateway
+- **Internal Communication**: gRPC with Protocol Buffers for type safety
+- **Service Discovery**: Direct service-to-service communication via Docker networking
+- **Load Balancing**: Container-level load balancing with Docker Compose
+
+### 6.4 Data Storage
+
+- **PostgreSQL**: Primary database for subscription data
+- **Redis**: Caching layer for weather data with TTL
+- **Persistent Volumes**: Docker volumes for data persistence
+
+### 6.5 CI/CD
 
 - GitHub Actions for automated testing and building
-- Separate workflows for build and test processes
+- Separate workflows for each microservice
+- Container image building and registry management
 - Automated database migrations during deployment
 
 ## 7. Security Considerations
@@ -213,9 +272,9 @@ flowchart TD
 
 ## 8. Testing Strategy
 
-### 8.1 E2E Testing
+### 8.1 Testing
 
-- Automated tests for all API endpoints using Vitest
+- Automated tests for services and controllers using Vitest
 - Mocked external services (Weather API, Email) for consistent testing
 - Test coverage for subscription and weather retrieval flows
 - Separation of test concerns with isolated test contexts
@@ -252,17 +311,14 @@ The application uses Croner for in-memory scheduling instead of a message queue 
 ### 10.1 Short-term Improvements
 
 - Implement a simple web UI for subscription management
-- Add LRU cache with TTL for Weather API calls to reduce costs and improve performance
 - Implement rate limiting on API endpoints for security and resource management
 - Add detailed monitoring and alerting for system health
 
 ### 10.2 Long-term Vision
 
-- Support for multiple weather data sources for redundancy and enriched data
 - User accounts for managing multiple subscriptions
 - Additional weather data metrics and visualizations
 - Mobile notifications as an alternative to email
 - Consider implementing a queue system like BullMQ or pg-boss for improved scalability while maintaining consistent user experience
-- Horizontal scaling of the Node.js application using a load balancer
 - Implement a WebSocket API for real-time weather updates
 - Personalized weather insights based on user preferences and historical data
