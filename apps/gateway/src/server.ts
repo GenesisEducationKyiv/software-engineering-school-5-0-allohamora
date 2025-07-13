@@ -69,7 +69,7 @@ export class Server {
   public async serve(port: number) {
     const { resolve, promise } = Promise.withResolvers<ServerInfo>();
 
-    const server = serve({ fetch: this.app.fetch, port }, async (info) => {
+    const server = serve({ fetch: this.app.fetch, port }, (info) => {
       resolve({ info, server });
     });
 
