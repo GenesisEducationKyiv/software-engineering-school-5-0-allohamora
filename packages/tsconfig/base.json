@@ -23,9 +23,7 @@
     "importsNotUsedAsValues": "remove",
     "exactOptionalPropertyTypes": false,
     "noPropertyAccessFromIndexSignature": false,
-    "outDir": "dist",
     "strictPropertyInitialization": false,
     "strictNullChecks": true
-  },
-  "exclude": ["node_modules", "dist"]
+  }
 }

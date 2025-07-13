@@ -1,11 +1,13 @@
 {
   "extends": "@weather-subscription/tsconfig/base",
   "compilerOptions": {
+    "outDir": "dist",
     "baseUrl": ".",
     "paths": {
       "src/*": ["src/*"]
     },
     "jsx": "react-jsx",
     "jsxImportSource": "hono/jsx"
-  }
+  },
+  "exclude": ["node_modules", "dist"]
 }

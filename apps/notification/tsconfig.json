@@ -1,9 +1,11 @@
 {
   "extends": "@weather-subscription/tsconfig/base",
   "compilerOptions": {
+    "outDir": "dist",
     "baseUrl": ".",
     "paths": {
       "src/*": ["src/*"]
     }
-  }
+  },
+  "exclude": ["node_modules", "dist"]
 }
