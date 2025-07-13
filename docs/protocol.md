@@ -1,6 +1,6 @@
 # HTTP vs gRPC Performance Comparison
 
-This document compares the performance of HTTP and gRPC protocols on high-traffic endpoints. All tests were run 3 times and the median result is reported below.
+This document compares the performance of HTTP and gRPC protocols on high-traffic endpoints. All tests were run 3 times and the median result is reported below. For gRPC, the non-SSL results are used in the main comparison tables, but you can see the SSL results in the detailed sections.
 
 ## Environment
 - Apple Silicon M1 Pro chip
@@ -17,7 +17,7 @@ This document compares the performance of HTTP and gRPC protocols on high-traffi
 **Key Finding:** HTTP consistently outperforms gRPC by 52-80% in throughput with lower latency.
 
 **Additional Observations:**
-- gRPC was tested without TLS certificates (insecure mode)
+- gRPC shows no significant performance difference between SSL and non-SSL implementations
 - HTTP appears to use keep-alive connections, reducing TCP handshake overhead
 
 <details>
@@ -93,7 +93,8 @@ npx autocannon "http://localhost:3000/api/weather?city=Chernivtsi"
 <details>
 <summary>gRPC Results</summary>
 
-```
+without ssl:
+```bash
 Running 10s test @ http://localhost:3000/api/weather?city=Chernivtsi
 10 connections
 
@@ -117,6 +118,31 @@ Req/Bytes counts sampled once per second.
 44k requests in 10.01s, 26.3 MB read
 ```
 
+with ssl:
+```bash
+Running 10s test @ http://localhost:3000/api/weather?city=Chernivtsi
+10 connections
+
+
+┌─────────┬──────┬──────┬───────┬──────┬────────┬────────┬───────┐
+│ Stat    │ 2.5% │ 50%  │ 97.5% │ 99%  │ Avg    │ Stdev  │ Max   │
+├─────────┼──────┼──────┼───────┼──────┼────────┼────────┼───────┤
+│ Latency │ 1 ms │ 2 ms │ 3 ms  │ 4 ms │ 1.8 ms │ 0.8 ms │ 12 ms │
+└─────────┴──────┴──────┴───────┴──────┴────────┴────────┴───────┘
+┌───────────┬─────────┬─────────┬─────────┬─────────┬─────────┬────────┬─────────┐
+│ Stat      │ 1%      │ 2.5%    │ 50%     │ 97.5%   │ Avg     │ Stdev  │ Min     │
+├───────────┼─────────┼─────────┼─────────┼─────────┼─────────┼────────┼─────────┤
+│ Req/Sec   │ 4,171   │ 4,171   │ 4,351   │ 4,847   │ 4,433.2 │ 219.98 │ 4,171   │
+├───────────┼─────────┼─────────┼─────────┼─────────┼─────────┼────────┼─────────┤
+│ Bytes/Sec │ 2.49 MB │ 2.49 MB │ 2.59 MB │ 2.89 MB │ 2.64 MB │ 131 kB │ 2.49 MB │
+└───────────┴─────────┴─────────┴─────────┴─────────┴─────────┴────────┴─────────┘
+
+Req/Bytes counts sampled once per second.
+# of samples: 10
+
+44k requests in 10.01s, 26.4 MB read
+```
+
 ```ts
 const grpcResponseSize = WeatherServiceDefinition.methods.getWeather.responseType.encode({ weather: await weatherService.getWeather(city) }).finish().byteLength;
 ```
@@ -125,7 +151,7 @@ const grpcResponseSize = WeatherServiceDefinition.methods.getWeather.responseTyp
 <details>
 <summary>HTTP Results</summary>
 
-```
+```bash
 Running 10s test @ http://localhost:3000/api/weather?city=Chernivtsi
 10 connections
 
@@ -175,7 +201,8 @@ npx autocannon "http://localhost:3000/api/metrics"
 <details>
 <summary>gRPC Results</summary>
 
-```
+without ssl:
+```bash
 Running 10s test @ http://localhost:3000/api/metrics
 10 connections
 
@@ -199,6 +226,31 @@ Req/Bytes counts sampled once per second.
 20k requests in 10.01s, 181 MB read
 ```
 
+with ssl:
+```bash
+Running 10s test @ http://localhost:3000/api/metrics
+10 connections
+
+
+┌─────────┬──────┬──────┬───────┬──────┬─────────┬─────────┬───────┐
+│ Stat    │ 2.5% │ 50%  │ 97.5% │ 99%  │ Avg     │ Stdev   │ Max   │
+├─────────┼──────┼──────┼───────┼──────┼─────────┼─────────┼───────┤
+│ Latency │ 4 ms │ 4 ms │ 6 ms  │ 7 ms │ 4.22 ms │ 0.71 ms │ 17 ms │
+└─────────┴──────┴──────┴───────┴──────┴─────────┴─────────┴───────┘
+┌───────────┬─────────┬─────────┬─────────┬─────────┬─────────┬────────┬─────────┐
+│ Stat      │ 1%      │ 2.5%    │ 50%     │ 97.5%   │ Avg     │ Stdev  │ Min     │
+├───────────┼─────────┼─────────┼─────────┼─────────┼─────────┼────────┼─────────┤
+│ Req/Sec   │ 2,107   │ 2,107   │ 2,153   │ 2,177   │ 2,148.6 │ 22.96  │ 2,107   │
+├───────────┼─────────┼─────────┼─────────┼─────────┼─────────┼────────┼─────────┤
+│ Bytes/Sec │ 19.3 MB │ 19.3 MB │ 19.7 MB │ 19.9 MB │ 19.6 MB │ 207 kB │ 19.3 MB │
+└───────────┴─────────┴─────────┴─────────┴─────────┴─────────┴────────┴─────────┘
+
+Req/Bytes counts sampled once per second.
+# of samples: 10
+
+21k requests in 10.02s, 196 MB read
+```
+
 ```ts
 const grpcResponseSize = WeatherServiceDefinition.methods.collectMetrics.responseType.encode(await metricsService.collectMetrics()).finish().byteLength;
 ```
@@ -207,7 +259,7 @@ const grpcResponseSize = WeatherServiceDefinition.methods.collectMetrics.respons
 <details>
 <summary>HTTP Results</summary>
 
-```
+```bash
 Running 10s test @ http://localhost:3000/api/metrics
 10 connections
 
