@@ -6,7 +6,7 @@ import { MetricsService } from './services/metrics.service.js';
 import { CacheService } from './services/cache.service.js';
 import { ApiWeatherProvider } from './providers/weather/api-weather.provider.js';
 import { OpenMeteoProvider } from './providers/weather/open-meteo.provider.js';
-import { CacheWeatherProviderProxy } from './providers/weather/cache.provider.js';
+import { CachedWeatherProviderProxy } from './providers/weather/cached.provider.js';
 import { WeatherService } from './services/weather.service.js';
 import { Server } from './server.js';
 import { App } from './app.js';
@@ -24,7 +24,7 @@ export class Container {
   public cacheService = new CacheService(this);
 
   public weatherProviders = [new ApiWeatherProvider(this), new OpenMeteoProvider(this)].map(
-    (provider) => new CacheWeatherProviderProxy(provider, this),
+    (provider) => new CachedWeatherProviderProxy(provider, this),
   );
 
   public weatherService = new WeatherService(this);

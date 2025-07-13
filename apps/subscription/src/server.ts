@@ -3,7 +3,7 @@ import { SubscriptionService } from './services/subscription.service.js';
 import { LoggerService, grpcErrorMiddleware } from '@weather-subscription/shared';
 import { makeSubscription } from './controllers/subscription.controller.js';
 
-type Options = {
+type Dependencies = {
   subscriptionService: SubscriptionService;
   loggerService: LoggerService;
 };
@@ -13,7 +13,7 @@ export class Server {
 
   private server = createServer();
 
-  constructor({ subscriptionService }: Options) {
+  constructor({ subscriptionService }: Dependencies) {
     this.subscriptionService = subscriptionService;
 
     this.setup();

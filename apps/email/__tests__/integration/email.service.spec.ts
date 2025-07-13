@@ -33,17 +33,8 @@ describe('EmailService (integration)', () => {
           to,
         }),
       ),
-    unauthorized: () =>
-      emailApi.mock(() => HttpResponse.json({ error: { message: 'Invalid API key' } }, { status: 401 })),
-    badRequest: () =>
-      emailApi.mock(() =>
-        HttpResponse.json(
-          {
-            error: { message: 'Invalid request' },
-          },
-          { status: 400 },
-        ),
-      ),
+    unauthorized: () => emailApi.mock(() => HttpResponse.json({ message: 'Invalid API key' }, { status: 401 })),
+    badRequest: () => emailApi.mock(() => HttpResponse.json({ message: 'Invalid request' }, { status: 400 })),
   };
 
   beforeAll(() => {
@@ -121,13 +112,11 @@ describe('EmailService (integration)', () => {
             text: 'This is a test email',
           },
         }),
-      ).rejects.toThrow(Exception);
+      ).rejects.toThrow(Exception.InternalServerError('Invalid request'));
 
       expect(errorSpy).toHaveBeenCalledWith({
         err: {
-          error: {
-            message: 'Invalid request',
-          },
+          message: 'Invalid request',
         },
       });
     });
@@ -144,13 +133,11 @@ describe('EmailService (integration)', () => {
             text: 'This is a test email',
           },
         }),
-      ).rejects.toThrow(Exception);
+      ).rejects.toThrow(Exception.InternalServerError('Invalid API key'));
 
       expect(errorSpy).toHaveBeenCalledWith({
         err: {
-          error: {
-            message: 'Invalid API key',
-          },
+          message: 'Invalid API key',
         },
       });
     });
@@ -172,6 +159,8 @@ describe('EmailService (integration)', () => {
           text: 'This is a test email',
         },
       });
+
+      expect.assertions(1);
     });
   });
 });

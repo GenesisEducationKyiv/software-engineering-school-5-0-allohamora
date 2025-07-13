@@ -7,7 +7,7 @@ import {
   TemplateService,
 } from './template.service.js';
 
-type Options = {
+type Dependencies = {
   templateService: TemplateService;
   loggerService: LoggerService;
   config: { RESEND_API_KEY: string; EMAIL_NAME: string; EMAIL_FROM: string };
@@ -34,7 +34,7 @@ export class EmailService {
 
   private logger: Logger;
 
-  constructor({ templateService, loggerService, config }: Options) {
+  constructor({ templateService, loggerService, config }: Dependencies) {
     this.templateService = templateService;
 
     this.emailName = config.EMAIL_NAME;

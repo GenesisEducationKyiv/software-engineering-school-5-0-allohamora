@@ -1,6 +1,6 @@
 import { Logger as Pino, pino } from 'pino';
 
-type Options = {
+type Dependencies = {
   config: { PINO_LEVEL: string };
 };
 
@@ -12,7 +12,7 @@ export type Logger = {
 export class LoggerService {
   private pino: Pino;
 
-  constructor({ config }: Options) {
+  constructor({ config }: Dependencies) {
     this.pino = pino({
       level: config.PINO_LEVEL,
       transport: {

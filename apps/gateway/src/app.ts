@@ -6,7 +6,7 @@ import { Logger, LoggerService } from '@weather-subscription/shared';
 
 const GRACEFUL_SHUTDOWN_DELAY = 15_000;
 
-type Options = {
+type Dependencies = {
   server: Server;
   loggerService: LoggerService;
   config: { PORT: number; NODE_ENV: string };
@@ -19,7 +19,7 @@ export class App {
   private nodeEnv: string;
   private logger: Logger;
 
-  constructor({ server, loggerService, config }: Options) {
+  constructor({ server, loggerService, config }: Dependencies) {
     this.server = server;
 
     this.port = config.PORT;

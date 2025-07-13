@@ -4,7 +4,7 @@ import { makeWeatherRoutes } from './controllers/weather.controller.js';
 import { LoggerService, grpcErrorMiddleware } from '@weather-subscription/shared';
 import { MetricsService } from './services/metrics.service.js';
 
-type Options = {
+type Dependencies = {
   weatherService: WeatherService;
   metricsService: MetricsService;
   loggerService: LoggerService;
@@ -16,7 +16,7 @@ export class Server {
 
   private server = createServer();
 
-  constructor({ weatherService, metricsService }: Options) {
+  constructor({ weatherService, metricsService }: Dependencies) {
     this.weatherService = weatherService;
     this.metricsService = metricsService;
 

@@ -1,18 +1,18 @@
 import { CacheService } from 'src/services/cache.service.js';
 import { Weather, WeatherProvider } from './weather.provider.js';
 
-type Options = {
+type Dependencies = {
   cacheService: CacheService;
   config: { WEATHER_TTL_SECONDS: number };
 };
 
-export class CacheWeatherProviderProxy implements WeatherProvider {
+export class CachedWeatherProviderProxy implements WeatherProvider {
   private weatherProvider: WeatherProvider;
   private cacheService: CacheService;
 
   private weatherTtlSeconds: number;
 
-  constructor(weatherProvider: WeatherProvider, { cacheService: cacheProvider, config }: Options) {
+  constructor(weatherProvider: WeatherProvider, { cacheService: cacheProvider, config }: Dependencies) {
     this.weatherProvider = weatherProvider;
     this.cacheService = cacheProvider;
 

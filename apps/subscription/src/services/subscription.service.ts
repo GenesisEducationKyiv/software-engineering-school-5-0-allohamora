@@ -10,7 +10,7 @@ export type SubscribeOptions = {
   frequency: Frequency;
 };
 
-type Options = {
+type Dependencies = {
   jwtService: JwtService;
   subscriptionRepository: SubscriptionRepository;
   weatherClient: WeatherClient;
@@ -36,7 +36,7 @@ export class SubscriptionService {
     emailClient,
     loggerService,
     config,
-  }: Options) {
+  }: Dependencies) {
     this.jwtService = jwtProvider;
     this.subscriptionRepository = subscriptionRepository;
     this.weatherClient = weatherClient;
@@ -68,24 +68,32 @@ export class SubscriptionService {
       );
     });
 
-    for await (const subscriptions of this.subscriptionRepository.iterateSubscriptions(frequency)) {
+    iterateSubscription: for await (const subscriptions of this.subscriptionRepository.iterateSubscriptions(
+      frequency,
+    )) {
       for (const { id, email, city } of subscriptions) {
-        const weather = await dataloader.load(city);
-        const unsubscribeLink = this.makeUnsubscribeLink(id);
+        try {
+          const weather = await dataloader.load(city);
+          const unsubscribeLink = this.makeUnsubscribeLink(id);
 
-        await this.emailClient.sendWeatherUpdateEmail({
-          to: [email],
-          city,
-          unsubscribeLink,
-          ...weather,
-        });
+          await this.emailClient.sendWeatherUpdateEmail({
+            to: [email],
+            city,
+            unsubscribeLink,
+            ...weather,
+          });
+        } catch (err) {
+          this.logger.info({ msg: 'Handling weather subscription has been failed', err });
+
+          break iterateSubscription;
+        }
       }
     }
 
     this.logger.info({ msg: 'Handling weather subscription has been finished', frequency });
   }
 
-  private async assertIsSubscriptionExists(email: string) {
+  private async assertUnique(email: string) {
     const isSubscriptionExists = await this.subscriptionRepository.isSubscriptionExists(email);
 
     if (isSubscriptionExists) {
@@ -98,7 +106,7 @@ export class SubscriptionService {
   }
 
   public async subscribe(options: SubscribeOptions) {
-    await this.assertIsSubscriptionExists(options.email);
+    await this.assertUnique(options.email);
 
     const { isValid } = await this.weatherClient.validateCity({ city: options.city });
     if (!isValid) {
@@ -118,7 +126,7 @@ export class SubscriptionService {
   public async confirm(token: string) {
     const options = await this.jwtService.verify<SubscribeOptions>(token);
 
-    await this.assertIsSubscriptionExists(options.email);
+    await this.assertUnique(options.email);
 
     await this.subscriptionRepository.createSubscription(options);
   }

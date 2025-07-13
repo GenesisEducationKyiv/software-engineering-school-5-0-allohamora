@@ -3,11 +3,11 @@ import { eq } from 'drizzle-orm';
 import { subscriptions } from 'src/db.schema.js';
 import { Db, DbService } from 'src/services/db.service.js';
 
-type Options = {
+type Dependencies = {
   dbService: DbService;
 };
 
-interface CreateSubscriptionDto {
+interface CreateSubscriptionData {
   email: string;
   city: string;
   frequency: Frequency;
@@ -16,11 +16,11 @@ interface CreateSubscriptionDto {
 export class SubscriptionRepository {
   private db: Db;
 
-  constructor({ dbService }: Options) {
+  constructor({ dbService }: Dependencies) {
     this.db = dbService.getConnection();
   }
 
-  async createSubscription(data: CreateSubscriptionDto) {
+  async createSubscription(data: CreateSubscriptionData) {
     const [item] = await this.db.insert(subscriptions).values(data).returning();
 
     // type-guard
@@ -40,7 +40,7 @@ export class SubscriptionRepository {
   }
 
   async removeSubscriptionById(id: string) {
-    await this.db.delete(subscriptions).where(eq(subscriptions.id, id)).returning();
+    await this.db.delete(subscriptions).where(eq(subscriptions.id, id));
   }
 
   async *iterateSubscriptions(frequency: Frequency, limit = 50) {

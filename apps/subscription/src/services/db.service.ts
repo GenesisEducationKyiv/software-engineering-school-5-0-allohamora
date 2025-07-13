@@ -11,7 +11,7 @@ export type Db = PostgresJsDatabase<typeof schema> & {
   $client: postgres.Sql;
 };
 
-type Options = {
+type Dependencies = {
   config: { POSTGRES_URL: string; DRIZZLE_DEBUG: boolean };
 };
 
@@ -19,7 +19,7 @@ export class DbService {
   private client: postgres.Sql;
   private db: Db;
 
-  constructor({ config }: Options) {
+  constructor({ config }: Dependencies) {
     this.client = postgres(config.POSTGRES_URL, { onnotice: () => {} });
     this.db = drizzle(this.client, { schema, logger: config.DRIZZLE_DEBUG, casing: 'snake_case' });
   }

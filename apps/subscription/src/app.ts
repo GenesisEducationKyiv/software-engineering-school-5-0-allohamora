@@ -5,7 +5,7 @@ import { DbService } from './services/db.service.js';
 
 const GRACEFUL_SHUTDOWN_DELAY = 15_000;
 
-type Options = {
+type Dependencies = {
   server: Server;
   dbService: DbService;
   loggerService: LoggerService;
@@ -21,7 +21,7 @@ export class App {
   private nodeEnv: string;
   private logger: Logger;
 
-  constructor({ server, dbService, loggerService, config }: Options) {
+  constructor({ server, dbService, loggerService, config }: Dependencies) {
     this.server = server;
 
     this.dbService = dbService;

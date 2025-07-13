@@ -63,7 +63,7 @@ type WeatherErrorResponse = {
   };
 };
 
-type Options = {
+type Dependencies = {
   httpProvider: HttpProvider;
   config: { WEATHER_API_KEY: string };
 };
@@ -72,7 +72,7 @@ export class ApiWeatherProvider implements WeatherProvider {
   private httpProvider: HttpProvider;
   private weatherApiKey: string;
 
-  constructor({ httpProvider, config }: Options) {
+  constructor({ httpProvider, config }: Dependencies) {
     this.httpProvider = httpProvider;
     this.weatherApiKey = config.WEATHER_API_KEY;
   }

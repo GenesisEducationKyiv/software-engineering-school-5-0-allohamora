@@ -1,7 +1,7 @@
 import { Weather, WeatherProvider } from 'src/providers/weather/weather.provider.js';
 import { Exception, Logger, LoggerService } from '@weather-subscription/shared';
 
-type Options = {
+type Dependencies = {
   weatherProviders: WeatherProvider[];
   loggerService: LoggerService;
 };
@@ -11,7 +11,7 @@ export class WeatherService {
 
   private logger: Logger;
 
-  constructor({ weatherProviders, loggerService }: Options) {
+  constructor({ weatherProviders, loggerService }: Dependencies) {
     this.weatherProviders = weatherProviders;
 
     this.logger = loggerService.createLogger('ChainWeatherService');

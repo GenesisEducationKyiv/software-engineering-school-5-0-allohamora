@@ -4,7 +4,7 @@ import { CronService } from './services/cron.service.js';
 
 const GRACEFUL_SHUTDOWN_DELAY = 15_000;
 
-type Options = {
+type Dependencies = {
   cronService: CronService;
   loggerService: LoggerService;
   config: { NODE_ENV: string };
@@ -17,7 +17,7 @@ export class App {
 
   private logger: Logger;
 
-  constructor({ cronService, loggerService, config }: Options) {
+  constructor({ cronService, loggerService, config }: Dependencies) {
     this.cronService = cronService;
 
     this.nodeEnv = config.NODE_ENV;

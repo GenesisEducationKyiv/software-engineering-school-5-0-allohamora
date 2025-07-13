@@ -4,7 +4,7 @@ import { HttpProvider, GetOptions } from './http.provider.js';
 
 const TEMP_DIR = join(import.meta.dirname, '..', '..', '..', '.temp');
 
-type Options = {
+type Dependencies = {
   config: { WRITE_LOGS_TO_FILES: boolean };
 };
 
@@ -14,7 +14,7 @@ export class LoggerHttpProviderDecorator implements HttpProvider {
   private filePath = join(TEMP_DIR, `${Date.now()}.txt`);
   private isEnabled: boolean;
 
-  constructor(httpProvider: HttpProvider, { config }: Options) {
+  constructor(httpProvider: HttpProvider, { config }: Dependencies) {
     this.httpProvider = httpProvider;
 
     this.isEnabled = config.WRITE_LOGS_TO_FILES;

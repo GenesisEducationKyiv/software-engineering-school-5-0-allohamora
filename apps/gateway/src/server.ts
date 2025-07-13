@@ -16,7 +16,7 @@ export type ServerInfo = {
   server: ServerType;
 };
 
-type Options = {
+type Dependencies = {
   weatherClient: WeatherClient;
   subscriptionClient: SubscriptionClient;
   loggerService: LoggerService;
@@ -28,7 +28,7 @@ export class Server {
 
   private app = new OpenAPIHono();
 
-  constructor({ weatherClient, subscriptionClient }: Options) {
+  constructor({ weatherClient, subscriptionClient }: Dependencies) {
     this.weatherClient = weatherClient;
     this.subscriptionClient = subscriptionClient;
 

@@ -3,7 +3,7 @@ import { EmailService } from './services/email.service.js';
 import { makeEmailRoutes } from './controllers/email.controller.js';
 import { grpcErrorMiddleware } from '@weather-subscription/shared';
 
-type Options = {
+type Dependencies = {
   emailService: EmailService;
 };
 
@@ -12,7 +12,7 @@ export class Server {
 
   private server = createServer();
 
-  constructor({ emailService }: Options) {
+  constructor({ emailService }: Dependencies) {
     this.emailService = emailService;
 
     this.setup();
