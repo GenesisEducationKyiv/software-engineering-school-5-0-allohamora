@@ -17,8 +17,10 @@ This document compares the performance of HTTP and gRPC protocols on high-traffi
 **Key Finding:** HTTP consistently outperforms gRPC by 52-80% in throughput with lower latency.
 
 **Additional Observations:**
+- gRPC was tested without TLS certificates (insecure mode)
+- HTTP appears to use keep-alive connections, reducing TCP handshake overhead
+
 <details>
-<summary>HTTP appears to use keep-alive connections, reducing TCP handshake overhead</summary>
 
 ```js
 server.on('connection', (socket) => {
@@ -84,7 +86,7 @@ npx autocannon "http://localhost:3000/api/weather?city=Chernivtsi"
 | Protocol | Total Requests | Duration | Avg Req/sec | Avg Latency | Throughput | Response Size |
 |----------|----------------|----------|-------------|-------------|------------|---------------|
 | HTTP     | 86,000         | 11s      | 7,840       | 1.03 ms     | 4.83 MB/s  | 68 bytes      |
-| gRPC     | 44,000         | 10s      | 4,362       | 1.89 ms     | 2.63 MB/s  | -             |
+| gRPC     | 44,000         | 10s      | 4,362       | 1.89 ms     | 2.63 MB/s  | 27 bytes      |
 
 **Raw Test Output:**
 
@@ -114,6 +116,10 @@ Req/Bytes counts sampled once per second.
 
 44k requests in 10.01s, 26.3 MB read
 ```
+
+```ts
+const grpcResponseSize = WeatherServiceDefinition.methods.getWeather.responseType.encode({ weather: await weatherService.getWeather(city) }).finish().byteLength;
+```
 </details>
 
 <details>
@@ -142,6 +148,10 @@ Req/Bytes counts sampled once per second.
 
 86k requests in 11.01s, 53.1 MB read
 ```
+
+```ts
+const httpResponseSize = Buffer.from(JSON.stringify({ weather: await weatherService.getWeather(city) })).byteLength;
+```
 </details>
 
 ---
@@ -155,10 +165,10 @@ npx autocannon "http://localhost:3000/api/metrics"
 
 **Performance Comparison:**
 
-| Protocol | Total Requests | Duration | Avg Req/sec | Avg Latency | Throughput |
-|----------|----------------|----------|-------------|-------------|------------|
-| HTTP     | 33,000         | 11s      | 2,997       | 2.7 ms      | 27.2 MB/s  |
-| gRPC     | 20,000         | 10s      | 1,974       | 4.55 ms     | 18.1 MB/s  |
+| Protocol | Total Requests | Duration | Avg Req/sec | Avg Latency | Throughput | Response Size |
+|----------|----------------|----------|-------------|-------------|------------|---------------|
+| HTTP     | 33,000         | 11s      | 2,997       | 2.7 ms      | 27.2 MB/s  | 8964 bytes    |
+| gRPC     | 20,000         | 10s      | 1,974       | 4.55 ms     | 18.1 MB/s  | 8581 bytes    |
 
 **Raw Test Output:**
 
@@ -188,6 +198,10 @@ Req/Bytes counts sampled once per second.
 
 20k requests in 10.01s, 181 MB read
 ```
+
+```ts
+const grpcResponseSize = WeatherServiceDefinition.methods.collectMetrics.responseType.encode(await metricsService.collectMetrics()).finish().byteLength;
+```
 </details>
 
 <details>
@@ -216,6 +230,10 @@ Req/Bytes counts sampled once per second.
 
 33k requests in 11.01s, 300 MB read
 ```
+
+```ts
+const httpResponseSize = Buffer.from(JSON.stringify(await metricsService.collectMetrics())).byteLength;
+```
 </details>
 
 ---
@@ -228,6 +246,7 @@ Based on the benchmark results:
 2. **Weather endpoint**: HTTP achieves 80% higher throughput (7,840 vs 4,362 req/sec)
 3. **Metrics endpoint**: HTTP achieves 52% higher throughput (2,997 vs 1,974 req/sec)
 4. **Latency**: HTTP consistently shows lower latency across both endpoints
+5. **Response size**: gRPC produces smaller payloads (60% smaller for weather, 4.3% smaller for metrics) due to Protocol Buffers binary serialization, but this doesn't translate to better performance
 
 ## Summary
 
@@ -235,9 +254,11 @@ Based on the benchmark results:
 - Eliminates gRPC serialization/deserialization overhead when converting between different data formats (JSON to Protocol Buffers and back)
 - Lower latency
 - Better resource utilization
+- Despite larger response sizes, HTTP's performance advantages outweigh the bandwidth overhead
 
 **Consider gRPC when** specific features are required:
 - Streaming capabilities
 - Strong typing with Protocol Buffers
 - Built-in load balancing
 - Advanced routing features
+- Bandwidth is a critical constraint (gRPC produces 4-60% smaller payloads)
