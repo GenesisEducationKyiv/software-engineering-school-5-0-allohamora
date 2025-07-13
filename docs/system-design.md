@@ -53,11 +53,7 @@
 
 ```mermaid
 graph TB
-    subgraph Client
-        User["User Browser"]
-    end
-
-    subgraph Microservices
+    subgraph Application
         Gateway[API Gateway Service]
         Weather[Weather Service]
         Subscription[Subscription Service]
@@ -65,26 +61,18 @@ graph TB
         Email[Email Service]
     end
 
-    subgraph External Services
-        PostgreSQL[("PostgreSQL")]
-        Redis[("Redis Cache")]
-        WeatherAPI[Weather API]
-        OpenMeteo[OpenMeteo API]
-        Resend[Resend API]
-    end
-
-    User --> |HTTP/REST| Gateway
+    User["User Browser"] --> |HTTP/REST| Gateway
     Gateway --> |gRPC| Weather
     Gateway --> |gRPC| Subscription
     Notification --> |gRPC| Subscription
     Notification --> |gRPC| Weather
     Notification --> |gRPC| Email
 
-    Subscription --> |SQL| PostgreSQL
-    Weather --> |Redis| Redis
-    Weather --> |HTTP| WeatherAPI
-    Weather --> |HTTP| OpenMeteo
-    Email --> |HTTP| Resend
+    Subscription --> |SQL| PostgreSQL[("PostgreSQL")]
+    Weather --> |Redis| Redis[("Redis Cache")]
+    Weather --> |HTTP| WeatherAPI[Weather API]
+    Weather --> |HTTP| OpenMeteo[OpenMeteo API]
+    Email --> |HTTP| Resend[Resend API]
 ```
 
 ## 4. Detailed Components Design
