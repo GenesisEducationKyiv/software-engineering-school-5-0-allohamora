@@ -17,7 +17,7 @@ This document compares the performance of HTTP and gRPC protocols on high-traffi
 **Key Finding:** HTTP consistently outperforms gRPC by 52-80% in throughput with lower latency.
 
 **Additional Observations:**
-- gRPC shows no significant performance difference between SSL and non-SSL implementations
+- gRPC shows no significant performance difference between SSL (self-signed) and non-SSL implementations
 - HTTP appears to use keep-alive connections, reducing TCP handshake overhead
 
 <details>
