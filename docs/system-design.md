@@ -241,7 +241,6 @@ The application is deployed as five independent microservices:
 ### 6.5 CI/CD
 
 - GitHub Actions for automated testing and building
-- Separate workflows for each microservice
 - Container image building and registry management
 - Automated database migrations during deployment
 
