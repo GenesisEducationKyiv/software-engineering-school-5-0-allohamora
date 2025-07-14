@@ -92,6 +92,24 @@ Architecture tests to check the structure and dependencies of the codebase.
 
    **Location:** `__tests__/arch/`
 
+## Deps Tests
+
+Dependency tests verify the overall project structure and dependencies between apps, libs, and packages at the workspace level.
+
+1. Install dependencies:
+
+   ```bash
+   npm i
+   ```
+
+2. Run deps tests:
+
+   ```bash
+   npm run test:deps
+   ```
+
+   **Location:** `.dependency-cruiser.cjs`
+
 ## Running All Tests at Once
 
 Run all test suites with a single sequence of commands:
