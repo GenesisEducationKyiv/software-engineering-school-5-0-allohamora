@@ -6,6 +6,12 @@ type Dependencies = {
   config: { REDIS_URL: string };
 };
 
+type GetOrComputeOptions<T> = {
+  key: string;
+  ttlSeconds: number;
+  compute: () => Promise<T>;
+};
+
 export class CacheService {
   private hitCounter: Counter;
   private missCounter: Counter;
@@ -36,6 +42,16 @@ export class CacheService {
     const jsonValue = JSON.stringify(value);
 
     await this.redis.set(key, jsonValue, 'EX', ttlSeconds);
+  }
+
+  public async getOrCompute<T>({ key, ttlSeconds, compute }: GetOrComputeOptions<T>): Promise<T> {
+    const cached = await this.get<T>(key);
+    if (cached) return cached;
+
+    const result = await compute();
+    await this.set(key, result, ttlSeconds);
+
+    return result;
   }
 
   public async clearAll() {

@@ -1,5 +1,5 @@
 import { CacheService } from 'src/services/cache.service.js';
-import { Weather, WeatherProvider } from './weather.provider.js';
+import { WeatherProvider } from './weather.provider.js';
 
 type Dependencies = {
   cacheService: CacheService;
@@ -24,16 +24,11 @@ export class CachedWeatherProviderProxy implements WeatherProvider {
   }
 
   public async getWeather(city: string) {
-    const cacheKey = this.toWeatherCacheKey(city);
-    const cachedWeather = await this.cacheService.get<Weather>(cacheKey);
-    if (cachedWeather) {
-      return cachedWeather;
-    }
-
-    const weather = await this.weatherProvider.getWeather(city);
-    await this.cacheService.set(cacheKey, weather, this.weatherTtlSeconds);
-
-    return weather;
+    return this.cacheService.getOrCompute({
+      key: this.toWeatherCacheKey(city),
+      ttlSeconds: this.weatherTtlSeconds,
+      compute: async () => await this.weatherProvider.getWeather(city),
+    });
   }
 
   private toValidateCacheKey(city: string) {
@@ -41,15 +36,10 @@ export class CachedWeatherProviderProxy implements WeatherProvider {
   }
 
   public async validateCity(city: string) {
-    const cacheKey = this.toValidateCacheKey(city);
-    const cachedValidation = await this.cacheService.get<boolean>(cacheKey);
-    if (cachedValidation) {
-      return cachedValidation;
-    }
-
-    const result = await this.weatherProvider.validateCity(city);
-    await this.cacheService.set(cacheKey, result, this.weatherTtlSeconds);
-
-    return result;
+    return this.cacheService.getOrCompute({
+      key: this.toValidateCacheKey(city),
+      ttlSeconds: this.weatherTtlSeconds,
+      compute: async () => await this.weatherProvider.validateCity(city),
+    });
   }
 }
