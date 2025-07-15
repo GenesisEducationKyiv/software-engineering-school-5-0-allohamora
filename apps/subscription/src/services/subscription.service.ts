@@ -2,7 +2,17 @@ import Dataloader from 'dataloader';
 import { JwtService } from './jwt.service.js';
 import { SubscriptionRepository } from 'src/repositories/subscription.repository.js';
 import type { Weather } from '@weather-subscription/proto/weather';
-import { Exception, Logger, LoggerService, WeatherClient, EmailClient, Frequency } from '@weather-subscription/shared';
+import {
+  Exception,
+  Logger,
+  LoggerService,
+  WeatherClient,
+  EmailClient,
+  Frequency,
+  retry,
+} from '@weather-subscription/shared';
+
+const MAX_RETRIES = 3;
 
 export type SubscribeOptions = {
   email: string;
@@ -68,25 +78,27 @@ export class SubscriptionService {
       );
     });
 
-    iterateSubscription: for await (const subscriptions of this.subscriptionRepository.iterateSubscriptions(
-      frequency,
-    )) {
-      for (const { id, email, city } of subscriptions) {
-        try {
-          const weather = await dataloader.load(city);
-          const unsubscribeLink = this.makeUnsubscribeLink(id);
+    for await (const subscriptions of this.subscriptionRepository.iterateSubscriptions(frequency)) {
+      try {
+        await Promise.all(
+          subscriptions.map(
+            retry(async ({ id, email, city }) => {
+              const weather = await dataloader.load(city);
+              const unsubscribeLink = this.makeUnsubscribeLink(id);
 
-          await this.emailClient.sendWeatherUpdateEmail({
-            to: [email],
-            city,
-            unsubscribeLink,
-            ...weather,
-          });
-        } catch (err) {
-          this.logger.info({ msg: 'Handling weather subscription has been failed', err });
+              await this.emailClient.sendWeatherUpdateEmail({
+                to: [email],
+                city,
+                unsubscribeLink,
+                ...weather,
+              });
+            }, MAX_RETRIES),
+          ),
+        );
+      } catch (err) {
+        this.logger.info({ msg: 'Handling weather subscription has been failed', err });
 
-          break iterateSubscription;
-        }
+        break;
       }
     }
 
