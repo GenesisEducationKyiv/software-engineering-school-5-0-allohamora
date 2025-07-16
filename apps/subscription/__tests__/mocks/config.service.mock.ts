@@ -22,6 +22,9 @@ vitest.mock('src/services/config.service.js', async (importOriginal) => {
         PINO_LEVEL: 'fatal',
 
         DRIZZLE_DEBUG: false,
+
+        KAFKA_CLIENT_ID: 'weather-subscription-test',
+        KAFKA_GROUP_ID: 'subscription-test',
       } as import('src/services/config.service.js').Config;
     }
   }

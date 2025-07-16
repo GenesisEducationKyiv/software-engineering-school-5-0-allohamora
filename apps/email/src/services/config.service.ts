@@ -4,7 +4,6 @@ import { z } from 'zod';
 
 const configSchema = {
   NODE_ENV: z.enum(['development', 'test', 'production']).optional().default('development'),
-  PORT: z.number().optional().default(4002),
 
   PINO_LEVEL: z.enum(['debug', 'info', 'warn', 'error', 'silent', 'fatal']).optional().default('info'),
 
@@ -12,6 +11,10 @@ const configSchema = {
 
   EMAIL_NAME: z.string(),
   EMAIL_FROM: z.string().email(),
+
+  KAFKA_CLIENT_ID: z.string(),
+  KAFKA_BROKER: z.string(),
+  KAFKA_GROUP_ID: z.string(),
 } as const;
 
 export type Config = ParsedSchema<typeof configSchema>;

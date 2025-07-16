@@ -21,6 +21,15 @@ services:
     volumes:
       - redis-data:/data
 
+  kafka:
+    image: apache/kafka:3.9.1
+    ports:
+      - "9092:9092"
+    volumes:
+      - kafka-data:/var/lib/kafka/data
+      - kafka-secrets:/etc/kafka/secrets
+      - kafka-config:/mnt/shared/config
+
   prometheus:
     image: prom/prometheus:v3.4.2
     ports:
@@ -62,9 +71,6 @@ services:
       - ./apps/email/.env
     environment:
       - NODE_ENV=production
-      - PORT=4002
-    ports:
-      - 4002:4002
     profiles:
       - production
 
@@ -127,3 +133,6 @@ volumes:
   redis-data:
   grafana-data:
   prometheus-data:
+  kafka-data:
+  kafka-secrets:
+  kafka-config:

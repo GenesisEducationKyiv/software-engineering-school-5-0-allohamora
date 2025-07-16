@@ -45,10 +45,7 @@ describe('EmailService (integration)', () => {
     errorSpy = vitest.fn();
 
     emailService = new EmailService({
-      templateService: createMock<TemplateService>({
-        getSubscribeTemplate: vitest.fn(),
-        getWeatherUpdateTemplate: vitest.fn(),
-      }),
+      templateService: new TemplateService(),
       loggerService: createMock<LoggerService>({ createLogger: () => ({ error: errorSpy, info: vitest.fn() }) }),
       config: { EMAIL_NAME, EMAIL_FROM, RESEND_API_KEY },
     });
@@ -161,6 +158,150 @@ describe('EmailService (integration)', () => {
       });
 
       expect.assertions(1);
+    });
+  });
+
+  describe('sendSubscribeEmail', () => {
+    it('successfully sends subscription email', async () => {
+      mockServer.addHandlers(emailApi.ok());
+
+      await expect(
+        emailService.sendSubscribeEmail({
+          to: ['test@example.com'],
+          city: 'London',
+          confirmationLink: 'https://example.com/confirm/token123',
+        }),
+      ).resolves.not.toThrow();
+
+      expect(errorSpy).not.toHaveBeenCalled();
+    });
+
+    it('successfully sends subscription email to multiple recipients', async () => {
+      mockServer.addHandlers(emailApi.ok());
+
+      await expect(
+        emailService.sendSubscribeEmail({
+          to: ['test1@example.com', 'test2@example.com'],
+          city: 'Paris',
+          confirmationLink: 'https://example.com/confirm/token456',
+        }),
+      ).resolves.not.toThrow();
+
+      expect(errorSpy).not.toHaveBeenCalled();
+    });
+
+    it('throws error when email sending fails with 400 error', async () => {
+      mockServer.addHandlers(emailApi.badRequest());
+
+      await expect(
+        emailService.sendSubscribeEmail({
+          to: ['error@example.com'],
+          city: 'London',
+          confirmationLink: 'https://example.com/confirm/token123',
+        }),
+      ).rejects.toThrow(Exception.InternalServerError('Invalid request'));
+
+      expect(errorSpy).toHaveBeenCalledWith({
+        err: {
+          message: 'Invalid request',
+        },
+      });
+    });
+
+    it('throws error when email sending fails with 401 error', async () => {
+      mockServer.addHandlers(emailApi.unauthorized());
+
+      await expect(
+        emailService.sendSubscribeEmail({
+          to: ['error@example.com'],
+          city: 'London',
+          confirmationLink: 'https://example.com/confirm/token123',
+        }),
+      ).rejects.toThrow(Exception.InternalServerError('Invalid API key'));
+
+      expect(errorSpy).toHaveBeenCalledWith({
+        err: {
+          message: 'Invalid API key',
+        },
+      });
+    });
+  });
+
+  describe('sendWeatherUpdateEmail', () => {
+    it('successfully sends weather update email', async () => {
+      mockServer.addHandlers(emailApi.ok());
+
+      await expect(
+        emailService.sendWeatherUpdateEmail({
+          to: ['subscriber@example.com'],
+          city: 'London',
+          unsubscribeLink: 'https://example.com/unsubscribe/token789',
+          temperature: 25.5,
+          humidity: 60,
+          description: 'Partly cloudy',
+        }),
+      ).resolves.not.toThrow();
+
+      expect(errorSpy).not.toHaveBeenCalled();
+    });
+
+    it('successfully sends weather update email to multiple recipients', async () => {
+      mockServer.addHandlers(emailApi.ok());
+
+      await expect(
+        emailService.sendWeatherUpdateEmail({
+          to: ['subscriber1@example.com', 'subscriber2@example.com'],
+          city: 'Tokyo',
+          unsubscribeLink: 'https://example.com/unsubscribe/token999',
+          temperature: 18.2,
+          humidity: 75,
+          description: 'Light rain',
+        }),
+      ).resolves.not.toThrow();
+
+      expect(errorSpy).not.toHaveBeenCalled();
+    });
+
+    it('throws exception when email sending fails with 400 error', async () => {
+      mockServer.addHandlers(emailApi.badRequest());
+
+      await expect(
+        emailService.sendWeatherUpdateEmail({
+          to: ['error@example.com'],
+          city: 'London',
+          unsubscribeLink: 'https://example.com/unsubscribe/token789',
+          temperature: 25.5,
+          humidity: 60,
+          description: 'Partly cloudy',
+        }),
+      ).rejects.toThrow(Exception.InternalServerError('Invalid request'));
+
+      expect(errorSpy).toHaveBeenCalledWith({
+        err: {
+          message: 'Invalid request',
+        },
+      });
+    });
+
+    it('throws exception when email sending fails with 401 error', async () => {
+      mockServer.addHandlers(emailApi.unauthorized());
+
+      await expect(
+        emailService.sendWeatherUpdateEmail({
+          to: ['error@example.com'],
+          city: 'London',
+          unsubscribeLink: 'https://example.com/unsubscribe/token789',
+          temperature: 25.5,
+          humidity: 60,
+          description: 'Partly cloudy',
+        }),
+      ).rejects.toThrow(Exception.InternalServerError('Invalid API key'));
+
+      expect(errorSpy).toHaveBeenCalledWith({
+        err: {
+          message: 'Invalid API key',
+        },
+      });
     });
   });
 });

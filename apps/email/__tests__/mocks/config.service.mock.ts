@@ -13,8 +13,6 @@ vitest.mock('src/services/config.service.js', async (importOriginal) => {
       this.config = {
         ...result.parsed,
 
-        PORT: 4002,
-
         NODE_ENV: 'test',
 
         EMAIL_NAME: 'Test App',
@@ -23,7 +21,8 @@ vitest.mock('src/services/config.service.js', async (importOriginal) => {
 
         PINO_LEVEL: 'fatal',
 
-        WRITE_LOGS_TO_FILES: false,
+        KAFKA_CLIENT_ID: 'weather-subscription-test',
+        KAFKA_GROUP_ID: 'email-service-test',
       } as import('src/services/config.service.js').Config;
     }
   }

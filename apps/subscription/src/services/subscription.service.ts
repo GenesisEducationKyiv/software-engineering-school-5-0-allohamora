@@ -2,15 +2,8 @@ import Dataloader from 'dataloader';
 import { JwtService } from './jwt.service.js';
 import { SubscriptionRepository } from 'src/repositories/subscription.repository.js';
 import type { Weather } from '@weather-subscription/proto/weather';
-import {
-  Exception,
-  Logger,
-  LoggerService,
-  WeatherClient,
-  EmailClient,
-  Frequency,
-  retry,
-} from '@weather-subscription/shared';
+import { Exception, Logger, LoggerService, WeatherClient, Frequency, retry } from '@weather-subscription/shared';
+import { PublishService, sendSubscribeEmail, sendWeatherUpdateEmail } from '@weather-subscription/queue';
 
 const MAX_RETRIES = 3;
 
@@ -24,7 +17,7 @@ type Dependencies = {
   jwtService: JwtService;
   subscriptionRepository: SubscriptionRepository;
   weatherClient: WeatherClient;
-  emailClient: EmailClient;
+  publishService: PublishService;
   loggerService: LoggerService;
   config: { APP_URL: string };
 };
@@ -33,7 +26,7 @@ export class SubscriptionService {
   private jwtService: JwtService;
   private subscriptionRepository: SubscriptionRepository;
   private weatherClient: WeatherClient;
-  private emailClient: EmailClient;
+  private publishService: PublishService;
 
   private logger: Logger;
 
@@ -43,14 +36,14 @@ export class SubscriptionService {
     jwtService: jwtProvider,
     subscriptionRepository,
     weatherClient,
-    emailClient,
+    publishService,
     loggerService,
     config,
   }: Dependencies) {
     this.jwtService = jwtProvider;
     this.subscriptionRepository = subscriptionRepository;
     this.weatherClient = weatherClient;
-    this.emailClient = emailClient;
+    this.publishService = publishService;
 
     this.logger = loggerService.createLogger('SubscriptionService');
 
@@ -86,12 +79,14 @@ export class SubscriptionService {
               const weather = await dataloader.load(city);
               const unsubscribeLink = this.makeUnsubscribeLink(id);
 
-              await this.emailClient.sendWeatherUpdateEmail({
-                to: [email],
-                city,
-                unsubscribeLink,
-                ...weather,
-              });
+              await this.publishService.publish(
+                sendWeatherUpdateEmail.create({
+                  to: [email],
+                  city,
+                  unsubscribeLink,
+                  ...weather,
+                }),
+              );
             }, MAX_RETRIES),
           ),
         );
@@ -128,11 +123,13 @@ export class SubscriptionService {
     const token = await this.jwtService.sign(options);
     const confirmationLink = this.makeConfirmationLink(token);
 
-    await this.emailClient.sendSubscribeEmail({
-      to: [options.email],
-      city: options.city,
-      confirmationLink,
-    });
+    await this.publishService.publish(
+      sendSubscribeEmail.create({
+        to: [options.email],
+        city: options.city,
+        confirmationLink,
+      }),
+    );
   }
 
   public async confirm(token: string) {
