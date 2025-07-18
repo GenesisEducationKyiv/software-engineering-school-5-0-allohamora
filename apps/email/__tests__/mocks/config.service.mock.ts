@@ -19,6 +19,8 @@ vitest.mock('src/services/config.service.js', async (importOriginal) => {
         EMAIL_FROM: 'test@example.com',
         RESEND_API_KEY: 'test_api_key',
 
+        REDIS_URL: 'redis://:example@localhost:6379/1',
+
         PINO_LEVEL: 'fatal',
 
         KAFKA_CLIENT_ID: 'weather-subscription-test',

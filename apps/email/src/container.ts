@@ -5,12 +5,15 @@ import { EmailService } from './services/email.service.js';
 import { KafkaProvider, SubscribeService } from '@weather-subscription/queue';
 import { Subscriber } from './subscriber.js';
 import { App } from './app.js';
+import { CacheService } from './services/cache.service.js';
 
 export class Container {
   public configService = new ConfigService();
   public config = this.configService.getConfig();
 
   public loggerService = new LoggerService(this);
+
+  public cacheService = new CacheService(this);
 
   public templateService = new TemplateService();
   public emailService = new EmailService(this);

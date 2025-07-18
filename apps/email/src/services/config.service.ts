@@ -7,10 +7,13 @@ const configSchema = {
 
   PINO_LEVEL: z.enum(['debug', 'info', 'warn', 'error', 'silent', 'fatal']).optional().default('info'),
 
+  REDIS_URL: z.string().url(),
+
   RESEND_API_KEY: z.string(),
 
   EMAIL_NAME: z.string(),
   EMAIL_FROM: z.string().email(),
+  EMAIL_IGNORE_TTL_SECONDS: z.number(),
 
   KAFKA_CLIENT_ID: z.string(),
   KAFKA_BROKER: z.string(),

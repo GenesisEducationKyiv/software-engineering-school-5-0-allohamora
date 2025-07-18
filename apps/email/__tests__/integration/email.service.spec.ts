@@ -5,15 +5,21 @@ import { createMockServer } from '__tests__/utils/mock-server.utils.js';
 import { createMock } from '__tests__/utils/mock.utils.js';
 import { LoggerService, Exception } from '@weather-subscription/shared';
 import { TemplateService } from 'src/services/template.service.js';
+import { CacheService } from 'src/services/cache.service.js';
 
 describe('EmailService (integration)', () => {
   const EMAIL_NAME = 'Test App';
   const EMAIL_FROM = 'test@example.com';
   const RESEND_API_KEY = 'test_api_key';
 
+  const EMAIL_IGNORE_TTL_SECONDS = 300;
+  const REDIS_URL = 'redis://:example@localhost:6379/1';
+
   let errorSpy: Mock;
+  let infoSpy: Mock;
 
   let emailService: EmailService;
+  let cacheService: CacheService;
 
   const mockServer = createMockServer();
 
@@ -43,24 +49,33 @@ describe('EmailService (integration)', () => {
 
   beforeEach(() => {
     errorSpy = vitest.fn();
+    infoSpy = vitest.fn();
+
+    cacheService = new CacheService({
+      config: { REDIS_URL },
+    });
 
     emailService = new EmailService({
       templateService: new TemplateService(),
-      loggerService: createMock<LoggerService>({ createLogger: () => ({ error: errorSpy, info: vitest.fn() }) }),
-      config: { EMAIL_NAME, EMAIL_FROM, RESEND_API_KEY },
+      cacheService,
+      loggerService: createMock<LoggerService>({ createLogger: () => ({ error: errorSpy, info: infoSpy }) }),
+      config: { EMAIL_NAME, EMAIL_FROM, RESEND_API_KEY, EMAIL_IGNORE_TTL_SECONDS },
     });
   });
 
-  afterEach(() => {
+  afterEach(async () => {
     // here is the solution used https://github.com/mswjs/msw/issues/946#issuecomment-1572768939
     expect(mockServer.onUnhandledRequest).not.toHaveBeenCalled();
     mockServer.onUnhandledRequest.mockClear();
 
     mockServer.clearHandlers();
+    await cacheService.clearAll();
     vitest.clearAllMocks();
   });
 
-  afterAll(() => mockServer.stop());
+  afterAll(() => {
+    mockServer.stop();
+  });
 
   describe('sendEmail', () => {
     it('successfully sends an email with HTML and text content', async () => {
@@ -158,6 +173,194 @@ describe('EmailService (integration)', () => {
       });
 
       expect.assertions(1);
+    });
+
+    it('sends email when cache is empty', async () => {
+      mockServer.addHandlers(emailApi.ok());
+
+      await expect(
+        emailService.sendEmail({
+          to: ['recipient@example.com'],
+          template: {
+            title: 'Test Email',
+            html: '<p>This is a test email</p>',
+            text: 'This is a test email',
+          },
+        }),
+      ).resolves.not.toThrow();
+
+      expect(errorSpy).not.toHaveBeenCalled();
+      expect(infoSpy).not.toHaveBeenCalled();
+    });
+
+    it('ignores email when cache indicates it was recently sent', async () => {
+      mockServer.addHandlers(emailApi.ok());
+
+      const emailOptions = {
+        to: ['recipient@example.com'],
+        template: {
+          title: 'Test Email',
+          html: '<p>This is a test email</p>',
+          text: 'This is a test email',
+        },
+      };
+
+      await emailService.sendEmail(emailOptions);
+
+      mockServer.clearHandlers();
+
+      await expect(emailService.sendEmail(emailOptions)).resolves.not.toThrow();
+
+      expect(infoSpy).toHaveBeenCalledWith({
+        msg: 'Email was ignored',
+        to: emailOptions.to,
+        title: emailOptions.template.title,
+      });
+    });
+
+    it('differentiates between emails with same recipients but different titles', async () => {
+      mockServer.addHandlers(emailApi.ok());
+
+      const to = ['recipient@example.com'];
+
+      const email1 = {
+        to,
+        template: {
+          title: 'First Email',
+          html: '<p>First email</p>',
+          text: 'First email',
+        },
+      };
+
+      const email2 = {
+        to,
+        template: {
+          title: 'Second Email',
+          html: '<p>Second email</p>',
+          text: 'Second email',
+        },
+      };
+
+      await emailService.sendEmail(email1);
+      await emailService.sendEmail(email2);
+
+      expect(infoSpy).not.toHaveBeenCalledWith(
+        expect.objectContaining({
+          msg: 'Email was ignored',
+        }),
+      );
+    });
+
+    it('differentiates between emails with same title but different recipients', async () => {
+      mockServer.addHandlers(emailApi.ok());
+
+      const baseTemplate = {
+        title: 'Test Email',
+        html: '<p>Test email</p>',
+        text: 'Test email',
+      };
+
+      const email1 = {
+        to: ['recipient1@example.com'],
+        template: baseTemplate,
+      };
+
+      const email2 = {
+        to: ['recipient2@example.com'],
+        template: baseTemplate,
+      };
+
+      await emailService.sendEmail(email1);
+      await emailService.sendEmail(email2);
+
+      expect(infoSpy).not.toHaveBeenCalledWith(
+        expect.objectContaining({
+          msg: 'Email was ignored',
+        }),
+      );
+    });
+
+    it('correctly handles cache for multiple recipients and ignores recent sends', async () => {
+      mockServer.addHandlers(emailApi.ok());
+
+      const email = {
+        to: ['recipient1@example.com', 'recipient2@example.com'],
+        template: {
+          title: 'Test Email',
+          html: '<p>This is a test email</p>',
+          text: 'This is a test email',
+        },
+      };
+
+      await emailService.sendEmail(email);
+
+      mockServer.clearHandlers();
+
+      await expect(emailService.sendEmail(email)).resolves.not.toThrow();
+
+      expect(infoSpy).toHaveBeenCalledWith({
+        msg: 'Email was ignored',
+        to: email.to,
+        title: email.template.title,
+      });
+    });
+
+    it('differentiates between different recipient combinations', async () => {
+      mockServer.addHandlers(emailApi.ok());
+
+      const template = {
+        title: 'Test Email',
+        html: '<p>Test email</p>',
+        text: 'Test email',
+      };
+
+      const email1 = {
+        to: ['recipient1@example.com', 'recipient2@example.com'],
+        template,
+      };
+
+      const email2 = {
+        to: ['recipient3@example.com', 'recipient2@example.com'],
+        template,
+      };
+
+      await emailService.sendEmail(email1);
+      await emailService.sendEmail(email2);
+
+      expect(infoSpy).not.toHaveBeenCalledWith(
+        expect.objectContaining({
+          msg: 'Email was ignored',
+        }),
+      );
+    });
+
+    it('ignores the same recipients in different order', async () => {
+      const baseTemplate = {
+        title: 'Test Email',
+        html: '<p>Test email</p>',
+        text: 'Test email',
+      };
+
+      const email1 = {
+        to: ['recipient2@example.com', 'recipient1@example.com'],
+        template: baseTemplate,
+      };
+
+      const email2 = {
+        to: ['recipient1@example.com', 'recipient2@example.com'],
+        template: baseTemplate,
+      };
+
+      mockServer.addHandlers(emailApi.ok());
+
+      await emailService.sendEmail(email1);
+      await emailService.sendEmail(email2);
+
+      expect(infoSpy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          msg: 'Email was ignored',
+        }),
+      );
     });
   });
 
