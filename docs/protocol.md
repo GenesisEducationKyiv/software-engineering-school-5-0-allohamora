@@ -6,6 +6,7 @@ This document compares the performance of HTTP and gRPC protocols on high-traffi
 - Apple Silicon M1 Pro chip
 - 32GB RAM
 - macOS Sequoia 15.5
+- without docker
 
 ## Executive Summary
 
@@ -19,6 +20,7 @@ This document compares the performance of HTTP and gRPC protocols on high-traffi
 **Additional Observations:**
 - gRPC shows no significant performance difference between SSL (self-signed) and non-SSL implementations
 - HTTP appears to use keep-alive connections, reducing TCP handshake overhead
+- Similar performance gap between HTTP and gRPC was observed when running inside Docker containers just with lower values because of the additional overhead of Docker networking
 
 <details>
 
