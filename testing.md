@@ -1,6 +1,6 @@
 # Testing Guide
 
-This guide provides instructions for running different types of tests in the weather-subscription application.
+This guide provides instructions for running different types of tests in the weather-subscription services.
 
 ## Prerequisites
 
@@ -91,6 +91,24 @@ Architecture tests to check the structure and dependencies of the codebase.
    ```
 
    **Location:** `__tests__/arch/`
+
+## Deps Tests
+
+Dependency tests verify the overall project structure and dependencies between apps, libs, and packages at the workspace level.
+
+1. Install dependencies:
+
+   ```bash
+   npm i
+   ```
+
+2. Run deps tests:
+
+   ```bash
+   npm run test:deps
+   ```
+
+   **Location:** `.dependency-cruiser.cjs`
 
 ## Running All Tests at Once
 
