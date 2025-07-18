@@ -1,24 +1,25 @@
 import { ctx } from '__tests__/setup-integration-context.js';
-import { EmailClient, Frequency, WeatherClient } from '@weather-subscription/shared';
+import { Frequency, WeatherClient } from '@weather-subscription/shared';
+import { PublishService } from '@weather-subscription/queue';
 import { SubscriptionRepository } from 'src/repositories/subscription.repository.js';
 import { SubscriptionService } from 'src/services/subscription.service.js';
 import { afterEach, beforeAll, beforeEach, describe, expect, it, MockInstance, vitest } from 'vitest';
 
 describe('SubscriptionService (integration)', () => {
   let subscriptionService: SubscriptionService;
-  let emailClient: EmailClient;
+  let publishService: PublishService;
   let weatherClient: WeatherClient;
   let subscriptionRepository: SubscriptionRepository;
 
-  let sendWeatherUpdateEmailSpy: MockInstance;
+  let publishSpy: MockInstance;
   let getWeatherSpy: MockInstance;
 
   beforeAll(() => {
-    ({ subscriptionService, emailClient, weatherClient, subscriptionRepository } = ctx);
+    ({ subscriptionService, publishService, weatherClient, subscriptionRepository } = ctx);
   });
 
   beforeEach(async () => {
-    sendWeatherUpdateEmailSpy = vitest.spyOn(emailClient, 'sendWeatherUpdateEmail').mockImplementation(vitest.fn());
+    publishSpy = vitest.spyOn(publishService, 'publish').mockImplementation(vitest.fn());
 
     getWeatherSpy = vitest.spyOn(weatherClient, 'getWeather').mockImplementation(async ({ city }) => ({
       weather: {
@@ -30,7 +31,7 @@ describe('SubscriptionService (integration)', () => {
   });
 
   afterEach(() => {
-    sendWeatherUpdateEmailSpy.mockRestore();
+    publishSpy.mockRestore();
     getWeatherSpy.mockRestore();
   });
 
@@ -52,27 +53,33 @@ describe('SubscriptionService (integration)', () => {
       expect(getWeatherSpy).toHaveBeenCalledWith({ city: cities[0] });
       expect(getWeatherSpy).toHaveBeenCalledWith({ city: cities[1] });
 
-      expect(sendWeatherUpdateEmailSpy).toHaveBeenCalledTimes(2);
+      expect(publishSpy).toHaveBeenCalledTimes(2);
 
-      expect(sendWeatherUpdateEmailSpy).toHaveBeenCalledWith(
+      expect(publishSpy).toHaveBeenCalledWith(
         expect.objectContaining({
-          to: [`0@example.com`],
-          city: 'London',
-          description: 'Sunny',
-          temperature: 20,
-          humidity: 50,
-          unsubscribeLink: expect.stringMatching(/\/api\/unsubscribe\//),
+          topic: 'send-weather-update-email',
+          payload: expect.objectContaining({
+            to: [`0@example.com`],
+            city: 'London',
+            description: 'Sunny',
+            temperature: 20,
+            humidity: 50,
+            unsubscribeLink: expect.stringMatching(/\/api\/unsubscribe\//),
+          }),
         }),
       );
 
-      expect(sendWeatherUpdateEmailSpy).toHaveBeenCalledWith(
+      expect(publishSpy).toHaveBeenCalledWith(
         expect.objectContaining({
-          to: [`1@example.com`],
-          city: 'Paris',
-          description: 'Cloudy',
-          temperature: 20,
-          humidity: 50,
-          unsubscribeLink: expect.stringMatching(/\/api\/unsubscribe\//),
+          topic: 'send-weather-update-email',
+          payload: expect.objectContaining({
+            to: [`1@example.com`],
+            city: 'Paris',
+            description: 'Cloudy',
+            temperature: 20,
+            humidity: 50,
+            unsubscribeLink: expect.stringMatching(/\/api\/unsubscribe\//),
+          }),
         }),
       );
     });
@@ -81,7 +88,7 @@ describe('SubscriptionService (integration)', () => {
       await subscriptionService.handleSubscriptions(frequency);
 
       expect(getWeatherSpy).not.toHaveBeenCalled();
-      expect(sendWeatherUpdateEmailSpy).not.toHaveBeenCalled();
+      expect(publishSpy).not.toHaveBeenCalled();
     });
 
     it('processes subscriptions in batches', async () => {
@@ -103,19 +110,25 @@ describe('SubscriptionService (integration)', () => {
       await subscriptionService.handleSubscriptions(frequency);
 
       expect(getWeatherSpy).toHaveBeenCalledTimes(cities.length);
-      expect(sendWeatherUpdateEmailSpy).toHaveBeenCalledTimes(55);
+      expect(publishSpy).toHaveBeenCalledTimes(55);
 
       const subscription10 = testSubscriptions[10] as (typeof testSubscriptions)[number];
-      expect(sendWeatherUpdateEmailSpy).toHaveBeenCalledWith(
+      expect(publishSpy).toHaveBeenCalledWith(
         expect.objectContaining({
-          to: [subscription10.email],
+          topic: 'send-weather-update-email',
+          payload: expect.objectContaining({
+            to: [subscription10.email],
+          }),
         }),
       );
 
       const subscription50 = testSubscriptions[50] as (typeof testSubscriptions)[number];
-      expect(sendWeatherUpdateEmailSpy).toHaveBeenCalledWith(
+      expect(publishSpy).toHaveBeenCalledWith(
         expect.objectContaining({
-          to: [subscription50.email],
+          topic: 'send-weather-update-email',
+          payload: expect.objectContaining({
+            to: [subscription50.email],
+          }),
         }),
       );
     });
