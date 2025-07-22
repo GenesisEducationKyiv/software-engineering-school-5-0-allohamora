@@ -1,0 +1,25 @@
+syntax = "proto3";
+
+package email;
+
+import "google/protobuf/empty.proto";
+
+message SendSubscribeEmailRequest {
+  repeated string to = 1;
+  string city = 2;
+  string confirmation_link = 3;
+}
+
+message SendWeatherUpdateEmailRequest {
+  repeated string to = 1;
+  string city = 2;
+  string unsubscribe_link = 3;
+  double temperature = 4;
+  double humidity = 5;
+  string description = 6;
+}
+
+service EmailService {
+  rpc SendSubscribeEmail(SendSubscribeEmailRequest) returns (google.protobuf.Empty);
+  rpc SendWeatherUpdateEmail(SendWeatherUpdateEmailRequest) returns (google.protobuf.Empty);
+}

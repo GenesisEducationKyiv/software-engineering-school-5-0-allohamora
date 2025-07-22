@@ -1,0 +1,17 @@
+{
+  "name": "@weather-subscription/prettier-config",
+  "type": "commonjs",
+  "main": "./src/index.json",
+  "private": true,
+  "scripts": {
+    "format": "prettier . --check",
+    "format:fix": "prettier --write ."
+  },
+  "devDependencies": {
+    "prettier": "^3.5.3"
+  },
+  "prettier": "@weather-subscription/prettier-config",
+  "lint-staged": {
+    "*.json": "prettier --write"
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "name": "@weather-subscription/tsconfig",
+  "private": true,
+  "scripts": {
+    "format": "prettier . --check",
+    "format:fix": "prettier --write ."
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Empire-National-Inc/turborepo-providers-research.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Empire-National-Inc/turborepo-providers-research/issues"
+  },
+  "homepage": "https://github.com/Empire-National-Inc/turborepo-providers-research#readme",
+  "devDependencies": {
+    "@weather-subscription/prettier-config": "*",
+    "prettier": "^3.5.3"
+  },
+  "prettier": "@weather-subscription/prettier-config",
+  "lint-staged": {
+    "*.json": "prettier --write"
+  }
+}

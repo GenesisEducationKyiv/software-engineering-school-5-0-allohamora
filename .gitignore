@@ -134,5 +134,8 @@ dist
 .yarn/install-state.gz
 .pnp.*
 
-.temp/**/*
-!.temp/.gitkeep
+**/.temp/**/*
+!**/.temp/.gitkeep
+
+# turbo
+.turbo
