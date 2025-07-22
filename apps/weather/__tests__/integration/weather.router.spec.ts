@@ -6,7 +6,7 @@ import { WeatherServiceDefinition } from '@weather-subscription/proto/weather';
 import { MetricsService } from 'src/services/metrics.service.js';
 import { WeatherProvider } from 'src/providers/weather/weather.provider.js';
 
-describe('weather controller (integration)', () => {
+describe('weather router (integration)', () => {
   let server: Server;
   let metricsService: MetricsService;
   let weatherClient: ReturnType<typeof createClient<typeof WeatherServiceDefinition>>;

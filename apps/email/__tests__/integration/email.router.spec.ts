@@ -7,7 +7,7 @@ import { http, HttpResponse } from 'msw';
 import { createMockServer } from '__tests__/utils/mock-server.utils.js';
 import { Container } from 'src/container.js';
 
-describe('email controller (integration)', () => {
+describe('email router (integration)', () => {
   const mockServer = createMockServer();
 
   let server: Server;

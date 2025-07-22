@@ -7,6 +7,7 @@ import { EmailServiceDefinition } from '@weather-subscription/proto/email';
 import { WeatherServiceDefinition } from '@weather-subscription/proto/weather';
 import { SubscriptionRepository } from './repositories/subscription.repository.js';
 import { SubscriptionService } from './services/subscription.service.js';
+import { SubscriptionRouter } from './routers/subscription.router.js';
 import { Server } from './server.js';
 import { App } from './app.js';
 
@@ -26,6 +27,8 @@ export class Container {
   public subscriptionRepository = new SubscriptionRepository(this);
 
   public subscriptionService = new SubscriptionService(this);
+
+  public subscriptionRouter = new SubscriptionRouter(this);
 
   public server = new Server(this);
 

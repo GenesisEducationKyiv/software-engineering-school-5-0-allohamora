@@ -1,19 +1,18 @@
 import { createServer } from 'nice-grpc';
-import { EmailService } from './services/email.service.js';
-import { makeEmailRoutes } from './controllers/email.controller.js';
 import { grpcErrorMiddleware } from '@weather-subscription/shared';
+import { EmailRouter } from './routers/email.router.js';
 
 type Dependencies = {
-  emailService: EmailService;
+  emailRouter: EmailRouter;
 };
 
 export class Server {
-  private emailService: EmailService;
+  private emailRouter: EmailRouter;
 
   private server = createServer();
 
-  constructor({ emailService }: Dependencies) {
-    this.emailService = emailService;
+  constructor({ emailRouter }: Dependencies) {
+    this.emailRouter = emailRouter;
 
     this.setup();
   }
@@ -21,7 +20,7 @@ export class Server {
   private setup() {
     this.server = this.server.use(grpcErrorMiddleware);
 
-    makeEmailRoutes(this.server, this.emailService);
+    this.emailRouter.setup(this.server);
   }
 
   public async listen(port: number) {
