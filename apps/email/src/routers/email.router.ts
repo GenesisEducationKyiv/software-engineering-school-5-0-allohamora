@@ -1,29 +1,27 @@
-import { Server } from 'nice-grpc';
 import { EmailService } from 'src/services/email.service.js';
-import { EmailServiceDefinition } from '@weather-subscription/proto/email';
+import { sendSubscribeEmail, sendWeatherUpdateEmail, SubscribeService } from '@weather-subscription/queue';
 
 export type Dependencies = {
+  subscribeService: SubscribeService;
   emailService: EmailService;
 };
 
 export class EmailRouter {
+  private subscribeService: SubscribeService;
   private emailService: EmailService;
 
-  constructor({ emailService }: Dependencies) {
+  constructor({ subscribeService, emailService }: Dependencies) {
+    this.subscribeService = subscribeService;
     this.emailService = emailService;
   }
 
-  public setup(server: Server) {
-    server.add(EmailServiceDefinition, {
-      sendSubscribeEmail: async (options) => {
-        await this.emailService.sendSubscribeEmail(options);
-        return {};
-      },
+  public async setup() {
+    await this.subscribeService.subscribe(sendSubscribeEmail, async (payload) => {
+      await this.emailService.sendSubscribeEmail(payload);
+    });
 
-      sendWeatherUpdateEmail: async (options) => {
-        await this.emailService.sendWeatherUpdateEmail(options);
-        return {};
-      },
+    await this.subscribeService.subscribe(sendWeatherUpdateEmail, async (payload) => {
+      await this.emailService.sendWeatherUpdateEmail(payload);
     });
   }
 }

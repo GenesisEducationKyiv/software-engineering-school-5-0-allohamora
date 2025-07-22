@@ -1,5 +1,5 @@
 import { Resend } from 'resend';
-import { Logger, LoggerService, Exception } from '@weather-subscription/shared';
+import { Logger, LoggerService, Exception, CacheService } from '@weather-subscription/shared';
 import {
   GetSubscribeTemplateOptions,
   GetWeatherUpdateTemplateOptions,
@@ -9,8 +9,9 @@ import {
 
 type Dependencies = {
   templateService: TemplateService;
+  cacheService: CacheService;
   loggerService: LoggerService;
-  config: { RESEND_API_KEY: string; EMAIL_NAME: string; EMAIL_FROM: string };
+  config: { RESEND_API_KEY: string; EMAIL_NAME: string; EMAIL_FROM: string; EMAIL_IGNORE_TTL_SECONDS: number };
 };
 
 type EmailOptions<T> = {
@@ -26,26 +27,30 @@ type SendWeatherUpdateEmailOptions = EmailOptions<GetWeatherUpdateTemplateOption
 
 export class EmailService {
   private templateService: TemplateService;
+  private cacheService: CacheService;
 
   private emailName: string;
   private emailFrom: string;
+  private emailIgnoreTTLSeconds: number;
 
   private resend: Resend;
 
   private logger: Logger;
 
-  constructor({ templateService, loggerService, config }: Dependencies) {
+  constructor({ templateService, cacheService, loggerService, config }: Dependencies) {
     this.templateService = templateService;
+    this.cacheService = cacheService;
 
     this.emailName = config.EMAIL_NAME;
     this.emailFrom = config.EMAIL_FROM;
+    this.emailIgnoreTTLSeconds = config.EMAIL_IGNORE_TTL_SECONDS;
 
     this.resend = new Resend(config.RESEND_API_KEY);
 
     this.logger = loggerService.createLogger('EmailService');
   }
 
-  public async sendEmail({ to, template: { title, ...rest } }: SendEmailOptions) {
+  private async sendEmailToProvider({ to, template: { title, ...rest } }: SendEmailOptions) {
     const { error } = await this.resend.emails.send({
       from: `${this.emailName} <${this.emailFrom}>`,
       to,
@@ -57,6 +62,24 @@ export class EmailService {
       this.logger.error({ err: error });
       throw Exception.InternalServerError(error.message);
     }
+  }
+
+  public async sendEmail(options: SendEmailOptions) {
+    const key = `email:${options.to.toSorted().join(',')}:${options.template.title}`;
+    const shouldIgnore = await this.cacheService.get<boolean>(key);
+
+    if (shouldIgnore) {
+      this.logger.info({
+        msg: 'Email was ignored',
+        to: options.to,
+        title: options.template.title,
+      });
+      return;
+    }
+
+    await this.sendEmailToProvider(options);
+
+    this.cacheService.set(key, true, this.emailIgnoreTTLSeconds);
   }
 
   public async sendSubscribeEmail({ to, ...options }: SendSubscribeEmailOptions) {

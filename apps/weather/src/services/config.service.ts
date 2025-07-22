@@ -14,6 +14,10 @@ const configSchema = {
 
   WEATHER_TTL_SECONDS: z.number(),
 
+  PROMETHEUS_JOB_NAME: z.string(),
+  PROMETHEUS_PUSHGATEWAY_URL: z.string().url(),
+  PROMETHEUS_PUSH_DELAY: z.number(),
+
   WRITE_LOGS_TO_FILES: z.boolean().default(false),
 } as const;
 

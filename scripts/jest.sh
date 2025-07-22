@@ -1,5 +1,5 @@
 # Path to Jest config file supplied by VSCode Jest Runner
-jest_config=$3
+jest_config=$1
 
 # Remove part after last slash
 cwd=$(echo "$jest_config" | sed 's|\(.*\)/.*|\1|')

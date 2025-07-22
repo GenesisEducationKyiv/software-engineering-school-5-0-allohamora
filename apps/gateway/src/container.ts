@@ -3,7 +3,6 @@ import { LoggerService } from '@weather-subscription/shared';
 import { createChannel, createClient } from 'nice-grpc';
 import { SubscriptionServiceDefinition } from '@weather-subscription/proto/subscription';
 import { WeatherServiceDefinition } from '@weather-subscription/proto/weather';
-import { MetricsRouter } from './routers/metrics.router.js';
 import { SubscriptionRouter } from './routers/subscription.router.js';
 import { UiRouter } from './routers/ui.router.js';
 import { WeatherRouter } from './routers/weather.router.js';
@@ -22,7 +21,6 @@ export class Container {
   );
   public weatherClient = createClient(WeatherServiceDefinition, createChannel(this.config.WEATHER_SERVICE_URL));
 
-  public metricsRouter = new MetricsRouter(this);
   public subscriptionRouter = new SubscriptionRouter(this);
   public uiRouter = new UiRouter();
   public weatherRouter = new WeatherRouter(this);

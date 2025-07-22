@@ -1,4 +1,4 @@
-import { CacheService } from 'src/services/cache.service.js';
+import { CacheService } from '@weather-subscription/shared';
 import { WeatherProvider } from './weather.provider.js';
 
 type Dependencies = {

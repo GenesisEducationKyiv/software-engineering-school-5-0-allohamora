@@ -19,6 +19,7 @@
   "dependencies": {
     "@weather-subscription/proto": "*",
     "@weather-subscription/shared": "*",
+    "@weather-subscription/queue": "*",
     "close-with-grace": "^2.2.0",
     "dataloader": "^2.2.3",
     "drizzle-orm": "^0.43.1",

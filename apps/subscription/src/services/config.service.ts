@@ -14,9 +14,12 @@ const configSchema = {
   JWT_EXPIRES_IN: z.number(),
 
   WEATHER_SERVICE_URL: z.string().url().optional().default('http://localhost:4001'),
-  EMAIL_SERVICE_URL: z.string().url().optional().default('http://localhost:4002'),
 
   PINO_LEVEL: z.enum(['debug', 'info', 'warn', 'error', 'silent', 'fatal']).optional().default('info'),
+
+  KAFKA_CLIENT_ID: z.string(),
+  KAFKA_BROKER: z.string(),
+  KAFKA_GROUP_ID: z.string(),
 } as const;
 
 export type Config = ParsedSchema<typeof configSchema>;

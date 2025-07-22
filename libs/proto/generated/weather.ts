@@ -7,7 +7,6 @@
 /* eslint-disable */
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
 import type { CallContext, CallOptions } from "nice-grpc-common";
-import { Empty } from "./google/protobuf/empty.js";
 
 export const protobufPackage = "weather";
 
@@ -34,11 +33,6 @@ export interface ValidateCityRequest {
 
 export interface ValidateCityResponse {
   isValid: boolean;
-}
-
-export interface CollectMetricsResponse {
-  metrics: string;
-  contentType: string;
 }
 
 function createBaseWeather(): Weather {
@@ -367,82 +361,6 @@ export const ValidateCityResponse: MessageFns<ValidateCityResponse> = {
   },
 };
 
-function createBaseCollectMetricsResponse(): CollectMetricsResponse {
-  return { metrics: "", contentType: "" };
-}
-
-export const CollectMetricsResponse: MessageFns<CollectMetricsResponse> = {
-  encode(message: CollectMetricsResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.metrics !== "") {
-      writer.uint32(10).string(message.metrics);
-    }
-    if (message.contentType !== "") {
-      writer.uint32(18).string(message.contentType);
-    }
-    return writer;
-  },
-
-  decode(input: BinaryReader | Uint8Array, length?: number): CollectMetricsResponse {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
-    const end = length === undefined ? reader.len : reader.pos + length;
-    const message = createBaseCollectMetricsResponse();
-    while (reader.pos < end) {
-      const tag = reader.uint32();
-      switch (tag >>> 3) {
-        case 1: {
-          if (tag !== 10) {
-            break;
-          }
-
-          message.metrics = reader.string();
-          continue;
-        }
-        case 2: {
-          if (tag !== 18) {
-            break;
-          }
-
-          message.contentType = reader.string();
-          continue;
-        }
-      }
-      if ((tag & 7) === 4 || tag === 0) {
-        break;
-      }
-      reader.skip(tag & 7);
-    }
-    return message;
-  },
-
-  fromJSON(object: any): CollectMetricsResponse {
-    return {
-      metrics: isSet(object.metrics) ? globalThis.String(object.metrics) : "",
-      contentType: isSet(object.contentType) ? globalThis.String(object.contentType) : "",
-    };
-  },
-
-  toJSON(message: CollectMetricsResponse): unknown {
-    const obj: any = {};
-    if (message.metrics !== "") {
-      obj.metrics = message.metrics;
-    }
-    if (message.contentType !== "") {
-      obj.contentType = message.contentType;
-    }
-    return obj;
-  },
-
-  create(base?: DeepPartial<CollectMetricsResponse>): CollectMetricsResponse {
-    return CollectMetricsResponse.fromPartial(base ?? {});
-  },
-  fromPartial(object: DeepPartial<CollectMetricsResponse>): CollectMetricsResponse {
-    const message = createBaseCollectMetricsResponse();
-    message.metrics = object.metrics ?? "";
-    message.contentType = object.contentType ?? "";
-    return message;
-  },
-};
-
 export type WeatherServiceDefinition = typeof WeatherServiceDefinition;
 export const WeatherServiceDefinition = {
   name: "WeatherService",
@@ -464,14 +382,6 @@ export const WeatherServiceDefinition = {
       responseStream: false,
       options: {},
     },
-    collectMetrics: {
-      name: "CollectMetrics",
-      requestType: Empty,
-      requestStream: false,
-      responseType: CollectMetricsResponse,
-      responseStream: false,
-      options: {},
-    },
   },
 } as const;
 
@@ -484,7 +394,6 @@ export interface WeatherServiceImplementation<CallContextExt = {}> {
     request: ValidateCityRequest,
     context: CallContext & CallContextExt,
   ): Promise<DeepPartial<ValidateCityResponse>>;
-  collectMetrics(request: Empty, context: CallContext & CallContextExt): Promise<DeepPartial<CollectMetricsResponse>>;
 }
 
 export interface WeatherServiceClient<CallOptionsExt = {}> {
@@ -496,7 +405,6 @@ export interface WeatherServiceClient<CallOptionsExt = {}> {
     request: DeepPartial<ValidateCityRequest>,
     options?: CallOptions & CallOptionsExt,
   ): Promise<ValidateCityResponse>;
-  collectMetrics(request: DeepPartial<Empty>, options?: CallOptions & CallOptionsExt): Promise<CollectMetricsResponse>;
 }
 
 type Builtin = Date | Function | Uint8Array | string | number | boolean | undefined;
