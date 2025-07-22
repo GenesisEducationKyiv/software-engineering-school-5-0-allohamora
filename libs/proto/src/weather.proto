@@ -26,14 +26,7 @@ message ValidateCityResponse {
   bool isValid = 1;
 }
 
-
-message CollectMetricsResponse {
-  string metrics = 1;
-  string contentType = 2;
-}
-
 service WeatherService {
   rpc GetWeather(GetWeatherRequest) returns (GetWeatherResponse);
   rpc ValidateCity(ValidateCityRequest) returns (ValidateCityResponse);
-  rpc CollectMetrics(google.protobuf.Empty) returns (CollectMetricsResponse);
 }

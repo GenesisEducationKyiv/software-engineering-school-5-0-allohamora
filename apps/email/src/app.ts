@@ -1,23 +1,26 @@
 import closeWithGrace, { CloseWithGraceAsyncCallback } from 'close-with-grace';
 import { Subscriber } from './subscriber.js';
-import { Logger, LoggerService } from '@weather-subscription/shared';
+import { Logger, LoggerService, MetricsService } from '@weather-subscription/shared';
 
 const GRACEFUL_SHUTDOWN_DELAY = 15_000;
 
 type Dependencies = {
   subscriber: Subscriber;
+  metricsService: MetricsService;
   loggerService: LoggerService;
   config: { NODE_ENV: string };
 };
 
 export class App {
   private subscriber: Subscriber;
+  private metricsService: MetricsService;
 
   private nodeEnv: string;
   private logger: Logger;
 
-  constructor({ subscriber, loggerService, config }: Dependencies) {
+  constructor({ subscriber, metricsService, loggerService, config }: Dependencies) {
     this.subscriber = subscriber;
+    this.metricsService = metricsService;
 
     this.nodeEnv = config.NODE_ENV;
 
@@ -29,6 +32,8 @@ export class App {
       this.logger.info({ msg: 'Graceful shutdown has been started', ...props });
 
       await this.subscriber.disconnect();
+      this.metricsService.stopSendingMetrics();
+      await this.metricsService.sendMetrics();
 
       this.logger.info({ msg: 'Graceful shutdown has been finished', ...props });
     };
@@ -38,6 +43,7 @@ export class App {
 
   public async start() {
     await this.subscriber.connect();
+    this.metricsService.startSendingMetrics();
 
     this.setupGracefulShutdown();
 

@@ -1,12 +1,11 @@
 import { Resend } from 'resend';
-import { Logger, LoggerService, Exception } from '@weather-subscription/shared';
+import { Logger, LoggerService, Exception, CacheService } from '@weather-subscription/shared';
 import {
   GetSubscribeTemplateOptions,
   GetWeatherUpdateTemplateOptions,
   Template,
   TemplateService,
 } from './template.service.js';
-import { CacheService } from './cache.service.js';
 
 type Dependencies = {
   templateService: TemplateService;

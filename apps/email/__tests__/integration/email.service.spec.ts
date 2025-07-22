@@ -3,9 +3,8 @@ import { http, HttpResponse, JsonBodyType } from 'msw';
 import { EmailService } from 'src/services/email.service.js';
 import { createMockServer } from '__tests__/utils/mock-server.utils.js';
 import { createMock } from '__tests__/utils/mock.utils.js';
-import { LoggerService, Exception } from '@weather-subscription/shared';
+import { LoggerService, Exception, CacheService, MetricsService } from '@weather-subscription/shared';
 import { TemplateService } from 'src/services/template.service.js';
-import { CacheService } from 'src/services/cache.service.js';
 
 describe('EmailService (integration)', () => {
   const EMAIL_NAME = 'Test App';
@@ -51,14 +50,25 @@ describe('EmailService (integration)', () => {
     errorSpy = vitest.fn();
     infoSpy = vitest.fn();
 
+    const loggerService = createMock<LoggerService>({ createLogger: () => ({ error: errorSpy, info: infoSpy }) });
+    const metricsService = new MetricsService({
+      loggerService,
+      config: {
+        PROMETHEUS_JOB_NAME: 'test',
+        PROMETHEUS_PUSHGATEWAY_URL: 'http://localhost:9091',
+        PROMETHEUS_PUSH_DELAY: 100,
+      },
+    });
+
     cacheService = new CacheService({
+      metricsService,
       config: { REDIS_URL },
     });
 
     emailService = new EmailService({
       templateService: new TemplateService(),
       cacheService,
-      loggerService: createMock<LoggerService>({ createLogger: () => ({ error: errorSpy, info: infoSpy }) }),
+      loggerService,
       config: { EMAIL_NAME, EMAIL_FROM, RESEND_API_KEY, EMAIL_IGNORE_TTL_SECONDS },
     });
   });

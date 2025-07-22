@@ -18,6 +18,10 @@ const configSchema = {
   KAFKA_CLIENT_ID: z.string(),
   KAFKA_BROKER: z.string(),
   KAFKA_GROUP_ID: z.string(),
+
+  PROMETHEUS_JOB_NAME: z.string(),
+  PROMETHEUS_PUSHGATEWAY_URL: z.string().url(),
+  PROMETHEUS_PUSH_DELAY: z.number(),
 } as const;
 
 export type Config = ParsedSchema<typeof configSchema>;
