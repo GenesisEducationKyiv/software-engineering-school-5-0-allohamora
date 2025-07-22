@@ -11,7 +11,7 @@ import { createChannel, createClient } from 'nice-grpc';
 import { Frequency as GrpcFrequency, SubscriptionServiceDefinition } from '@weather-subscription/proto/subscription';
 import { Server } from 'src/server.js';
 
-describe('subscription controller (integration)', () => {
+describe('subscription router (integration)', () => {
   let weatherClient: WeatherClient;
   let subscriptionRepository: SubscriptionRepository;
   let jwtService: JwtService;

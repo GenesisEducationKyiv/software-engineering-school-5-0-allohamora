@@ -23,21 +23,11 @@ describe('Root Page E2E Tests', () => {
   const mockServer = createMockServer();
 
   const form = {
-    submitButton: () => {
-      return page.locator('button[type="submit"]');
-    },
-    submit: async () => {
-      return await form.submitButton().click();
-    },
-    email: () => {
-      return page.locator('#email');
-    },
-    city: () => {
-      return page.locator('#city');
-    },
-    frequency: () => {
-      return page.locator('#frequency');
-    },
+    submitButton: () => page.locator('button[type="submit"]'),
+    submit: async () => await form.submitButton().click(),
+    email: () => page.locator('#email'),
+    city: () => page.locator('#city'),
+    frequency: () => page.locator('#frequency'),
   };
 
   beforeAll(async () => {

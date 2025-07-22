@@ -8,6 +8,7 @@ import { ApiWeatherProvider } from './providers/weather/api-weather.provider.js'
 import { OpenMeteoProvider } from './providers/weather/open-meteo.provider.js';
 import { CachedWeatherProviderProxy } from './providers/weather/cached.provider.js';
 import { WeatherService } from './services/weather.service.js';
+import { WeatherRouter } from './routers/weather.router.js';
 import { Server } from './server.js';
 import { App } from './app.js';
 
@@ -28,6 +29,8 @@ export class Container {
   );
 
   public weatherService = new WeatherService(this);
+
+  public weatherRouter = new WeatherRouter(this);
 
   public server = new Server(this);
 

@@ -1,25 +1,24 @@
-import { EmailService } from './services/email.service.js';
-import { makeEmailSubscriptions } from './controllers/email.controller.js';
+import { EmailRouter } from './routers/email.router.js';
 import { SubscribeService } from '@weather-subscription/queue';
 
 type Dependencies = {
-  emailService: EmailService;
+  emailRouter: EmailRouter;
   subscribeService: SubscribeService;
 };
 
 export class Subscriber {
-  private emailService: EmailService;
+  private emailRouter: EmailRouter;
   private subscribeService: SubscribeService;
 
-  constructor({ emailService, subscribeService }: Dependencies) {
-    this.emailService = emailService;
+  constructor({ emailRouter, subscribeService }: Dependencies) {
+    this.emailRouter = emailRouter;
     this.subscribeService = subscribeService;
   }
 
   public async connect() {
     await this.subscribeService.connect();
 
-    await makeEmailSubscriptions(this.subscribeService, this.emailService);
+    await this.emailRouter.setup();
 
     await this.subscribeService.run();
   }

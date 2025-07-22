@@ -4,6 +4,7 @@ import { TemplateService } from './services/template.service.js';
 import { EmailService } from './services/email.service.js';
 import { KafkaProvider, SubscribeService } from '@weather-subscription/queue';
 import { Subscriber } from './subscriber.js';
+import { EmailRouter } from './routers/email.router.js';
 import { App } from './app.js';
 import { CacheService } from './services/cache.service.js';
 
@@ -21,6 +22,8 @@ export class Container {
   public queueProvider = new KafkaProvider(this);
 
   public subscribeService = new SubscribeService(this);
+
+  public emailRouter = new EmailRouter(this);
 
   public subscriber = new Subscriber(this);
 

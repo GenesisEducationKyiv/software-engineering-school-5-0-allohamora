@@ -18,7 +18,7 @@ export class CacheService {
 
   private redis: Redis;
 
-  constructor({ metricsService: metricsService, config }: Dependencies) {
+  constructor({ metricsService, config }: Dependencies) {
     this.hitCounter = metricsService.getCounter('cache_hits', 'Number of cache hits', ['key']);
 
     this.missCounter = metricsService.getCounter('cache_misses', 'Number of cache misses', ['key']);

@@ -1,5 +1,6 @@
 import { config } from 'dotenv';
 import { vitest } from 'vitest';
+import type { Config } from 'src/services/config.service.js';
 
 vitest.mock('src/services/config.service.js', async (importOriginal) => {
   const { ConfigService } = await importOriginal<typeof import('src/services/config.service.js')>();
@@ -25,7 +26,7 @@ vitest.mock('src/services/config.service.js', async (importOriginal) => {
 
         KAFKA_CLIENT_ID: 'weather-subscription-test',
         KAFKA_GROUP_ID: 'email-service-test',
-      } as import('src/services/config.service.js').Config;
+      } as Config;
     }
   }
 

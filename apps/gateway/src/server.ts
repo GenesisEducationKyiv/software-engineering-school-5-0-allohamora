@@ -2,14 +2,13 @@ import { secureHeaders } from 'hono/secure-headers';
 import { serveStatic } from '@hono/node-server/serve-static';
 import { swaggerUI } from '@hono/swagger-ui';
 import { OpenAPIHono } from '@hono/zod-openapi';
-import { makeSubscriptionRoutes } from './controllers/subscription.controller.js';
-import { makeWeatherRoutes } from './controllers/weather.controller.js';
+import { SubscriptionRouter } from './routers/subscription.router.js';
+import { WeatherRouter } from './routers/weather.router.js';
+import { MetricsRouter } from './routers/metrics.router.js';
+import { UiRouter } from './routers/ui.router.js';
 import { serve, ServerType } from '@hono/node-server';
-import { makeUiRoutes } from './controllers/ui.controller.js';
-import { Exception, SubscriptionClient, WeatherClient } from '@weather-subscription/shared';
-import { LoggerService, HttpStatus } from '@weather-subscription/shared';
+import { Exception, HttpStatus } from '@weather-subscription/shared';
 import { AddressInfo } from 'node:net';
-import { makeMetricsRoutes } from './controllers/metrics.controller.js';
 
 export type ServerInfo = {
   info: AddressInfo;
@@ -17,20 +16,25 @@ export type ServerInfo = {
 };
 
 type Dependencies = {
-  weatherClient: WeatherClient;
-  subscriptionClient: SubscriptionClient;
-  loggerService: LoggerService;
+  weatherRouter: WeatherRouter;
+  subscriptionRouter: SubscriptionRouter;
+  uiRouter: UiRouter;
+  metricsRouter: MetricsRouter;
 };
 
 export class Server {
-  private weatherClient: WeatherClient;
-  private subscriptionClient: SubscriptionClient;
+  private weatherRouter: WeatherRouter;
+  private subscriptionRouter: SubscriptionRouter;
+  private uiRouter: UiRouter;
+  private metricsRouter: MetricsRouter;
 
   private app = new OpenAPIHono();
 
-  constructor({ weatherClient, subscriptionClient }: Dependencies) {
-    this.weatherClient = weatherClient;
-    this.subscriptionClient = subscriptionClient;
+  constructor({ weatherRouter, subscriptionRouter, uiRouter, metricsRouter }: Dependencies) {
+    this.weatherRouter = weatherRouter;
+    this.subscriptionRouter = subscriptionRouter;
+    this.uiRouter = uiRouter;
+    this.metricsRouter = metricsRouter;
 
     this.setup();
   }
@@ -45,7 +49,7 @@ export class Server {
       return c.json({ message }, statusCode);
     });
 
-    makeUiRoutes(this.app);
+    this.uiRouter.setup(this.app);
 
     this.app.doc('/swagger.json', {
       openapi: '3.0.0',
@@ -57,9 +61,9 @@ export class Server {
     this.app.get('/swagger', swaggerUI({ url: '/swagger.json' }));
 
     const apiRouter = new OpenAPIHono();
-    makeWeatherRoutes(apiRouter, this.weatherClient);
-    makeSubscriptionRoutes(apiRouter, this.subscriptionClient);
-    makeMetricsRoutes(apiRouter, this.weatherClient);
+    this.weatherRouter.setup(apiRouter);
+    this.subscriptionRouter.setup(apiRouter);
+    this.metricsRouter.setup(apiRouter);
 
     this.app.route('/api', apiRouter);
 

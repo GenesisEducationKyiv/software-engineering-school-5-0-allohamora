@@ -1,10 +1,14 @@
 import { ConfigService } from 'src/services/config.service.js';
 import { LoggerService } from '@weather-subscription/shared';
-import { Server } from './server.js';
-import { App } from './app.js';
 import { createChannel, createClient } from 'nice-grpc';
 import { SubscriptionServiceDefinition } from '@weather-subscription/proto/subscription';
 import { WeatherServiceDefinition } from '@weather-subscription/proto/weather';
+import { MetricsRouter } from './routers/metrics.router.js';
+import { SubscriptionRouter } from './routers/subscription.router.js';
+import { UiRouter } from './routers/ui.router.js';
+import { WeatherRouter } from './routers/weather.router.js';
+import { Server } from './server.js';
+import { App } from './app.js';
 
 export class Container {
   public configService = new ConfigService();
@@ -17,6 +21,11 @@ export class Container {
     createChannel(this.config.SUBSCRIPTION_SERVICE_URL),
   );
   public weatherClient = createClient(WeatherServiceDefinition, createChannel(this.config.WEATHER_SERVICE_URL));
+
+  public metricsRouter = new MetricsRouter(this);
+  public subscriptionRouter = new SubscriptionRouter(this);
+  public uiRouter = new UiRouter();
+  public weatherRouter = new WeatherRouter(this);
 
   public server = new Server(this);
 
