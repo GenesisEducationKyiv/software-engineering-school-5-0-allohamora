@@ -183,3 +183,42 @@ While this application is designed to be a focused MVP, several enhancements cou
 2. **Rate Limiting**: Adding API rate limiting would protect the application from abuse and ensure fair resource allocation among users.
 
 These improvements would enhance scalability and performance but are deliberately omitted from the current implementation to maintain simplicity and focus on core functionality in this MVP.
+
+## Observability
+
+This application implements comprehensive observability through structured logging and Prometheus metrics to ensure system reliability and performance monitoring in production environments.
+
+## Alerts
+
+The monitoring strategy focuses on critical system health, performance degradation, and business logic failures to ensure reliable service delivery.
+
+**Critical System Alerts:**
+- **Service Availability**: Monitor uptime and detect service failures within 30 seconds
+- **High Error Rate**: Track error percentage across services (threshold: >5% over 5 minutes)
+
+**Performance Alerts:**
+- **Memory Usage**: Monitor process memory consumption (threshold: >512MB)
+- **CPU Usage**: Track sustained high CPU utilization (threshold: >80% over 5 minutes)
+- **Event Loop Lag**: Detect Node.js blocking operations (threshold: >100ms)
+- **HTTP Response Time**: Monitor API gateway response times (threshold: >2s p95)
+- **Database Query Time**: Track database operation performance (threshold: >500ms p95)
+- **Weather API Response Time**: Monitor external weather service latency (threshold: >3s p95)
+- **High Request Rate**: Monitor unexpected traffic spikes (threshold: >500 requests/minute per service)
+- **System Load Average**: Track server load exceeding capacity (threshold: >2.0 on 1-minute average)
+
+**Dependency Alerts:**
+- **Database Connections**: Alert on PostgreSQL connectivity issues within 1 minute
+- **Database Memory Usage**: Monitor PostgreSQL memory consumption to prevent write failures (threshold: >80% available memory)
+- **Kafka Consumer Lag**: Monitor email notification queue delays (threshold: >100 messages)
+- **Redis Issues**: Track cache connectivity and operation failures
+- **Redis Memory Usage**: Monitor Redis memory usage to prevent data eviction and write failures (threshold: >75% maxmemory)
+
+**Business Logic Alerts:**
+- **Email Service**: Monitor cache hit rates and delivery success (threshold: <30% cache hits)
+- **Weather API**: Track external API error rates and response times (threshold: >10% errors)
+- **Weather Cache Misses**: Monitor high cache miss rates indicating potential performance degradation (threshold: >70% misses over 10 minutes)
+- **Subscription Processing**: Monitor creation and confirmation delays (threshold: >30 seconds p95)
+
+**Infrastructure Alerts:**
+- **Graceful Shutdown**: Detect timeout failures during service termination
+- **Disk Usage**: Monitor filesystem capacity across nodes (threshold: >85%)
