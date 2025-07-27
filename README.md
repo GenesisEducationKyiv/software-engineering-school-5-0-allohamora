@@ -188,6 +188,42 @@ These improvements would enhance scalability and performance but are deliberatel
 
 This application implements comprehensive observability through structured logging and Prometheus metrics to ensure system reliability and performance monitoring in production environments.
 
+### Log Retention Policy
+
+The application implements a comprehensive tiered log retention strategy using Grafana Loki to optimize storage costs while meeting operational and compliance requirements. This policy ensures efficient log management across different severity levels.
+
+**Retention Periods by Log Level:**
+- **Error Logs**: 28 days (4 weeks) - Essential for incident investigation, root cause analysis, and regulatory compliance
+- **Warning Logs**: 28 days (4 weeks) - Critical for proactive monitoring, capacity planning, and preventing service degradation
+- **Info Logs**: 14 days (2 weeks) - Provides operational visibility, business metrics, and supports sprint-based development cycles
+- **Debug Logs**: 7 days (1 week) - Enables rapid troubleshooting of recent issues while minimizing storage overhead
+
+**Automated Cleanup Schedule:**
+- **Daily at 02:00 UTC**: Remove debug logs exceeding 7-day retention (immediate deletion)
+- **Weekly on Sundays at 03:00 UTC**: Purge info logs beyond 14-day threshold (immediate deletion)
+- **Bi-weekly on 1st and 15th at 04:00 UTC**: Archive warning logs to cold storage before deletion at 28-day mark
+- **Bi-weekly on 1st and 15th at 05:00 UTC**: Archive error logs to cold storage before deletion at 28-day mark
+- **Every 6 hours**: Loki Compactor processes retention policies and optimizes storage efficiency
+
+**Deletion & Archival Strategy:**
+- **Debug/Info Logs**: Direct deletion due to high volume and limited long-term business value
+- **Warning/Error Logs**: Multi-tier approach: 7-day hot storage → cold storage archival → deletion after full retention period
+- **Post-Incident Archival**: Critical error logs are immediately archived to cold storage after issue resolution
+
+**Cold Storage Benefits:**
+- **Cost Optimization**: Reduces storage expenses by 90% compared to hot storage while maintaining full accessibility
+- **Compliance Support**: Satisfies regulatory audit requirements for historical log preservation beyond active retention
+- **Forensic Analysis**: Enables comprehensive post-incident investigation and pattern recognition for recurring issues
+- **Legal Protection**: Maintains complete audit trail for potential disputes, security investigations, or compliance reviews
+- **Operational Intelligence**: Historical warning/error patterns support predictive maintenance and capacity planning
+
+**Decision Rationale:**
+- **7-day debug retention**: Sufficient for immediate troubleshooting while minimizing storage overhead
+- **14-day info retention**: Covers typical sprint cycles and operational reporting needs
+- **28-day warning/error retention**: Balances incident analysis requirements with storage costs
+- **Archival for critical logs**: Maintains compliance while reducing active storage costs
+- **Off-peak cleanup scheduling**: Minimizes impact on application performance during business hours
+
 ## Alerts
 
 The monitoring strategy focuses on critical system health, performance degradation, and business logic failures to ensure reliable service delivery.
