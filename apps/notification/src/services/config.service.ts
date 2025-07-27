@@ -6,6 +6,7 @@ const configSchema = {
   NODE_ENV: z.enum(['development', 'test', 'production']).optional().default('development'),
 
   PINO_LEVEL: z.enum(['debug', 'info', 'warn', 'error', 'silent', 'fatal']).optional().default('info'),
+  LOG_SAMPLING_RATE: z.number().optional(),
 
   NAME: z.string(),
   VERSION: z.string(),

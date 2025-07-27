@@ -19,6 +19,7 @@ const configSchema = {
   WEATHER_SERVICE_URL: z.string().url().optional().default('http://localhost:4001'),
 
   PINO_LEVEL: z.enum(['debug', 'info', 'warn', 'error', 'silent', 'fatal']).optional().default('info'),
+  LOG_SAMPLING_RATE: z.number().optional(),
 
   KAFKA_CLIENT_ID: z.string(),
   KAFKA_BROKER: z.string(),

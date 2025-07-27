@@ -14,6 +14,7 @@ const configSchema = {
   WEATHER_API_KEY: z.string(),
 
   PINO_LEVEL: z.enum(['debug', 'info', 'warn', 'error', 'silent', 'fatal']).optional().default('info'),
+  LOG_SAMPLING_RATE: z.number().optional(),
 
   WEATHER_TTL_SECONDS: z.number(),
 

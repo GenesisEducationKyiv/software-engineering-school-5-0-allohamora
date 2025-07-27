@@ -7,6 +7,7 @@ const configSchema = {
   PORT: z.number().optional().default(3000),
 
   PINO_LEVEL: z.enum(['debug', 'info', 'warn', 'error', 'silent', 'fatal']).optional().default('info'),
+  LOG_SAMPLING_RATE: z.number().optional(),
 
   NAME: z.string(),
   VERSION: z.string(),
