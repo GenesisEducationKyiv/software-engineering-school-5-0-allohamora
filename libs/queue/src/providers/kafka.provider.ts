@@ -1,6 +1,7 @@
 import { Kafka, Partitioners } from 'kafkajs';
 import { Publisher, QueueProvider, Subscriber } from './queue.provider.js';
 import { LoggerService, Logger } from '@weather-subscription/shared';
+import { Messages } from 'src/types/message.types.js';
 
 type Dependencies = {
   config: {
@@ -9,6 +10,12 @@ type Dependencies = {
     KAFKA_GROUP_ID: string;
   };
   loggerService: LoggerService;
+};
+
+type Handlers = {
+  [K in keyof Messages]?: (data: Messages[K]) => Promise<void>;
+} & {
+  [key: string]: (data: unknown) => Promise<void>;
 };
 
 export class KafkaProvider implements QueueProvider {
@@ -55,13 +62,13 @@ export class KafkaProvider implements QueueProvider {
 
   public createSubscriber() {
     const consumer = this.kafka.consumer({ groupId: this.groupId });
-    const handlers: { topic: string; handler: (data: Record<string, unknown>) => Promise<void> }[] = [];
+    const handlers: Handlers = {};
 
     return {
-      subscribe: async (topic, handler) => {
+      subscribe: async <K extends keyof Messages>(topic: K, handler: Handlers[K]) => {
         await consumer.subscribe({ topic, fromBeginning: true });
 
-        handlers.push({ topic, handler });
+        handlers[topic] = handler;
       },
       connect: async () => {
         await consumer.connect();
@@ -74,7 +81,7 @@ export class KafkaProvider implements QueueProvider {
               return;
             }
 
-            const handler = handlers.find((item) => item.topic === topic)?.handler;
+            const handler = handlers[topic];
             if (!handler) {
               this.logger.error({ err: new Error(`No handler found for topic: ${topic}`) });
               return;

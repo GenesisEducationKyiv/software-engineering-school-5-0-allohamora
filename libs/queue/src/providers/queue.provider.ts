@@ -1,11 +1,13 @@
+import { Messages } from 'src/types/message.types.js';
+
 export interface Publisher {
-  publish: (topic: string, data: Record<string, unknown>) => Promise<void>;
+  publish: <K extends keyof Messages>(topic: K, data: Messages[K]) => Promise<void>;
   connect: () => Promise<void>;
   disconnect: () => Promise<void>;
 }
 
 export interface Subscriber {
-  subscribe: (topic: string, handler: (data: Record<string, unknown>) => Promise<void>) => Promise<void>;
+  subscribe: <K extends keyof Messages>(topic: K, handler: (data: Messages[K]) => Promise<void>) => Promise<void>;
   run: () => Promise<void>;
   connect: () => Promise<void>;
   disconnect: () => Promise<void>;

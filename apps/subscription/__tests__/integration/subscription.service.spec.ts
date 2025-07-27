@@ -1,13 +1,13 @@
 import { ctx } from '__tests__/setup-integration-context.js';
 import { Frequency, WeatherClient } from '@weather-subscription/shared';
-import { PublishService } from '@weather-subscription/queue';
+import { Publisher } from '@weather-subscription/queue';
 import { SubscriptionRepository } from 'src/repositories/subscription.repository.js';
 import { SubscriptionService } from 'src/services/subscription.service.js';
 import { afterEach, beforeAll, beforeEach, describe, expect, it, MockInstance, vitest } from 'vitest';
 
 describe('SubscriptionService (integration)', () => {
   let subscriptionService: SubscriptionService;
-  let publishService: PublishService;
+  let publisher: Publisher;
   let weatherClient: WeatherClient;
   let subscriptionRepository: SubscriptionRepository;
 
@@ -15,11 +15,11 @@ describe('SubscriptionService (integration)', () => {
   let getWeatherSpy: MockInstance;
 
   beforeAll(() => {
-    ({ subscriptionService, publishService, weatherClient, subscriptionRepository } = ctx);
+    ({ subscriptionService, publisher, weatherClient, subscriptionRepository } = ctx);
   });
 
   beforeEach(async () => {
-    publishSpy = vitest.spyOn(publishService, 'publish').mockImplementation(vitest.fn());
+    publishSpy = vitest.spyOn(publisher, 'publish').mockImplementation(vitest.fn());
 
     getWeatherSpy = vitest.spyOn(weatherClient, 'getWeather').mockImplementation(async ({ city }) => ({
       weather: {
@@ -56,30 +56,26 @@ describe('SubscriptionService (integration)', () => {
       expect(publishSpy).toHaveBeenCalledTimes(2);
 
       expect(publishSpy).toHaveBeenCalledWith(
+        'send-weather-update-email',
         expect.objectContaining({
-          topic: 'send-weather-update-email',
-          payload: expect.objectContaining({
-            to: [`0@example.com`],
-            city: 'London',
-            description: 'Sunny',
-            temperature: 20,
-            humidity: 50,
-            unsubscribeLink: expect.stringMatching(/\/api\/unsubscribe\//),
-          }),
+          to: [`0@example.com`],
+          city: 'London',
+          description: 'Sunny',
+          temperature: 20,
+          humidity: 50,
+          unsubscribeLink: expect.stringMatching(/\/api\/unsubscribe\//),
         }),
       );
 
       expect(publishSpy).toHaveBeenCalledWith(
+        'send-weather-update-email',
         expect.objectContaining({
-          topic: 'send-weather-update-email',
-          payload: expect.objectContaining({
-            to: [`1@example.com`],
-            city: 'Paris',
-            description: 'Cloudy',
-            temperature: 20,
-            humidity: 50,
-            unsubscribeLink: expect.stringMatching(/\/api\/unsubscribe\//),
-          }),
+          to: [`1@example.com`],
+          city: 'Paris',
+          description: 'Cloudy',
+          temperature: 20,
+          humidity: 50,
+          unsubscribeLink: expect.stringMatching(/\/api\/unsubscribe\//),
         }),
       );
     });
@@ -114,21 +110,17 @@ describe('SubscriptionService (integration)', () => {
 
       const subscription10 = testSubscriptions[10] as (typeof testSubscriptions)[number];
       expect(publishSpy).toHaveBeenCalledWith(
+        'send-weather-update-email',
         expect.objectContaining({
-          topic: 'send-weather-update-email',
-          payload: expect.objectContaining({
-            to: [subscription10.email],
-          }),
+          to: [subscription10.email],
         }),
       );
 
       const subscription50 = testSubscriptions[50] as (typeof testSubscriptions)[number];
       expect(publishSpy).toHaveBeenCalledWith(
+        'send-weather-update-email',
         expect.objectContaining({
-          topic: 'send-weather-update-email',
-          payload: expect.objectContaining({
-            to: [subscription50.email],
-          }),
+          to: [subscription50.email],
         }),
       );
     });

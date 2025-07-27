@@ -6,7 +6,7 @@ import { SubscriptionRepository } from 'src/repositories/subscription.repository
 import { JwtService } from 'src/services/jwt.service.js';
 import { DbService } from 'src/services/db.service.js';
 import { Frequency, WeatherClient } from '@weather-subscription/shared';
-import { PublishService } from '@weather-subscription/queue';
+import { Publisher } from '@weather-subscription/queue';
 import { createChannel, createClient } from 'nice-grpc';
 import { Frequency as GrpcFrequency, SubscriptionServiceDefinition } from '@weather-subscription/proto/subscription';
 import { Server } from 'src/server.js';
@@ -15,7 +15,7 @@ describe('subscription router (integration)', () => {
   let weatherClient: WeatherClient;
   let subscriptionRepository: SubscriptionRepository;
   let jwtService: JwtService;
-  let publishService: PublishService;
+  let publisher: Publisher;
   let server: Server;
   let dbService: DbService;
   let subscriptionClient: ReturnType<typeof createClient<typeof SubscriptionServiceDefinition>>;
@@ -24,7 +24,7 @@ describe('subscription router (integration)', () => {
   let publishSpy: MockInstance;
 
   beforeAll(async () => {
-    ({ weatherClient, subscriptionRepository, jwtService, publishService, server, dbService } = ctx);
+    ({ weatherClient, subscriptionRepository, jwtService, publisher, server, dbService } = ctx);
 
     const port = await server.listen(0);
 
@@ -37,7 +37,7 @@ describe('subscription router (integration)', () => {
 
   beforeEach(async () => {
     validateCitySpy = vitest.spyOn(weatherClient, 'validateCity').mockImplementation(async () => ({ isValid: true }));
-    publishSpy = vitest.spyOn(publishService, 'publish').mockImplementation(vitest.fn());
+    publishSpy = vitest.spyOn(publisher, 'publish').mockImplementation(vitest.fn());
   });
 
   afterEach(() => {
@@ -57,12 +57,10 @@ describe('subscription router (integration)', () => {
 
       expect(validateCitySpy).toHaveBeenCalledWith({ city: 'London' });
       expect(publishSpy).toHaveBeenCalledWith(
+        'send-subscribe-email',
         expect.objectContaining({
-          topic: 'send-subscribe-email',
-          payload: expect.objectContaining({
-            to: ['test@example.com'],
-            city: 'London',
-          }),
+          to: ['test@example.com'],
+          city: 'London',
         }),
       );
     });
@@ -78,12 +76,10 @@ describe('subscription router (integration)', () => {
 
       expect(validateCitySpy).toHaveBeenCalledWith({ city: 'Paris' });
       expect(publishSpy).toHaveBeenCalledWith(
+        'send-subscribe-email',
         expect.objectContaining({
-          topic: 'send-subscribe-email',
-          payload: expect.objectContaining({
-            to: ['test@example.com'],
-            city: 'Paris',
-          }),
+          to: ['test@example.com'],
+          city: 'Paris',
         }),
       );
     });

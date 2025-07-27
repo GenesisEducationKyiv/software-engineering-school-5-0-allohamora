@@ -2,14 +2,14 @@ import closeWithGrace, { CloseWithGraceAsyncCallback } from 'close-with-grace';
 import { Server } from './server.js';
 import { Logger, LoggerService } from '@weather-subscription/shared';
 import { DbService } from './services/db.service.js';
-import { PublishService } from '@weather-subscription/queue';
+import { Publisher } from '@weather-subscription/queue';
 
 const GRACEFUL_SHUTDOWN_DELAY = 15_000;
 
 type Dependencies = {
   server: Server;
   dbService: DbService;
-  publishService: PublishService;
+  publisher: Publisher;
   loggerService: LoggerService;
   config: { PORT: number; NODE_ENV: string };
 };
@@ -18,17 +18,17 @@ export class App {
   private server: Server;
 
   private dbService: DbService;
-  private publishService: PublishService;
+  private publisher: Publisher;
 
   private port: number;
   private nodeEnv: string;
   private logger: Logger;
 
-  constructor({ server, dbService, publishService, loggerService, config }: Dependencies) {
+  constructor({ server, dbService, publisher, loggerService, config }: Dependencies) {
     this.server = server;
 
     this.dbService = dbService;
-    this.publishService = publishService;
+    this.publisher = publisher;
 
     this.port = config.PORT;
     this.nodeEnv = config.NODE_ENV;
@@ -42,7 +42,7 @@ export class App {
 
       await this.server.close();
       await this.dbService.disconnectFromDb();
-      await this.publishService.disconnect();
+      await this.publisher.disconnect();
 
       this.logger.info({ msg: 'Graceful shutdown has been finished', ...props });
     };
@@ -53,7 +53,7 @@ export class App {
   public async start() {
     await this.dbService.runMigrations();
 
-    await this.publishService.connect();
+    await this.publisher.connect();
     await this.server.listen(this.port);
 
     this.setupGracefulShutdown();
