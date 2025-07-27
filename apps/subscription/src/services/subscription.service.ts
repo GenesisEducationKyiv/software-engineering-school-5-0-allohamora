@@ -32,15 +32,8 @@ export class SubscriptionService {
 
   private appUrl: string;
 
-  constructor({
-    jwtService: jwtProvider,
-    subscriptionRepository,
-    weatherClient,
-    publisher,
-    loggerService,
-    config,
-  }: Dependencies) {
-    this.jwtService = jwtProvider;
+  constructor({ jwtService, subscriptionRepository, weatherClient, publisher, loggerService, config }: Dependencies) {
+    this.jwtService = jwtService;
     this.subscriptionRepository = subscriptionRepository;
     this.weatherClient = weatherClient;
     this.publisher = publisher;
