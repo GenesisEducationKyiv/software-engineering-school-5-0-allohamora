@@ -1,5 +1,5 @@
 import { ConfigService } from 'src/services/config.service.js';
-import { LoggerService } from '@weather-subscription/shared';
+import { LoggerService, MetricsService } from '@weather-subscription/shared';
 import { CronService } from './services/cron.service.js';
 import { App } from './app.js';
 import { createChannel, createClient } from 'nice-grpc';
@@ -17,6 +17,8 @@ export class Container {
   );
 
   public cronService = new CronService(this);
+
+  public metricsService = new MetricsService(this);
 
   public app = new App(this);
 }

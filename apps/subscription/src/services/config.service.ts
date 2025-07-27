@@ -26,6 +26,10 @@ const configSchema = {
   KAFKA_GROUP_ID: z.string(),
 
   LOKI_HOST: z.string().url(),
+
+  PROMETHEUS_JOB_NAME: z.string(),
+  PROMETHEUS_PUSHGATEWAY_URL: z.string().url(),
+  PROMETHEUS_PUSH_DELAY: z.number(),
 } as const;
 
 export type Config = ParsedSchema<typeof configSchema>;

@@ -1,21 +1,24 @@
 import { createServer } from 'nice-grpc';
 import { WeatherRouter } from './routers/weather.router.js';
-import { grpcErrorMiddleware, Logger, LoggerService } from '@weather-subscription/shared';
+import { GrpcService, Logger, LoggerService } from '@weather-subscription/shared';
 
 type Dependencies = {
   weatherRouter: WeatherRouter;
+  grpcService: GrpcService;
   loggerService: LoggerService;
 };
 
 export class Server {
   private weatherRouter: WeatherRouter;
+  private grpcService: GrpcService;
 
   private server = createServer();
 
   private logger: Logger;
 
-  constructor({ weatherRouter, loggerService }: Dependencies) {
+  constructor({ weatherRouter, grpcService, loggerService }: Dependencies) {
     this.weatherRouter = weatherRouter;
+    this.grpcService = grpcService;
 
     this.logger = loggerService.createLogger('Server');
 
@@ -23,7 +26,7 @@ export class Server {
   }
 
   private setup() {
-    this.server = this.server.use(grpcErrorMiddleware);
+    this.server = this.server.use(this.grpcService.createErrorMiddleware());
 
     this.weatherRouter.setup(this.server);
   }

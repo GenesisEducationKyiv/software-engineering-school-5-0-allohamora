@@ -1,7 +1,15 @@
 import { Logger, LoggerService } from './logger.service.js';
-import { Registry, collectDefaultMetrics, Counter, Pushgateway } from 'prom-client';
+import {
+  Registry,
+  collectDefaultMetrics,
+  Counter,
+  Pushgateway,
+  Histogram,
+  CounterConfiguration,
+  HistogramConfiguration,
+} from 'prom-client';
 
-export { Counter };
+export { Counter, Histogram };
 
 type Dependencies = {
   loggerService: LoggerService;
@@ -71,12 +79,17 @@ export class MetricsService {
     };
   }
 
-  public getCounter(name: string, description: string, labelNames: string[] = []) {
+  public createCounter<T extends string>(config: CounterConfiguration<T>) {
     return new Counter({
-      name,
-      help: description,
+      ...config,
       registers: [this.register],
-      labelNames,
+    });
+  }
+
+  public createHistogram<T extends string>(config: HistogramConfiguration<T>) {
+    return new Histogram({
+      ...config,
+      registers: [this.register],
     });
   }
 

@@ -6,7 +6,7 @@ import { SubscriptionRouter } from './routers/subscription.router.js';
 import { WeatherRouter } from './routers/weather.router.js';
 import { UiRouter } from './routers/ui.router.js';
 import { serve, ServerType } from '@hono/node-server';
-import { Exception, HttpStatus } from '@weather-subscription/shared';
+import { Counter, Exception, Histogram, HttpStatus, MetricsService } from '@weather-subscription/shared';
 import { AddressInfo } from 'node:net';
 
 export type ServerInfo = {
@@ -15,19 +15,43 @@ export type ServerInfo = {
 };
 
 type Dependencies = {
+  metricsService: MetricsService;
   weatherRouter: WeatherRouter;
   subscriptionRouter: SubscriptionRouter;
   uiRouter: UiRouter;
 };
 
 export class Server {
+  private requestCounter: Counter;
+  private errorCounter: Counter;
+  private responseTimeHistogram: Histogram;
+
   private weatherRouter: WeatherRouter;
   private subscriptionRouter: SubscriptionRouter;
   private uiRouter: UiRouter;
 
   private app = new OpenAPIHono();
 
-  constructor({ weatherRouter, subscriptionRouter, uiRouter }: Dependencies) {
+  constructor({ metricsService, weatherRouter, subscriptionRouter, uiRouter }: Dependencies) {
+    this.requestCounter = metricsService.createCounter({
+      name: 'gateway_requests_total',
+      help: 'Total number of requests to the gateway',
+      labelNames: ['method', 'path'],
+    });
+
+    this.errorCounter = metricsService.createCounter({
+      name: 'gateway_errors_total',
+      help: 'Total number of errors in the gateway',
+      labelNames: ['method', 'path', 'message', 'statusCode'],
+    });
+
+    this.responseTimeHistogram = metricsService.createHistogram({
+      name: 'gateway_response_time_seconds',
+      help: 'Response time of the gateway in seconds',
+      labelNames: ['method', 'path'],
+      buckets: [0.1, 0.5, 1, 2, 5, 10],
+    });
+
     this.weatherRouter = weatherRouter;
     this.subscriptionRouter = subscriptionRouter;
     this.uiRouter = uiRouter;
@@ -38,9 +62,20 @@ export class Server {
   private setup() {
     this.app.use(secureHeaders());
 
+    this.app.use(async (c, next) => {
+      this.requestCounter.inc({ method: c.req.method, path: c.req.path });
+      const endTimer = this.responseTimeHistogram.startTimer({ method: c.req.method, path: c.req.path });
+
+      await next();
+
+      endTimer();
+    });
+
     this.app.onError((err, c) => {
       const message = err instanceof Exception ? err.message : 'internal server error';
       const statusCode = err instanceof Exception ? err.getHttpCode() : HttpStatus.INTERNAL_SERVER_ERROR;
+
+      this.errorCounter.inc({ method: c.req.method, path: c.req.path, message, statusCode });
 
       return c.json({ message }, statusCode);
     });

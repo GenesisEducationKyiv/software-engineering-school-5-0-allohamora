@@ -98,7 +98,10 @@ describe('MetricsService (integration)', () => {
     });
 
     it('includes custom metrics when created', async () => {
-      const counter = metricsService.getCounter('test_counter', 'Test counter metric');
+      const counter = metricsService.createCounter({
+        name: 'test_counter',
+        help: 'Test counter metric',
+      });
       counter.inc();
 
       const data = await getMetrics();
@@ -108,10 +111,11 @@ describe('MetricsService (integration)', () => {
     });
 
     it('includes counter metrics with labels', async () => {
-      const counter = metricsService.getCounter('test_counter_with_labels', 'Test counter with labels', [
-        'method',
-        'status',
-      ]);
+      const counter = metricsService.createCounter({
+        name: 'test_counter_with_labels',
+        help: 'Test counter with labels',
+        labelNames: ['method', 'status'],
+      });
       counter.inc({ method: 'GET', status: '200' });
 
       const data = await getMetrics();
@@ -128,7 +132,10 @@ describe('MetricsService (integration)', () => {
     });
 
     it('clears metrics successfully', async () => {
-      const counter = metricsService.getCounter('test_counter', 'Test counter metric');
+      const counter = metricsService.createCounter({
+        name: 'test_counter',
+        help: 'Test counter metric',
+      });
       counter.inc();
 
       const before = await getMetrics();
@@ -148,7 +155,10 @@ describe('MetricsService (integration)', () => {
           }),
         );
 
-        const counter = metricsService.getCounter('test_push_counter', 'Test counter for push');
+        const counter = metricsService.createCounter({
+          name: 'test_push_counter',
+          help: 'Test counter for push',
+        });
         counter.inc();
 
         metricsService.startSendingMetrics();
@@ -167,7 +177,10 @@ describe('MetricsService (integration)', () => {
           }),
         );
 
-        const counter = metricsService.getCounter('test_push_counter', 'Test counter for push');
+        const counter = metricsService.createCounter({
+          name: 'test_push_counter',
+          help: 'Test counter for push',
+        });
         counter.inc();
 
         metricsService.startSendingMetrics();
@@ -186,7 +199,10 @@ describe('MetricsService (integration)', () => {
           }),
         );
 
-        const counter = metricsService.getCounter('test_push_counter', 'Test counter for push');
+        const counter = metricsService.createCounter({
+          name: 'test_push_counter',
+          help: 'Test counter for push',
+        });
         counter.inc();
 
         metricsService.startSendingMetrics();
@@ -220,7 +236,10 @@ describe('MetricsService (integration)', () => {
           }),
         );
 
-        const counter = metricsService.getCounter('test_push_counter', 'Test counter for push');
+        const counter = metricsService.createCounter({
+          name: 'test_push_counter',
+          help: 'Test counter for push',
+        });
         counter.inc();
 
         await metricsService.sendMetrics();

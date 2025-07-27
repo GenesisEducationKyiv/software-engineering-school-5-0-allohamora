@@ -1,5 +1,5 @@
 import { ConfigService } from 'src/services/config.service.js';
-import { LoggerService } from '@weather-subscription/shared';
+import { LoggerService, MetricsService } from '@weather-subscription/shared';
 import { createChannel, createClient } from 'nice-grpc';
 import { SubscriptionServiceDefinition } from '@weather-subscription/proto/subscription';
 import { WeatherServiceDefinition } from '@weather-subscription/proto/weather';
@@ -24,6 +24,8 @@ export class Container {
   public subscriptionRouter = new SubscriptionRouter(this);
   public uiRouter = new UiRouter(this);
   public weatherRouter = new WeatherRouter(this);
+
+  public metricsService = new MetricsService(this);
 
   public server = new Server(this);
 

@@ -16,6 +16,10 @@ const configSchema = {
   SUBSCRIPTION_SERVICE_URL: z.string().url().optional().default('http://localhost:4003'),
 
   LOKI_HOST: z.string().url(),
+
+  PROMETHEUS_JOB_NAME: z.string(),
+  PROMETHEUS_PUSHGATEWAY_URL: z.string().url(),
+  PROMETHEUS_PUSH_DELAY: z.number(),
 } as const;
 
 export type Config = ParsedSchema<typeof configSchema>;
