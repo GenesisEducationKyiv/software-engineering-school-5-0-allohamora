@@ -3,7 +3,7 @@ import { MetricsService } from 'src/services/metrics.service.js';
 import { createMock } from '__tests__/utils/mock.utils.js';
 import { createMockServer } from '__tests__/utils/mock-server.utils.js';
 import { LoggerService } from 'src/index.js';
-import { http, HttpResponse } from 'msw';
+import { DefaultBodyType, http, HttpResponse } from 'msw';
 import { scheduler } from 'node:timers/promises';
 
 const SEND_DELAY = 10;
@@ -16,7 +16,7 @@ describe('MetricsService (integration)', () => {
   const mockServer = createMockServer();
 
   const pushgatewayApi = {
-    mock: (fn: (requestBody: string) => HttpResponse<any>) => {
+    mock: (fn: (requestBody: string) => HttpResponse<DefaultBodyType>) => {
       return http.put('http://localhost:9091/metrics/job/test', async ({ request }) => {
         const requestBody = await request.text();
         return fn(requestBody);
