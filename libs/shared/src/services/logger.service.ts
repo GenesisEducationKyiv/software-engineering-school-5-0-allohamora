@@ -1,7 +1,7 @@
 import { Logger as Pino, pino } from 'pino';
 
 type Dependencies = {
-  config: { PINO_LEVEL: string };
+  config: { NAME: string; VERSION: string; PINO_LEVEL: string; LOKI_HOST: string };
 };
 
 type MessageHandler = (data: { msg: string } & Record<string, unknown>) => void;
@@ -20,7 +20,13 @@ export class LoggerService {
     this.pino = pino({
       level: config.PINO_LEVEL,
       transport: {
-        targets: [{ target: 'pino-pretty' }],
+        targets: [
+          { target: 'pino-pretty' },
+          {
+            target: 'pino-loki',
+            options: { host: config.LOKI_HOST, labels: { name: config.NAME, version: config.VERSION } },
+          },
+        ],
       },
     });
   }

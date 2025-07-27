@@ -7,7 +7,12 @@ const configSchema = {
 
   PINO_LEVEL: z.enum(['debug', 'info', 'warn', 'error', 'silent', 'fatal']).optional().default('info'),
 
+  NAME: z.string(),
+  VERSION: z.string(),
+
   SUBSCRIPTION_SERVICE_URL: z.string().url().optional().default('http://localhost:4003'),
+
+  LOKI_HOST: z.string().url(),
 } as const;
 
 export type Config = ParsedSchema<typeof configSchema>;

@@ -7,6 +7,9 @@ const configSchema = {
   PORT: z.number().optional().default(4003),
   APP_URL: z.string().url().optional().default('http://localhost:3000'),
 
+  NAME: z.string(),
+  VERSION: z.string(),
+
   POSTGRES_URL: z.string().url(),
   DRIZZLE_DEBUG: z.boolean().optional().default(true),
 
@@ -20,6 +23,8 @@ const configSchema = {
   KAFKA_CLIENT_ID: z.string(),
   KAFKA_BROKER: z.string(),
   KAFKA_GROUP_ID: z.string(),
+
+  LOKI_HOST: z.string().url(),
 } as const;
 
 export type Config = ParsedSchema<typeof configSchema>;

@@ -7,6 +7,9 @@ const configSchema = {
 
   PINO_LEVEL: z.enum(['debug', 'info', 'warn', 'error', 'silent', 'fatal']).optional().default('info'),
 
+  NAME: z.string(),
+  VERSION: z.string(),
+
   REDIS_URL: z.string().url(),
 
   RESEND_API_KEY: z.string(),
@@ -22,6 +25,8 @@ const configSchema = {
   PROMETHEUS_JOB_NAME: z.string(),
   PROMETHEUS_PUSHGATEWAY_URL: z.string().url(),
   PROMETHEUS_PUSH_DELAY: z.number(),
+
+  LOKI_HOST: z.string().url(),
 } as const;
 
 export type Config = ParsedSchema<typeof configSchema>;
