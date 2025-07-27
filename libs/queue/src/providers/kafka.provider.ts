@@ -87,8 +87,13 @@ export class KafkaProvider implements QueueProvider {
               return;
             }
 
-            const data = JSON.parse(message.value.toString());
-            await handler(data);
+            try {
+              const data = JSON.parse(message.value.toString());
+              await handler(data);
+            } catch (err) {
+              this.logger.error({ err });
+              throw err;
+            }
           },
         });
       },
