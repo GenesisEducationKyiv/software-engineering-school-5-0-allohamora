@@ -1,9 +1,10 @@
 import { createServer } from 'nice-grpc';
 import { WeatherRouter } from './routers/weather.router.js';
-import { grpcErrorMiddleware } from '@weather-subscription/shared';
+import { grpcErrorMiddleware, Logger, LoggerService } from '@weather-subscription/shared';
 
 type Dependencies = {
   weatherRouter: WeatherRouter;
+  loggerService: LoggerService;
 };
 
 export class Server {
@@ -11,8 +12,12 @@ export class Server {
 
   private server = createServer();
 
-  constructor({ weatherRouter }: Dependencies) {
+  private logger: Logger;
+
+  constructor({ weatherRouter, loggerService }: Dependencies) {
     this.weatherRouter = weatherRouter;
+
+    this.logger = loggerService.createLogger('Server');
 
     this.setup();
   }
@@ -23,8 +28,12 @@ export class Server {
     this.weatherRouter.setup(this.server);
   }
 
-  public async listen(port: number) {
-    return await this.server.listen(`0.0.0.0:${port}`);
+  public async listen(desiredPort: number) {
+    const port = await this.server.listen(`0.0.0.0:${desiredPort}`);
+
+    this.logger.info({ msg: 'Server is listening', port });
+
+    return port;
   }
 
   public async close() {

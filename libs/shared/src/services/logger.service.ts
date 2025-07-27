@@ -4,8 +4,12 @@ type Dependencies = {
   config: { PINO_LEVEL: string };
 };
 
+type MessageHandler = (data: { msg: string } & Record<string, unknown>) => void;
+
 export type Logger = {
-  info: (data: { msg: string } & Record<string, unknown>) => void;
+  debug: MessageHandler;
+  info: MessageHandler;
+  warn: MessageHandler;
   error: (data: { err: Error | unknown } & Record<string, unknown>) => void;
 };
 

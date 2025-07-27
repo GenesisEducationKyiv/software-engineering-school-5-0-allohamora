@@ -49,6 +49,8 @@ export class MetricsService {
     this.pushInterval = setInterval(() => {
       void this.sendMetrics();
     }, this.pushDelay);
+
+    this.logger.info({ msg: 'Metrics push interval has been started', pushDelay: this.pushDelay });
   }
 
   public stopSendingMetrics() {
@@ -58,6 +60,8 @@ export class MetricsService {
 
     clearInterval(this.pushInterval);
     this.pushInterval = null;
+
+    this.logger.info({ msg: 'Metrics push interval has been stopped' });
   }
 
   public async collectMetrics() {
@@ -77,6 +81,8 @@ export class MetricsService {
   }
 
   public clearMetrics() {
+    this.logger.warn({ msg: 'Clearing all metrics data' });
+
     this.register.clear();
   }
 }

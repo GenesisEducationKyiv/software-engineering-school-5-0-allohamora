@@ -50,7 +50,15 @@ describe('EmailService (integration)', () => {
     errorSpy = vitest.fn();
     infoSpy = vitest.fn();
 
-    const loggerService = createMock<LoggerService>({ createLogger: () => ({ error: errorSpy, info: infoSpy }) });
+    const loggerService = createMock<LoggerService>({
+      createLogger: () => ({
+        debug: vitest.fn(),
+        info: infoSpy,
+        warn: vitest.fn(),
+        error: errorSpy,
+      }),
+    });
+
     const metricsService = new MetricsService({
       loggerService,
       config: {
@@ -62,6 +70,7 @@ describe('EmailService (integration)', () => {
 
     cacheService = new CacheService({
       metricsService,
+      loggerService,
       config: { REDIS_URL },
     });
 

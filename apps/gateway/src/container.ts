@@ -22,7 +22,7 @@ export class Container {
   public weatherClient = createClient(WeatherServiceDefinition, createChannel(this.config.WEATHER_SERVICE_URL));
 
   public subscriptionRouter = new SubscriptionRouter(this);
-  public uiRouter = new UiRouter();
+  public uiRouter = new UiRouter(this);
   public weatherRouter = new WeatherRouter(this);
 
   public server = new Server(this);

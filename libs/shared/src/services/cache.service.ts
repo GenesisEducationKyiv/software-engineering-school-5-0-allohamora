@@ -1,8 +1,10 @@
 import { Redis } from 'ioredis';
 import { Counter, MetricsService } from './metrics.service.js';
+import { Logger, LoggerService } from './logger.service.js';
 
 type Dependencies = {
   metricsService: MetricsService;
+  loggerService: LoggerService;
   config: { REDIS_URL: string };
 };
 
@@ -18,12 +20,16 @@ export class CacheService {
 
   private redis: Redis;
 
-  constructor({ metricsService, config }: Dependencies) {
+  private logger: Logger;
+
+  constructor({ metricsService, config, loggerService }: Dependencies) {
     this.hitCounter = metricsService.getCounter('cache_hits', 'Number of cache hits', ['key']);
 
     this.missCounter = metricsService.getCounter('cache_misses', 'Number of cache misses', ['key']);
 
     this.redis = new Redis(config.REDIS_URL);
+
+    this.logger = loggerService.createLogger('CacheService');
   }
 
   public async get<T>(key: string): Promise<T | null> {
@@ -55,6 +61,8 @@ export class CacheService {
   }
 
   public async clearAll() {
+    this.logger.warn({ msg: 'Clearing all cache data' });
+
     await this.redis.flushdb();
   }
 }

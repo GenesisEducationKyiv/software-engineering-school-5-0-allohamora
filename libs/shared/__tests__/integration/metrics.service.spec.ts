@@ -39,7 +39,14 @@ describe('MetricsService (integration)', () => {
     errorSpy = vitest.fn();
 
     metricsService = new MetricsService({
-      loggerService: createMock<LoggerService>({ createLogger: () => ({ info: vitest.fn(), error: errorSpy }) }),
+      loggerService: createMock<LoggerService>({
+        createLogger: () => ({
+          debug: vitest.fn(),
+          info: vitest.fn(),
+          warn: vitest.fn(),
+          error: errorSpy,
+        }),
+      }),
       config: {
         PROMETHEUS_JOB_NAME: 'test',
         PROMETHEUS_PUSHGATEWAY_URL: 'http://localhost:9091',
