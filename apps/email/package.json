@@ -16,21 +16,20 @@
     "test:arch": "vitest --config vitest.arch.config.ts"
   },
   "dependencies": {
-    "@weather-subscription/proto": "*",
+    "@weather-subscription/queue": "*",
     "@weather-subscription/shared": "*",
     "close-with-grace": "^2.2.0",
     "hono": "^4.7.9",
-    "nice-grpc": "^2.1.12",
     "resend": "^4.5.1",
     "znv": "^0.5.0",
     "zod": "^3.24.4"
   },
   "devDependencies": {
-    "@weather-subscription/tsconfig": "*",
     "@weather-subscription/eslint-config": "*",
     "@weather-subscription/prettier-config": "*",
-    "eslint": "^9.26.0",
+    "@weather-subscription/tsconfig": "*",
     "dotenv": "^16.5.0",
+    "eslint": "^9.26.0",
     "msw": "^2.10.3",
     "prettier": "^3.5.3",
     "tsarch": "^5.4.1",

@@ -5,7 +5,8 @@ import { createSigner } from 'fast-jwt';
 import { SubscriptionRepository } from 'src/repositories/subscription.repository.js';
 import { JwtService } from 'src/services/jwt.service.js';
 import { DbService } from 'src/services/db.service.js';
-import { EmailClient, Frequency, WeatherClient } from '@weather-subscription/shared';
+import { Frequency, WeatherClient } from '@weather-subscription/shared';
+import { Publisher } from '@weather-subscription/queue';
 import { createChannel, createClient } from 'nice-grpc';
 import { Frequency as GrpcFrequency, SubscriptionServiceDefinition } from '@weather-subscription/proto/subscription';
 import { Server } from 'src/server.js';
@@ -14,16 +15,16 @@ describe('subscription router (integration)', () => {
   let weatherClient: WeatherClient;
   let subscriptionRepository: SubscriptionRepository;
   let jwtService: JwtService;
-  let emailClient: EmailClient;
+  let publisher: Publisher;
   let server: Server;
   let dbService: DbService;
   let subscriptionClient: ReturnType<typeof createClient<typeof SubscriptionServiceDefinition>>;
 
   let validateCitySpy: MockInstance;
-  let sendEmailSpy: MockInstance;
+  let publishSpy: MockInstance;
 
   beforeAll(async () => {
-    ({ weatherClient, subscriptionRepository, jwtService, emailClient, server, dbService } = ctx);
+    ({ weatherClient, subscriptionRepository, jwtService, publisher, server, dbService } = ctx);
 
     const port = await server.listen(0);
 
@@ -36,12 +37,12 @@ describe('subscription router (integration)', () => {
 
   beforeEach(async () => {
     validateCitySpy = vitest.spyOn(weatherClient, 'validateCity').mockImplementation(async () => ({ isValid: true }));
-    sendEmailSpy = vitest.spyOn(emailClient, 'sendSubscribeEmail').mockImplementation(vitest.fn());
+    publishSpy = vitest.spyOn(publisher, 'publish').mockImplementation(vitest.fn());
   });
 
   afterEach(() => {
     validateCitySpy.mockRestore();
-    sendEmailSpy.mockRestore();
+    publishSpy.mockRestore();
   });
 
   describe('Subscribe', () => {
@@ -55,7 +56,8 @@ describe('subscription router (integration)', () => {
       expect(message).toBe('Subscription successful. Confirmation email sent.');
 
       expect(validateCitySpy).toHaveBeenCalledWith({ city: 'London' });
-      expect(sendEmailSpy).toHaveBeenCalledWith(
+      expect(publishSpy).toHaveBeenCalledWith(
+        'send-subscribe-email',
         expect.objectContaining({
           to: ['test@example.com'],
           city: 'London',
@@ -73,7 +75,8 @@ describe('subscription router (integration)', () => {
       expect(message).toBe('Subscription successful. Confirmation email sent.');
 
       expect(validateCitySpy).toHaveBeenCalledWith({ city: 'Paris' });
-      expect(sendEmailSpy).toHaveBeenCalledWith(
+      expect(publishSpy).toHaveBeenCalledWith(
+        'send-subscribe-email',
         expect.objectContaining({
           to: ['test@example.com'],
           city: 'Paris',
@@ -97,7 +100,7 @@ describe('subscription router (integration)', () => {
       ).rejects.toThrow();
 
       expect(validateCitySpy).not.toHaveBeenCalled();
-      expect(sendEmailSpy).not.toHaveBeenCalled();
+      expect(publishSpy).not.toHaveBeenCalled();
     });
 
     it('throws error for invalid city', async () => {
@@ -112,7 +115,7 @@ describe('subscription router (integration)', () => {
       ).rejects.toThrow();
 
       expect(validateCitySpy).toHaveBeenCalledWith({ city: 'InvalidCity' });
-      expect(sendEmailSpy).not.toHaveBeenCalled();
+      expect(publishSpy).not.toHaveBeenCalled();
     });
   });
 

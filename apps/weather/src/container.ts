@@ -1,9 +1,7 @@
 import { ConfigService } from 'src/services/config.service.js';
-import { LoggerService } from '@weather-subscription/shared';
+import { LoggerService, MetricsService, CacheService } from '@weather-subscription/shared';
 import { LoggerHttpProviderDecorator } from './providers/http/logger.provider.js';
 import { FetchHttpProvider } from './providers/http/fetch.provider.js';
-import { MetricsService } from './services/metrics.service.js';
-import { CacheService } from './services/cache.service.js';
 import { ApiWeatherProvider } from './providers/weather/api-weather.provider.js';
 import { OpenMeteoProvider } from './providers/weather/open-meteo.provider.js';
 import { CachedWeatherProviderProxy } from './providers/weather/cached.provider.js';
@@ -16,9 +14,9 @@ export class Container {
   public configService = new ConfigService();
   public config = this.configService.getConfig();
 
-  public metricsService = new MetricsService();
-
   public loggerService = new LoggerService(this);
+
+  public metricsService = new MetricsService(this);
 
   public httpProvider = new LoggerHttpProviderDecorator(new FetchHttpProvider(), this);
 

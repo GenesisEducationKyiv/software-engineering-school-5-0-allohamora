@@ -2,15 +2,8 @@ import Dataloader from 'dataloader';
 import { JwtService } from './jwt.service.js';
 import { SubscriptionRepository } from 'src/repositories/subscription.repository.js';
 import type { Weather } from '@weather-subscription/proto/weather';
-import {
-  Exception,
-  Logger,
-  LoggerService,
-  WeatherClient,
-  EmailClient,
-  Frequency,
-  retry,
-} from '@weather-subscription/shared';
+import { Exception, Logger, LoggerService, WeatherClient, Frequency, retry } from '@weather-subscription/shared';
+import { Publisher } from '@weather-subscription/queue';
 
 const MAX_RETRIES = 3;
 
@@ -24,7 +17,7 @@ type Dependencies = {
   jwtService: JwtService;
   subscriptionRepository: SubscriptionRepository;
   weatherClient: WeatherClient;
-  emailClient: EmailClient;
+  publisher: Publisher;
   loggerService: LoggerService;
   config: { APP_URL: string };
 };
@@ -33,24 +26,17 @@ export class SubscriptionService {
   private jwtService: JwtService;
   private subscriptionRepository: SubscriptionRepository;
   private weatherClient: WeatherClient;
-  private emailClient: EmailClient;
+  private publisher: Publisher;
 
   private logger: Logger;
 
   private appUrl: string;
 
-  constructor({
-    jwtService: jwtProvider,
-    subscriptionRepository,
-    weatherClient,
-    emailClient,
-    loggerService,
-    config,
-  }: Dependencies) {
-    this.jwtService = jwtProvider;
+  constructor({ jwtService, subscriptionRepository, weatherClient, publisher, loggerService, config }: Dependencies) {
+    this.jwtService = jwtService;
     this.subscriptionRepository = subscriptionRepository;
     this.weatherClient = weatherClient;
-    this.emailClient = emailClient;
+    this.publisher = publisher;
 
     this.logger = loggerService.createLogger('SubscriptionService');
 
@@ -86,7 +72,7 @@ export class SubscriptionService {
               const weather = await dataloader.load(city);
               const unsubscribeLink = this.makeUnsubscribeLink(id);
 
-              await this.emailClient.sendWeatherUpdateEmail({
+              await this.publisher.publish('send-weather-update-email', {
                 to: [email],
                 city,
                 unsubscribeLink,
@@ -128,7 +114,7 @@ export class SubscriptionService {
     const token = await this.jwtService.sign(options);
     const confirmationLink = this.makeConfirmationLink(token);
 
-    await this.emailClient.sendSubscribeEmail({
+    await this.publisher.publish('send-subscribe-email', {
       to: [options.email],
       city: options.city,
       confirmationLink,

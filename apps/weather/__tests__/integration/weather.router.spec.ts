@@ -3,12 +3,10 @@ import { MockInstance, beforeAll, beforeEach, afterEach, afterAll, describe, it,
 import { Server } from 'src/server.js';
 import { createChannel, createClient } from 'nice-grpc';
 import { WeatherServiceDefinition } from '@weather-subscription/proto/weather';
-import { MetricsService } from 'src/services/metrics.service.js';
 import { WeatherProvider } from 'src/providers/weather/weather.provider.js';
 
 describe('weather router (integration)', () => {
   let server: Server;
-  let metricsService: MetricsService;
   let weatherClient: ReturnType<typeof createClient<typeof WeatherServiceDefinition>>;
   let weatherProvider: WeatherProvider;
 
@@ -16,7 +14,7 @@ describe('weather router (integration)', () => {
   let validateCitySpy: MockInstance;
 
   beforeAll(async () => {
-    ({ server, metricsService } = ctx);
+    ({ server } = ctx);
 
     weatherProvider = ctx.weatherProviders[0] as WeatherProvider;
 
@@ -45,10 +43,6 @@ describe('weather router (integration)', () => {
 
   const validateCity = async (city: string) => {
     return await weatherClient.validateCity({ city });
-  };
-
-  const collectMetrics = async () => {
-    return await weatherClient.collectMetrics({});
   };
 
   describe('GetWeather', () => {
@@ -96,25 +90,6 @@ describe('weather router (integration)', () => {
 
       expect(isValid).toBe(false);
       expect(validateCitySpy).toHaveBeenCalledWith('InvalidCity');
-    });
-  });
-
-  describe('CollectMetrics', () => {
-    it('returns metrics with correct content type', async () => {
-      const { metrics, contentType } = await collectMetrics();
-
-      expect(metrics).toContain('process_cpu_user_seconds_total');
-      expect(contentType).toBe('text/plain; version=0.0.4; charset=utf-8');
-    });
-
-    it('includes custom metrics when created', async () => {
-      const counter = metricsService.getCounter('test_weather_requests', 'Test weather requests counter');
-      counter.inc();
-
-      const { metrics } = await collectMetrics();
-
-      expect(metrics).toContain('test_weather_requests');
-      expect(metrics).toContain('Test weather requests counter');
     });
   });
 });

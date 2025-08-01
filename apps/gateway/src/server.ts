@@ -4,7 +4,6 @@ import { swaggerUI } from '@hono/swagger-ui';
 import { OpenAPIHono } from '@hono/zod-openapi';
 import { SubscriptionRouter } from './routers/subscription.router.js';
 import { WeatherRouter } from './routers/weather.router.js';
-import { MetricsRouter } from './routers/metrics.router.js';
 import { UiRouter } from './routers/ui.router.js';
 import { serve, ServerType } from '@hono/node-server';
 import { Exception, HttpStatus } from '@weather-subscription/shared';
@@ -19,22 +18,19 @@ type Dependencies = {
   weatherRouter: WeatherRouter;
   subscriptionRouter: SubscriptionRouter;
   uiRouter: UiRouter;
-  metricsRouter: MetricsRouter;
 };
 
 export class Server {
   private weatherRouter: WeatherRouter;
   private subscriptionRouter: SubscriptionRouter;
   private uiRouter: UiRouter;
-  private metricsRouter: MetricsRouter;
 
   private app = new OpenAPIHono();
 
-  constructor({ weatherRouter, subscriptionRouter, uiRouter, metricsRouter }: Dependencies) {
+  constructor({ weatherRouter, subscriptionRouter, uiRouter }: Dependencies) {
     this.weatherRouter = weatherRouter;
     this.subscriptionRouter = subscriptionRouter;
     this.uiRouter = uiRouter;
-    this.metricsRouter = metricsRouter;
 
     this.setup();
   }
@@ -63,7 +59,6 @@ export class Server {
     const apiRouter = new OpenAPIHono();
     this.weatherRouter.setup(apiRouter);
     this.subscriptionRouter.setup(apiRouter);
-    this.metricsRouter.setup(apiRouter);
 
     this.app.route('/api', apiRouter);
 
