@@ -63,8 +63,8 @@ export class Server {
     this.app.use(secureHeaders());
 
     this.app.use(async (c, next) => {
-      this.requestCounter.inc({ method: c.req.method, path: c.req.path });
-      const endTimer = this.responseTimeHistogram.startTimer({ method: c.req.method, path: c.req.path });
+      this.requestCounter.inc({ method: c.req.method, path: c.req.routePath });
+      const endTimer = this.responseTimeHistogram.startTimer({ method: c.req.method, path: c.req.routePath });
 
       await next();
 
@@ -75,7 +75,7 @@ export class Server {
       const message = err instanceof Exception ? err.message : 'internal server error';
       const statusCode = err instanceof Exception ? err.getHttpCode() : HttpStatus.INTERNAL_SERVER_ERROR;
 
-      this.errorCounter.inc({ method: c.req.method, path: c.req.path, message, statusCode });
+      this.errorCounter.inc({ method: c.req.method, path: c.req.routePath, message, statusCode });
 
       return c.json({ message }, statusCode);
     });
