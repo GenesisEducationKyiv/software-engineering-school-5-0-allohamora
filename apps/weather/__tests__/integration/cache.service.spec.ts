@@ -1,6 +1,6 @@
 import { ctx } from '__tests__/setup-integration-context.js';
 import { beforeAll, describe, expect, it } from 'vitest';
-import { CacheService } from 'src/services/cache.service.js';
+import { CacheService } from '@weather-subscription/shared';
 import { scheduler } from 'node:timers/promises';
 
 describe('CacheService (integration)', () => {

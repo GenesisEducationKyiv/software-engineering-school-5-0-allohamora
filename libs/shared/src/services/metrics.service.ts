@@ -1,7 +1,15 @@
 import { Logger, LoggerService } from './logger.service.js';
-import { Registry, collectDefaultMetrics, Counter, Pushgateway } from 'prom-client';
+import {
+  Registry,
+  collectDefaultMetrics,
+  Counter,
+  Pushgateway,
+  Histogram,
+  CounterConfiguration,
+  HistogramConfiguration,
+} from 'prom-client';
 
-export { Counter };
+export { Counter, Histogram };
 
 type Dependencies = {
   loggerService: LoggerService;
@@ -49,6 +57,8 @@ export class MetricsService {
     this.pushInterval = setInterval(() => {
       void this.sendMetrics();
     }, this.pushDelay);
+
+    this.logger.info({ msg: 'Metrics push interval has been started', pushDelay: this.pushDelay });
   }
 
   public stopSendingMetrics() {
@@ -58,6 +68,8 @@ export class MetricsService {
 
     clearInterval(this.pushInterval);
     this.pushInterval = null;
+
+    this.logger.info({ msg: 'Metrics push interval has been stopped' });
   }
 
   public async collectMetrics() {
@@ -67,16 +79,23 @@ export class MetricsService {
     };
   }
 
-  public getCounter(name: string, description: string, labelNames: string[] = []) {
+  public createCounter<T extends string>(config: CounterConfiguration<T>) {
     return new Counter({
-      name,
-      help: description,
+      ...config,
       registers: [this.register],
-      labelNames,
+    });
+  }
+
+  public createHistogram<T extends string>(config: HistogramConfiguration<T>) {
+    return new Histogram({
+      ...config,
+      registers: [this.register],
     });
   }
 
   public clearMetrics() {
+    this.logger.warn({ msg: 'Clearing all metrics data' });
+
     this.register.clear();
   }
 }

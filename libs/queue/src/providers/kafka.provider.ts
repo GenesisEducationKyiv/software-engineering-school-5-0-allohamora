@@ -44,18 +44,26 @@ export class KafkaProvider implements QueueProvider {
   public createPublisher() {
     const producer = this.kafka.producer({ createPartitioner: Partitioners.DefaultPartitioner });
 
+    this.logger.debug({ msg: 'Kafka publisher created' });
+
     return {
       publish: async (topic, data) => {
         await producer.send({
           topic,
           messages: [{ value: JSON.stringify(data) }],
         });
+
+        this.logger.debug({ msg: 'Kafka publisher message sent', topic, data });
       },
       connect: async () => {
         await producer.connect();
+
+        this.logger.info({ msg: 'Kafka publisher connected' });
       },
       disconnect: async () => {
         await producer.disconnect();
+
+        this.logger.info({ msg: 'Kafka publisher disconnected' });
       },
     } as Publisher;
   }
@@ -64,14 +72,20 @@ export class KafkaProvider implements QueueProvider {
     const consumer = this.kafka.consumer({ groupId: this.groupId });
     const handlers: Handlers = {};
 
+    this.logger.debug({ msg: 'Kafka subscriber created', groupId: this.groupId });
+
     return {
       subscribe: async <K extends keyof Messages>(topic: K, handler: Handlers[K]) => {
         await consumer.subscribe({ topic, fromBeginning: true });
 
         handlers[topic] = handler;
+
+        this.logger.debug({ msg: 'Kafka subscribed', topic });
       },
       connect: async () => {
         await consumer.connect();
+
+        this.logger.info({ msg: 'Kafka subscriber connected', groupId: this.groupId });
       },
       run: async () => {
         await consumer.run({
@@ -99,6 +113,8 @@ export class KafkaProvider implements QueueProvider {
       },
       disconnect: async () => {
         await consumer.disconnect();
+
+        this.logger.info({ msg: 'Kafka subscriber disconnected', groupId: this.groupId });
       },
     } as Subscriber;
   }

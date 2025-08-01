@@ -1,17 +1,21 @@
 import { Server } from 'nice-grpc';
 import { SubscriptionService } from 'src/services/subscription.service.js';
 import { SubscriptionServiceDefinition } from '@weather-subscription/proto/subscription';
-import { fromGrpcFrequency } from '@weather-subscription/shared';
+import { fromGrpcFrequency, Logger, LoggerService } from '@weather-subscription/shared';
 
 export type Dependencies = {
   subscriptionService: SubscriptionService;
+  loggerService: LoggerService;
 };
 
 export class SubscriptionRouter {
   private subscriptionService: SubscriptionService;
+  private logger: Logger;
 
-  constructor({ subscriptionService }: Dependencies) {
+  constructor({ subscriptionService, loggerService }: Dependencies) {
     this.subscriptionService = subscriptionService;
+
+    this.logger = loggerService.createLogger('SubscriptionRouter');
   }
 
   public setup(server: Server) {
@@ -33,5 +37,7 @@ export class SubscriptionRouter {
         return {};
       },
     });
+
+    this.logger.debug({ msg: 'SubscriptionRouter has been set up' });
   }
 }

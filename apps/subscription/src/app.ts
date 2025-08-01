@@ -1,6 +1,6 @@
 import closeWithGrace, { CloseWithGraceAsyncCallback } from 'close-with-grace';
 import { Server } from './server.js';
-import { Logger, LoggerService } from '@weather-subscription/shared';
+import { Logger, LoggerService, MetricsService } from '@weather-subscription/shared';
 import { DbService } from './services/db.service.js';
 import { Publisher } from '@weather-subscription/queue';
 
@@ -8,6 +8,7 @@ const GRACEFUL_SHUTDOWN_DELAY = 15_000;
 
 type Dependencies = {
   server: Server;
+  metricsService: MetricsService;
   dbService: DbService;
   publisher: Publisher;
   loggerService: LoggerService;
@@ -16,6 +17,7 @@ type Dependencies = {
 
 export class App {
   private server: Server;
+  private metricsService: MetricsService;
 
   private dbService: DbService;
   private publisher: Publisher;
@@ -24,8 +26,9 @@ export class App {
   private nodeEnv: string;
   private logger: Logger;
 
-  constructor({ server, dbService, publisher, loggerService, config }: Dependencies) {
+  constructor({ server, metricsService, dbService, publisher, loggerService, config }: Dependencies) {
     this.server = server;
+    this.metricsService = metricsService;
 
     this.dbService = dbService;
     this.publisher = publisher;
@@ -43,11 +46,15 @@ export class App {
       await this.server.close();
       await this.dbService.disconnectFromDb();
       await this.publisher.disconnect();
+      this.metricsService.stopSendingMetrics();
+      await this.metricsService.sendMetrics();
 
       this.logger.info({ msg: 'Graceful shutdown has been finished', ...props });
     };
 
     closeWithGrace({ delay: GRACEFUL_SHUTDOWN_DELAY, logger: this.logger }, gracefulShutdown);
+
+    this.logger.info({ msg: 'Graceful shutdown has been set up', delay: GRACEFUL_SHUTDOWN_DELAY });
   }
 
   public async start() {
@@ -55,6 +62,7 @@ export class App {
 
     await this.publisher.connect();
     await this.server.listen(this.port);
+    this.metricsService.startSendingMetrics();
 
     this.setupGracefulShutdown();
 
