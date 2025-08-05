@@ -2,7 +2,7 @@ import { createChannel, createClient } from 'nice-grpc';
 import { ConfigService } from './services/config.service.js';
 import { DbService } from './services/db.service.js';
 import { JwtService } from './services/jwt.service.js';
-import { GrpcService, LoggerService, MetricsService } from '@weather-subscription/shared';
+import { GrpcService, LoggerService, MetricsService, GrpcMetricsService } from '@weather-subscription/shared';
 import { WeatherServiceDefinition } from '@weather-subscription/proto/weather';
 import { SubscriptionRepository } from './repositories/subscription.repository.js';
 import { SubscriptionService } from './services/subscription.service.js';
@@ -18,6 +18,7 @@ export class Container {
   public loggerService = new LoggerService(this);
 
   public metricsService = new MetricsService(this);
+  public grpcMetricsService = new GrpcMetricsService(this);
 
   public dbService = new DbService(this);
 

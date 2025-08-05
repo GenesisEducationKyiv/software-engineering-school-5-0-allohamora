@@ -1,5 +1,11 @@
 import { ConfigService } from 'src/services/config.service.js';
-import { LoggerService, MetricsService, CacheService, GrpcService } from '@weather-subscription/shared';
+import {
+  LoggerService,
+  MetricsService,
+  CacheService,
+  GrpcService,
+  GrpcMetricsService,
+} from '@weather-subscription/shared';
 import { LoggerHttpProviderDecorator } from './providers/http/logger.provider.js';
 import { FetchHttpProvider } from './providers/http/fetch.provider.js';
 import { ApiWeatherProvider } from './providers/weather/api-weather.provider.js';
@@ -17,6 +23,8 @@ export class Container {
   public loggerService = new LoggerService(this);
 
   public metricsService = new MetricsService(this);
+
+  public grpcMetricsService = new GrpcMetricsService(this);
 
   public httpProvider = new LoggerHttpProviderDecorator(new FetchHttpProvider(), this);
 
