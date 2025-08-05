@@ -1,74 +1,50 @@
-import closeWithGrace, { CloseWithGraceAsyncCallback } from 'close-with-grace';
 import { Server } from './server.js';
-import { Logger, LoggerService, MetricsService } from '@weather-subscription/shared';
+import { AppService } from '@weather-subscription/shared';
 import { DbService } from './services/db.service.js';
 import { Publisher } from '@weather-subscription/queue';
 
-const GRACEFUL_SHUTDOWN_DELAY = 15_000;
-
 type Dependencies = {
+  appService: AppService;
   server: Server;
-  metricsService: MetricsService;
   dbService: DbService;
   publisher: Publisher;
-  loggerService: LoggerService;
-  config: { PORT: number; NODE_ENV: string };
+  config: { PORT: number };
 };
 
 export class App {
+  public appService: AppService;
   private server: Server;
-  private metricsService: MetricsService;
 
   private dbService: DbService;
   private publisher: Publisher;
 
   private port: number;
-  private nodeEnv: string;
-  private logger: Logger;
 
-  constructor({ server, metricsService, dbService, publisher, loggerService, config }: Dependencies) {
+  constructor({ server, appService, dbService, publisher, config }: Dependencies) {
+    this.appService = appService;
     this.server = server;
-    this.metricsService = metricsService;
 
     this.dbService = dbService;
     this.publisher = publisher;
 
     this.port = config.PORT;
-    this.nodeEnv = config.NODE_ENV;
-
-    this.logger = loggerService.createLogger('App');
-  }
-
-  private setupGracefulShutdown() {
-    const gracefulShutdown: CloseWithGraceAsyncCallback = async (props) => {
-      this.logger.info({ msg: 'Graceful shutdown has been started', ...props });
-
-      await this.server.close();
-      await this.dbService.disconnectFromDb();
-      await this.publisher.disconnect();
-      this.metricsService.stopSendingMetrics();
-      await this.metricsService.sendMetrics();
-
-      this.logger.info({ msg: 'Graceful shutdown has been finished', ...props });
-    };
-
-    closeWithGrace({ delay: GRACEFUL_SHUTDOWN_DELAY, logger: this.logger }, gracefulShutdown);
-
-    this.logger.info({ msg: 'Graceful shutdown has been set up', delay: GRACEFUL_SHUTDOWN_DELAY });
   }
 
   public async start() {
     await this.dbService.runMigrations();
 
     await this.publisher.connect();
-    await this.server.listen(this.port);
-    this.metricsService.startSendingMetrics();
 
-    this.setupGracefulShutdown();
+    const port = await this.server.listen(this.port);
 
-    this.logger.info({
-      msg: `Server has been started at localhost:${this.port}`,
-      NODE_ENV: this.nodeEnv,
+    await this.appService.start({
+      port,
+      stop: async () => {
+        await this.server.close();
+
+        await this.dbService.disconnectFromDb();
+        await this.publisher.disconnect();
+      },
     });
   }
 }

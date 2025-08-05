@@ -1,3 +1,4 @@
+export * from './app.service.js';
 export * from './cache-metrics.service.js';
 export * from './cache.service.js';
 export * from './config.service.js';
