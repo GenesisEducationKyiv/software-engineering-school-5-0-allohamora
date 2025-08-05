@@ -84,6 +84,11 @@ services:
     volumes:
       - grafana-data:/var/lib/grafana
 
+  loki:
+    image: grafana/loki:main-0ca0a4e
+    ports:
+      - "3100:3100"
+
   weather:
     build:
       context: .
@@ -94,6 +99,8 @@ services:
       - NODE_ENV=production
       - PORT=4001
       - REDIS_URL=redis://:example@redis:6379/0
+      - PROMETHEUS_PUSHGATEWAY_URL=http://pushgateway:9091
+      - LOKI_HOST=http://loki:3100
     ports:
       - 4001:4001
     depends_on:
@@ -109,7 +116,9 @@ services:
     env_file:
       - ./apps/email/.env
     environment:
-      - NODE_ENV=production
+      - NODE_ENV=production'
+      - PROMETHEUS_PUSHGATEWAY_URL=http://pushgateway:9091
+      - LOKI_HOST=http://loki:3100
     profiles:
       - production
 
@@ -123,8 +132,10 @@ services:
       - NODE_ENV=production
       - PORT=4003
       - POSTGRES_URL=postgres://app:example@pg:5432/app
+      - PROMETHEUS_PUSHGATEWAY_URL=http://pushgateway:9091
       - WEATHER_SERVICE_URL=http://weather:4001
       - EMAIL_SERVICE_URL=http://email:4002
+      - LOKI_HOST=http://loki:3100
     ports:
       - 4003:4003
     depends_on:
@@ -143,6 +154,8 @@ services:
     environment:
       - NODE_ENV=production
       - SUBSCRIPTION_SERVICE_URL=http://subscription:4003
+      - PROMETHEUS_PUSHGATEWAY_URL=http://pushgateway:9091
+      - LOKI_HOST=http://loki:3100
     depends_on:
       - subscription
     profiles:
@@ -158,6 +171,8 @@ services:
       - NODE_ENV=production
       - WEATHER_SERVICE_URL=http://weather:4001
       - SUBSCRIPTION_SERVICE_URL=http://subscription:4003
+      - PROMETHEUS_PUSHGATEWAY_URL=http://pushgateway:9091
+      - LOKI_HOST=http://loki:3100
       - PORT=3000
     ports:
       - 3000:3000

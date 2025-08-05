@@ -1,8 +1,10 @@
 import { Redis } from 'ioredis';
-import { Counter, MetricsService } from './metrics.service.js';
+import { Logger, LoggerService } from './logger.service.js';
+import { CacheMetricsService } from './cache-metrics.service.js';
 
 type Dependencies = {
-  metricsService: MetricsService;
+  cacheMetricsService: CacheMetricsService;
+  loggerService: LoggerService;
   config: { REDIS_URL: string };
 };
 
@@ -13,27 +15,28 @@ type GetOrComputeOptions<T> = {
 };
 
 export class CacheService {
-  private hitCounter: Counter;
-  private missCounter: Counter;
+  private cacheMetricsService: CacheMetricsService;
 
   private redis: Redis;
 
-  constructor({ metricsService, config }: Dependencies) {
-    this.hitCounter = metricsService.getCounter('cache_hits', 'Number of cache hits', ['key']);
+  private logger: Logger;
 
-    this.missCounter = metricsService.getCounter('cache_misses', 'Number of cache misses', ['key']);
+  constructor({ cacheMetricsService, config, loggerService }: Dependencies) {
+    this.cacheMetricsService = cacheMetricsService;
 
     this.redis = new Redis(config.REDIS_URL);
+
+    this.logger = loggerService.createLogger('CacheService');
   }
 
   public async get<T>(key: string): Promise<T | null> {
     const jsonValue = await this.redis.get(key);
     if (jsonValue === null) {
-      this.missCounter.inc({ key });
+      this.cacheMetricsService.increaseMissCount({ key });
       return null;
     }
 
-    this.hitCounter.inc({ key });
+    this.cacheMetricsService.increaseHitCount({ key });
 
     return JSON.parse(jsonValue);
   }
@@ -55,6 +58,8 @@ export class CacheService {
   }
 
   public async clearAll() {
+    this.logger.warn({ msg: 'Clearing all cache data' });
+
     await this.redis.flushdb();
   }
 }

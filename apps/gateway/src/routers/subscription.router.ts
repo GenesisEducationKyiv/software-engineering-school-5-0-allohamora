@@ -1,16 +1,28 @@
 import { OpenAPIHono, createRoute } from '@hono/zod-openapi';
 import { z } from 'zod';
-import { Frequency, Exception, SubscriptionClient, toGrpcFrequency } from '@weather-subscription/shared';
+import {
+  Frequency,
+  Exception,
+  SubscriptionClient,
+  toGrpcFrequency,
+  LoggerService,
+  Logger,
+} from '@weather-subscription/shared';
 
 type Dependencies = {
   subscriptionClient: SubscriptionClient;
+  loggerService: LoggerService;
 };
 
 export class SubscriptionRouter {
   private subscriptionClient: SubscriptionClient;
 
-  constructor({ subscriptionClient }: Dependencies) {
+  private logger: Logger;
+
+  constructor({ subscriptionClient, loggerService }: Dependencies) {
     this.subscriptionClient = subscriptionClient;
+
+    this.logger = loggerService.createLogger('SubscriptionRouter');
   }
 
   public setup(app: OpenAPIHono) {
@@ -155,5 +167,7 @@ export class SubscriptionRouter {
         return ctx.json({ message }, 200);
       },
     );
+
+    this.logger.debug({ msg: 'SubscriptionRouter has been set up' });
   }
 }

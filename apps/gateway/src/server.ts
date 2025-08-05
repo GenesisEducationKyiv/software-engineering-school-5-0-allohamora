@@ -8,6 +8,7 @@ import { UiRouter } from './routers/ui.router.js';
 import { serve, ServerType } from '@hono/node-server';
 import { Exception, HttpStatus } from '@weather-subscription/shared';
 import { AddressInfo } from 'node:net';
+import { HttpMetricsService } from './services/http-metrics.service.js';
 
 export type ServerInfo = {
   info: AddressInfo;
@@ -15,19 +16,24 @@ export type ServerInfo = {
 };
 
 type Dependencies = {
+  httpMetricsService: HttpMetricsService;
   weatherRouter: WeatherRouter;
   subscriptionRouter: SubscriptionRouter;
   uiRouter: UiRouter;
 };
 
 export class Server {
+  private httpMetricsService: HttpMetricsService;
+
   private weatherRouter: WeatherRouter;
   private subscriptionRouter: SubscriptionRouter;
   private uiRouter: UiRouter;
 
   private app = new OpenAPIHono();
 
-  constructor({ weatherRouter, subscriptionRouter, uiRouter }: Dependencies) {
+  constructor({ httpMetricsService, weatherRouter, subscriptionRouter, uiRouter }: Dependencies) {
+    this.httpMetricsService = httpMetricsService;
+
     this.weatherRouter = weatherRouter;
     this.subscriptionRouter = subscriptionRouter;
     this.uiRouter = uiRouter;
@@ -38,9 +44,24 @@ export class Server {
   private setup() {
     this.app.use(secureHeaders());
 
+    this.app.use(async (c, next) => {
+      const { method, routePath: path } = c.req;
+
+      this.httpMetricsService.increaseRequestCount({ method, path });
+      const endTimer = this.httpMetricsService.startResponseDurationTimer({ method, path });
+
+      await next();
+
+      endTimer();
+    });
+
     this.app.onError((err, c) => {
+      const { method, routePath: path } = c.req;
+
       const message = err instanceof Exception ? err.message : 'internal server error';
       const statusCode = err instanceof Exception ? err.getHttpCode() : HttpStatus.INTERNAL_SERVER_ERROR;
+
+      this.httpMetricsService.increaseErrorCount({ method, path, message, statusCode });
 
       return c.json({ message }, statusCode);
     });

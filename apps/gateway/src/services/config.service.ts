@@ -7,9 +7,19 @@ const configSchema = {
   PORT: z.number().optional().default(3000),
 
   PINO_LEVEL: z.enum(['debug', 'info', 'warn', 'error', 'silent', 'fatal']).optional().default('info'),
+  LOG_SAMPLING_RATE: z.number().optional(),
+
+  NAME: z.string(),
+  VERSION: z.string(),
 
   WEATHER_SERVICE_URL: z.string().url().optional().default('http://localhost:4001'),
   SUBSCRIPTION_SERVICE_URL: z.string().url().optional().default('http://localhost:4003'),
+
+  LOKI_HOST: z.string().url(),
+
+  PROMETHEUS_JOB_NAME: z.string(),
+  PROMETHEUS_PUSHGATEWAY_URL: z.string().url(),
+  PROMETHEUS_PUSH_DELAY: z.number(),
 } as const;
 
 export type Config = ParsedSchema<typeof configSchema>;
