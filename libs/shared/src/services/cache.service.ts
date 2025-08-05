@@ -1,9 +1,9 @@
 import { Redis } from 'ioredis';
-import { Counter, MetricsService } from './metrics.service.js';
 import { Logger, LoggerService } from './logger.service.js';
+import { CacheMetricsService } from './cache-metrics.service.js';
 
 type Dependencies = {
-  metricsService: MetricsService;
+  cacheMetricsService: CacheMetricsService;
   loggerService: LoggerService;
   config: { REDIS_URL: string };
 };
@@ -15,25 +15,14 @@ type GetOrComputeOptions<T> = {
 };
 
 export class CacheService {
-  private hitCounter: Counter;
-  private missCounter: Counter;
+  private cacheMetricsService: CacheMetricsService;
 
   private redis: Redis;
 
   private logger: Logger;
 
-  constructor({ metricsService, config, loggerService }: Dependencies) {
-    this.hitCounter = metricsService.createCounter({
-      name: 'cache_hits',
-      help: 'Number of cache hits',
-      labelNames: ['key'],
-    });
-
-    this.missCounter = metricsService.createCounter({
-      name: 'cache_misses',
-      help: 'Number of cache misses',
-      labelNames: ['key'],
-    });
+  constructor({ cacheMetricsService, config, loggerService }: Dependencies) {
+    this.cacheMetricsService = cacheMetricsService;
 
     this.redis = new Redis(config.REDIS_URL);
 
@@ -43,11 +32,11 @@ export class CacheService {
   public async get<T>(key: string): Promise<T | null> {
     const jsonValue = await this.redis.get(key);
     if (jsonValue === null) {
-      this.missCounter.inc({ key });
+      this.cacheMetricsService.increaseMissCount({ key });
       return null;
     }
 
-    this.hitCounter.inc({ key });
+    this.cacheMetricsService.increaseHitCount({ key });
 
     return JSON.parse(jsonValue);
   }

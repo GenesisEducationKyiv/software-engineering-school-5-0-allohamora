@@ -3,7 +3,13 @@ import { http, HttpResponse, JsonBodyType } from 'msw';
 import { EmailService } from 'src/services/email.service.js';
 import { createMockServer } from '__tests__/utils/mock-server.utils.js';
 import { createMock } from '__tests__/utils/mock.utils.js';
-import { LoggerService, Exception, CacheService, MetricsService } from '@weather-subscription/shared';
+import {
+  LoggerService,
+  Exception,
+  CacheService,
+  MetricsService,
+  CacheMetricsService,
+} from '@weather-subscription/shared';
 import { TemplateService } from 'src/services/template.service.js';
 
 describe('EmailService (integration)', () => {
@@ -68,8 +74,12 @@ describe('EmailService (integration)', () => {
       },
     });
 
-    cacheService = new CacheService({
+    const cacheMetricsService = new CacheMetricsService({
       metricsService,
+    });
+
+    cacheService = new CacheService({
+      cacheMetricsService,
       loggerService,
       config: { REDIS_URL },
     });

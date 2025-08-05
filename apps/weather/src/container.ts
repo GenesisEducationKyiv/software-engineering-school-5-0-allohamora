@@ -5,6 +5,7 @@ import {
   CacheService,
   GrpcService,
   GrpcMetricsService,
+  CacheMetricsService,
 } from '@weather-subscription/shared';
 import { LoggerHttpProviderDecorator } from './providers/http/logger.provider.js';
 import { FetchHttpProvider } from './providers/http/fetch.provider.js';
@@ -25,6 +26,8 @@ export class Container {
   public metricsService = new MetricsService(this);
 
   public grpcMetricsService = new GrpcMetricsService(this);
+
+  public cacheMetricsService = new CacheMetricsService(this);
 
   public httpProvider = new LoggerHttpProviderDecorator(new FetchHttpProvider(), this);
 
