@@ -6,8 +6,9 @@ import { SubscriptionRouter } from './routers/subscription.router.js';
 import { WeatherRouter } from './routers/weather.router.js';
 import { UiRouter } from './routers/ui.router.js';
 import { serve, ServerType } from '@hono/node-server';
-import { Counter, Exception, Histogram, HttpStatus, MetricsService } from '@weather-subscription/shared';
+import { Exception, HttpStatus } from '@weather-subscription/shared';
 import { AddressInfo } from 'node:net';
+import { HttpMetricsService } from './services/http-metrics.service.js';
 
 export type ServerInfo = {
   info: AddressInfo;
@@ -15,16 +16,14 @@ export type ServerInfo = {
 };
 
 type Dependencies = {
-  metricsService: MetricsService;
+  httpMetricsService: HttpMetricsService;
   weatherRouter: WeatherRouter;
   subscriptionRouter: SubscriptionRouter;
   uiRouter: UiRouter;
 };
 
 export class Server {
-  private requestCounter: Counter;
-  private errorCounter: Counter;
-  private responseTimeHistogram: Histogram;
+  private httpMetricsService: HttpMetricsService;
 
   private weatherRouter: WeatherRouter;
   private subscriptionRouter: SubscriptionRouter;
@@ -32,25 +31,8 @@ export class Server {
 
   private app = new OpenAPIHono();
 
-  constructor({ metricsService, weatherRouter, subscriptionRouter, uiRouter }: Dependencies) {
-    this.requestCounter = metricsService.createCounter({
-      name: 'gateway_requests_total',
-      help: 'Total number of requests to the gateway',
-      labelNames: ['method', 'path'],
-    });
-
-    this.errorCounter = metricsService.createCounter({
-      name: 'gateway_errors_total',
-      help: 'Total number of errors in the gateway',
-      labelNames: ['method', 'path', 'message', 'statusCode'],
-    });
-
-    this.responseTimeHistogram = metricsService.createHistogram({
-      name: 'gateway_response_time_seconds',
-      help: 'Response time of the gateway in seconds',
-      labelNames: ['method', 'path'],
-      buckets: [0.1, 0.5, 1, 2, 5, 10],
-    });
+  constructor({ httpMetricsService, weatherRouter, subscriptionRouter, uiRouter }: Dependencies) {
+    this.httpMetricsService = httpMetricsService;
 
     this.weatherRouter = weatherRouter;
     this.subscriptionRouter = subscriptionRouter;
@@ -63,8 +45,10 @@ export class Server {
     this.app.use(secureHeaders());
 
     this.app.use(async (c, next) => {
-      this.requestCounter.inc({ method: c.req.method, path: c.req.routePath });
-      const endTimer = this.responseTimeHistogram.startTimer({ method: c.req.method, path: c.req.routePath });
+      const { method, routePath: path } = c.req;
+
+      this.httpMetricsService.increaseRequestCount({ method, path });
+      const endTimer = this.httpMetricsService.startResponseDurationTimer({ method, path });
 
       await next();
 
@@ -72,10 +56,12 @@ export class Server {
     });
 
     this.app.onError((err, c) => {
+      const { method, routePath: path } = c.req;
+
       const message = err instanceof Exception ? err.message : 'internal server error';
       const statusCode = err instanceof Exception ? err.getHttpCode() : HttpStatus.INTERNAL_SERVER_ERROR;
 
-      this.errorCounter.inc({ method: c.req.method, path: c.req.routePath, message, statusCode });
+      this.httpMetricsService.increaseErrorCount({ method, path, message, statusCode });
 
       return c.json({ message }, statusCode);
     });

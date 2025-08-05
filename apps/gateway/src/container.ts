@@ -8,6 +8,7 @@ import { UiRouter } from './routers/ui.router.js';
 import { WeatherRouter } from './routers/weather.router.js';
 import { Server } from './server.js';
 import { App } from './app.js';
+import { HttpMetricsService } from './services/http-metrics.service.js';
 
 export class Container {
   public configService = new ConfigService();
@@ -26,6 +27,7 @@ export class Container {
   public weatherRouter = new WeatherRouter(this);
 
   public metricsService = new MetricsService(this);
+  public httpMetricsService = new HttpMetricsService(this);
 
   public server = new Server(this);
 
