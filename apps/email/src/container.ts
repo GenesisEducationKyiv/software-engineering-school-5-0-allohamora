@@ -1,5 +1,11 @@
 import { ConfigService } from 'src/services/config.service.js';
-import { LoggerService, MetricsService, CacheService } from '@weather-subscription/shared';
+import {
+  LoggerService,
+  MetricsService,
+  CacheService,
+  CacheMetricsService,
+  AppService,
+} from '@weather-subscription/shared';
 import { TemplateService } from './services/template.service.js';
 import { EmailService } from './services/email.service.js';
 import { KafkaProvider } from '@weather-subscription/queue';
@@ -14,6 +20,7 @@ export class Container {
   public loggerService = new LoggerService(this);
 
   public metricsService = new MetricsService(this);
+  public cacheMetricsService = new CacheMetricsService(this);
 
   public cacheService = new CacheService(this);
 
@@ -26,6 +33,8 @@ export class Container {
   public emailRouter = new EmailRouter(this);
 
   public handler = new Handler(this);
+
+  public appService = new AppService(this);
 
   public app = new App(this);
 }

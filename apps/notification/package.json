@@ -17,7 +17,6 @@
     "@weather-subscription/proto": "*",
     "@weather-subscription/shared": "*",
     "croner": "^9.0.0",
-    "close-with-grace": "^2.2.0",
     "nice-grpc": "^2.1.12",
     "znv": "^0.5.0",
     "zod": "^3.24.4"

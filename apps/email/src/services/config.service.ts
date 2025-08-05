@@ -6,6 +6,10 @@ const configSchema = {
   NODE_ENV: z.enum(['development', 'test', 'production']).optional().default('development'),
 
   PINO_LEVEL: z.enum(['debug', 'info', 'warn', 'error', 'silent', 'fatal']).optional().default('info'),
+  LOG_SAMPLING_RATE: z.number().optional(),
+
+  NAME: z.string(),
+  VERSION: z.string(),
 
   REDIS_URL: z.string().url(),
 
@@ -22,6 +26,8 @@ const configSchema = {
   PROMETHEUS_JOB_NAME: z.string(),
   PROMETHEUS_PUSHGATEWAY_URL: z.string().url(),
   PROMETHEUS_PUSH_DELAY: z.number(),
+
+  LOKI_HOST: z.string().url(),
 } as const;
 
 export type Config = ParsedSchema<typeof configSchema>;

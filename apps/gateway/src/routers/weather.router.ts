@@ -1,16 +1,21 @@
 import { OpenAPIHono, createRoute } from '@hono/zod-openapi';
 import { z } from 'zod';
-import { WeatherClient } from '@weather-subscription/shared';
+import { Logger, LoggerService, WeatherClient } from '@weather-subscription/shared';
 
 type Dependencies = {
   weatherClient: WeatherClient;
+  loggerService: LoggerService;
 };
 
 export class WeatherRouter {
   private weatherClient: WeatherClient;
 
-  constructor({ weatherClient }: Dependencies) {
+  private logger: Logger;
+
+  constructor({ weatherClient, loggerService }: Dependencies) {
     this.weatherClient = weatherClient;
+
+    this.logger = loggerService.createLogger('WeatherRouter');
   }
 
   public setup(app: OpenAPIHono) {
@@ -55,5 +60,7 @@ export class WeatherRouter {
         return ctx.json(weather);
       },
     );
+
+    this.logger.debug({ msg: 'WeatherRouter has been set up' });
   }
 }

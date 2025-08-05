@@ -80,6 +80,12 @@ export class EmailService {
     await this.sendEmailToProvider(options);
 
     this.cacheService.set(key, true, this.emailIgnoreTTLSeconds);
+
+    this.logger.debug({
+      msg: 'Email sent successfully',
+      to: options.to,
+      title: options.template.title,
+    });
   }
 
   public async sendSubscribeEmail({ to, ...options }: SendSubscribeEmailOptions) {

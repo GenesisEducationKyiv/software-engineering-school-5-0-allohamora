@@ -1,5 +1,5 @@
 import { Cron } from 'croner';
-import { SubscriptionClient } from '@weather-subscription/shared';
+import { Logger, LoggerService, SubscriptionClient } from '@weather-subscription/shared';
 import { Frequency } from '@weather-subscription/proto/subscription';
 
 export const enum CronExpression {
@@ -9,15 +9,19 @@ export const enum CronExpression {
 
 interface Dependencies {
   subscriptionClient: SubscriptionClient;
+  loggerService: LoggerService;
 }
 
 export class CronService {
   private subscriptionClient: SubscriptionClient;
+  private logger: Logger;
 
   private crons: Cron[] = [];
 
-  constructor({ subscriptionClient }: Dependencies) {
+  constructor({ subscriptionClient, loggerService }: Dependencies) {
     this.subscriptionClient = subscriptionClient;
+
+    this.logger = loggerService.createLogger('CronService');
   }
 
   public startJobs() {
@@ -32,6 +36,8 @@ export class CronService {
         await this.subscriptionClient.handleSubscriptions({ frequency: Frequency.Hourly });
       }),
     );
+
+    this.logger.info({ msg: 'Cron jobs have been started' });
   }
 
   public stopJobs() {
@@ -40,5 +46,7 @@ export class CronService {
     }
 
     this.crons = [];
+
+    this.logger.info({ msg: 'Cron jobs have been stopped' });
   }
 }

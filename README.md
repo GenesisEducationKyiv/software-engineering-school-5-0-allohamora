@@ -183,3 +183,78 @@ While this application is designed to be a focused MVP, several enhancements cou
 2. **Rate Limiting**: Adding API rate limiting would protect the application from abuse and ensure fair resource allocation among users.
 
 These improvements would enhance scalability and performance but are deliberately omitted from the current implementation to maintain simplicity and focus on core functionality in this MVP.
+
+## Observability
+
+This application implements comprehensive observability through structured logging and Prometheus metrics to ensure system reliability and performance monitoring in production environments.
+
+### Log Retention Policy
+
+The application implements a comprehensive tiered log retention strategy using Grafana Loki to optimize storage costs while meeting operational and compliance requirements. This policy ensures efficient log management across different severity levels.
+
+**Retention Periods by Log Level:**
+- **Error Logs**: 28 days (4 weeks) - Essential for incident investigation, root cause analysis, and regulatory compliance
+- **Warning Logs**: 28 days (4 weeks) - Critical for proactive monitoring, capacity planning, and preventing service degradation
+- **Info Logs**: 14 days (2 weeks) - Provides operational visibility, business metrics, and supports sprint-based development cycles
+- **Debug Logs**: 7 days (1 week) - Enables rapid troubleshooting of recent issues while minimizing storage overhead
+
+**Automated Cleanup Schedule:**
+- **Daily at 02:00 UTC**: Remove debug logs exceeding 7-day retention (immediate deletion)
+- **Weekly on Sundays at 03:00 UTC**: Purge info logs beyond 14-day threshold (immediate deletion)
+- **Bi-weekly on 1st and 15th at 04:00 UTC**: Archive warning logs to cold storage before deletion at 28-day mark
+- **Bi-weekly on 1st and 15th at 05:00 UTC**: Archive error logs to cold storage before deletion at 28-day mark
+- **Every 6 hours**: Loki Compactor processes retention policies and optimizes storage efficiency
+
+**Deletion & Archival Strategy:**
+- **Debug/Info Logs**: Direct deletion due to high volume and limited long-term business value
+- **Warning/Error Logs**: Multi-tier approach: 7-day hot storage → cold storage archival → deletion after full retention period
+- **Post-Incident Archival**: Critical error logs are immediately archived to cold storage after issue resolution
+
+**Cold Storage Benefits:**
+- **Cost Optimization**: Reduces storage expenses by 90% compared to hot storage while maintaining full accessibility
+- **Compliance Support**: Satisfies regulatory audit requirements for historical log preservation beyond active retention
+- **Forensic Analysis**: Enables comprehensive post-incident investigation and pattern recognition for recurring issues
+- **Legal Protection**: Maintains complete audit trail for potential disputes, security investigations, or compliance reviews
+- **Operational Intelligence**: Historical warning/error patterns support predictive maintenance and capacity planning
+
+**Decision Rationale:**
+- **7-day debug retention**: Sufficient for immediate troubleshooting while minimizing storage overhead
+- **14-day info retention**: Covers typical sprint cycles and operational reporting needs
+- **28-day warning/error retention**: Balances incident analysis requirements with storage costs
+- **Archival for critical logs**: Maintains compliance while reducing active storage costs
+- **Off-peak cleanup scheduling**: Minimizes impact on application performance during business hours
+
+## Alerts
+
+The monitoring strategy focuses on critical system health, performance degradation, and business logic failures to ensure reliable service delivery.
+
+**Critical System Alerts:**
+- **Service Availability**: Monitor uptime and detect service failures within 30 seconds
+- **High Error Rate**: Track error percentage across services (threshold: >5% over 5 minutes)
+
+**Performance Alerts:**
+- **Memory Usage**: Monitor process memory consumption (threshold: >512MB)
+- **CPU Usage**: Track sustained high CPU utilization (threshold: >80% over 5 minutes)
+- **Event Loop Lag**: Detect Node.js blocking operations (threshold: >100ms)
+- **HTTP Response Time**: Monitor API gateway response times (threshold: >2s p95)
+- **Database Query Time**: Track database operation performance (threshold: >500ms p95)
+- **Weather API Response Time**: Monitor external weather service latency (threshold: >3s p95)
+- **High Request Rate**: Monitor unexpected traffic spikes (threshold: >500 requests/minute per service)
+- **System Load Average**: Track server load exceeding capacity (threshold: >2.0 on 1-minute average)
+
+**Dependency Alerts:**
+- **Database Connections**: Alert on PostgreSQL connectivity issues within 1 minute
+- **Database Memory Usage**: Monitor PostgreSQL memory consumption to prevent write failures (threshold: >80% available memory)
+- **Kafka Consumer Lag**: Monitor email notification queue delays (threshold: >100 messages)
+- **Redis Issues**: Track cache connectivity and operation failures
+- **Redis Memory Usage**: Monitor Redis memory usage to prevent data eviction and write failures (threshold: >75% maxmemory)
+
+**Business Logic Alerts:**
+- **Email Service**: Monitor cache hit rates and delivery success (threshold: <30% cache hits)
+- **Weather API**: Track external API error rates and response times (threshold: >10% errors)
+- **Weather Cache Misses**: Monitor high cache miss rates indicating potential performance degradation (threshold: >70% misses over 10 minutes)
+- **Subscription Processing**: Monitor creation and confirmation delays (threshold: >30 seconds p95)
+
+**Infrastructure Alerts:**
+- **Graceful Shutdown**: Detect timeout failures during service termination
+- **Disk Usage**: Monitor filesystem capacity across nodes (threshold: >85%)

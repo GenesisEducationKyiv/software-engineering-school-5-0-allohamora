@@ -1,18 +1,24 @@
 import { Subscriber } from '@weather-subscription/queue';
+import { Logger, LoggerService } from '@weather-subscription/shared';
 import { EmailService } from 'src/services/email.service.js';
 
 export type Dependencies = {
   subscriber: Subscriber;
   emailService: EmailService;
+  loggerService: LoggerService;
 };
 
 export class EmailRouter {
   private subscriber: Subscriber;
   private emailService: EmailService;
 
-  constructor({ subscriber, emailService }: Dependencies) {
+  private logger: Logger;
+
+  constructor({ subscriber, emailService, loggerService }: Dependencies) {
     this.subscriber = subscriber;
     this.emailService = emailService;
+
+    this.logger = loggerService.createLogger('EmailRouter');
   }
 
   public async setup() {
@@ -23,5 +29,7 @@ export class EmailRouter {
     await this.subscriber.subscribe('send-weather-update-email', async (payload) => {
       await this.emailService.sendWeatherUpdateEmail(payload);
     });
+
+    this.logger.debug({ msg: 'EmailRouter has been set up' });
   }
 }
