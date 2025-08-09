@@ -1,0 +1,117 @@
+# CodeRabbit configuration for Weather Subscription project
+reviews:
+  # Enable auto-reviews on PRs
+  auto_review: true
+
+  # Review configuration
+  review_scope:
+    # Include all TypeScript, JavaScript, and config files
+    include_patterns:
+      - "**/*.ts"
+      - "**/*.tsx"
+      - "**/*.js"
+      - "**/*.jsx"
+      - "**/*.json"
+      - "**/*.yaml"
+      - "**/*.yml"
+      - "**/Dockerfile"
+      - "**/*.md"
+
+    # Exclude generated files and dependencies
+    exclude_patterns:
+      - "node_modules/**"
+      - "dist/**"
+      - "build/**"
+      - "coverage/**"
+      - "libs/proto/generated/**"
+      - "**/*.min.js"
+      - "package-lock.json"
+
+  # Focus areas for review
+  focus_areas:
+    - security
+    - performance
+    - maintainability
+    - architecture
+    - testing
+    - documentation
+
+  # Specific rules for this project
+  rules:
+    # Microservices-specific checks
+    - name: "service_boundaries"
+      description: "Ensure proper service boundaries and dependencies"
+
+    # TypeScript best practices
+    - name: "typescript_strict"
+      description: "Enforce strict TypeScript practices"
+
+    # Testing coverage
+    - name: "test_coverage"
+      description: "Check for adequate test coverage"
+
+    # Performance considerations
+    - name: "async_patterns"
+      description: "Review async/await patterns and error handling"
+
+# Project-specific context
+project:
+  type: "microservices"
+  language: "typescript"
+  framework: "hono"
+
+  # Key technologies to consider during review
+  technologies:
+    - "grpc"
+    - "drizzle-orm"
+    - "redis"
+    - "postgresql"
+    - "docker"
+    - "vitest"
+    - "prometheus"
+
+  # Architecture patterns used
+  patterns:
+    - "microservices"
+    - "event-driven"
+    - "repository-pattern"
+    - "dependency-injection"
+    - "chain-of-responsibility"
+
+# Custom prompts for better context
+prompts:
+  architecture_review: |
+    This is a microservices-based weather subscription application with 5 services:
+    1. API Gateway (Hono) - HTTP/REST interface
+    2. Weather Service - External API integration with caching
+    3. Subscription Service - JWT-based subscription management
+    4. Email Service - React JSX templates with Resend
+    5. Notification Service - Cron-based scheduling
+
+    Please review considering:
+    - Service boundaries and coupling
+    - gRPC communication patterns
+    - Error handling and resilience
+    - Performance implications
+    - Security considerations
+
+  testing_review: |
+    The project uses a comprehensive testing strategy:
+    - Unit tests (Vitest)
+    - Integration tests
+    - E2E tests (Playwright)
+    - Architecture tests
+    - Dependency tests
+
+    Please review test quality, coverage, and patterns.
+
+# Comment settings
+comments:
+  # Auto-resolve simple issues
+  auto_resolve: true
+
+  # Focus on important issues
+  severity_threshold: "medium"
+
+  # Group related comments
+  group_similar: true
