@@ -1,0 +1,260 @@
+# Weather Subscription
+
+a weather subscription app.
+
+[![build](https://github.com/allohamora/weather-subscription/actions/workflows/build.yml/badge.svg?event=push&branch=master)](https://github.com/allohamora/weather-subscription/actions/workflows/build.yml)
+[![test](https://github.com/allohamora/weather-subscription/actions/workflows/test.yml/badge.svg?event=push&branch=master)](https://github.com/allohamora/weather-subscription/actions/workflows/test.yml)
+
+## Overview
+
+This application allows users to subscribe to weather updates and receive them via email at their preferred interval. It's built with modern TypeScript technologies:
+
+- [Hono](https://hono.dev/) - Fast, lightweight web framework
+- [Drizzle ORM](https://orm.drizzle.team/) - TypeScript ORM for SQL databases
+- [PostgreSQL](https://www.postgresql.org/) - Robust relational database
+- [Resend](https://resend.com/) - Email delivery service
+- [Croner](https://github.com/hexagon/croner) - Cron-based job scheduler
+
+## Prerequisites
+
+Before running the application, you'll need:
+
+- Node.js (v22.13.0 or higher)
+- npm (v10.9.2 or higher)
+- Docker and Docker Compose
+- A domain for email sending
+
+## Setup Weather API
+
+1. Go to [Weather API](https://www.weatherapi.com/)
+2. Register an account
+3. Create an API key
+4. You'll add this key to your `.env` file in the installation steps
+
+## Setup Email Sending
+
+1. Purchase a domain on [Google Cloud DNS](https://cloud.google.com/dns) or another provider
+2. Go to [Resend](https://resend.com/)
+3. Register an account
+4. Follow the instructions to set up your domain for email sending
+5. Create an API key
+6. You'll add this key to your `.env` file in the installation steps
+
+## Installation & Local Development
+
+1. Clone the repository
+
+2. Install dependencies:
+
+   ```bash
+   npm install
+   ```
+
+3. Create a `.env` file from the template for each service:
+
+   ```bash
+   cp .env.example .env
+   ```
+
+4. Fill the `.env` file with your API keys and configuration for each service
+
+5. Start the required services with Docker:
+
+   ```bash
+   docker compose up -d
+   ```
+
+6. Run the application in development mode:
+
+   ```bash
+   npm run dev
+   ```
+
+7. Access the application:
+   - Subscribe form: [http://localhost:3000](http://localhost:3000)
+   - Swagger API documentation: [http://localhost:3000/swagger](http://localhost:3000/swagger)
+
+8. Stop the required services with Docker:
+
+  ```bash
+  docker compose down -d
+  ```
+
+## Running in Docker
+
+For a full production-like environment:
+
+1. Clone the repository
+
+2. Create a `.env` file from the template for each service:
+
+   ```bash
+   cp .env.example .env
+   ```
+
+3. Fill the `.env` file with your API keys and configuration for each service
+
+4. Start the application and all services using Docker:
+
+   ```bash
+   docker compose --profile production up -d
+   ```
+
+5. Access the application:
+   - Subscribe form: [http://localhost:3000](http://localhost:3000)
+   - Swagger API documentation: [http://localhost:3000/swagger](http://localhost:3000/swagger)
+
+6. Stop the application and all services using Docker:
+
+   ```bash
+   docker compose --profile production down
+   ```
+
+## Database Management
+
+Database migrations are automatically run when the application starts.
+
+To generate a new migration after making schema changes in a service:
+
+```bash
+npm run migrations:generate
+```
+
+## Development Scripts
+
+```bash
+# Run the application in development mode
+npm run dev
+
+# Build the application
+npm run build
+
+# Start the production build
+npm run start
+
+# Run tests
+npm run test
+
+# Format code
+npm run format:fix
+
+# Lint code
+npm run lint:fix
+```
+
+### Design Decisions
+
+#### Weather API Integration
+
+This project uses [Weather API](https://www.weatherapi.com/) to fetch accurate weather data. The service layer abstracts the API integration, making it easy to swap providers if needed.
+
+#### Email Delivery
+
+The application uses [Resend](https://resend.com/) for reliable email delivery. Emails are generated using custom templates and delivered at the user's preferred intervals.
+
+#### JWT for Subscription Management
+
+This application uses JWT tokens rather than storing inactive subscriptions in the database for several reasons:
+
+1. **Reduced Database Overhead**: Prevents storing temporary data in the database
+2. **Improved Developer Experience**: Simplifies subscription management
+3. **Stateless Verification**: Subscriptions can be verified without database queries
+
+The JWT contains all necessary information for subscription creation, and if a user wants to resubscribe after the verification period (10 minutes), a new token is simply generated.
+
+For more robust production environments, a Redis-based token store with TTL could be implemented, but this would add unnecessary complexity for this project.
+
+#### Scheduling
+
+The application uses [Croner](https://github.com/hexagon/croner) for scheduling weather updates instead of a message queue system because:
+
+1. **Simplified Timing**: Weather updates are sent at fixed intervals (hourly/daily) or not at all
+2. **User Expectations**: Attempting to retry failed email deliveries could create confusing timing for users
+3. **Reduced Complexity**: In-memory scheduling is simpler to implement and maintain
+
+For applications requiring more robust retry mechanisms and scalability, a message queue system like BullMQ would be more appropriate, but this would introduce unnecessary complexity for this project's requirements.
+
+#### Future Improvements
+
+While this application is designed to be a focused MVP, several enhancements could be implemented for larger-scale production deployments:
+
+1. **LRU Cache with TTL for Weather API Calls**: Implementing a caching layer would reduce external API calls, improve response times, and reduce costs for frequently requested locations.
+
+2. **Rate Limiting**: Adding API rate limiting would protect the application from abuse and ensure fair resource allocation among users.
+
+These improvements would enhance scalability and performance but are deliberately omitted from the current implementation to maintain simplicity and focus on core functionality in this MVP.
+
+## Observability
+
+This application implements comprehensive observability through structured logging and Prometheus metrics to ensure system reliability and performance monitoring in production environments.
+
+### Log Retention Policy
+
+The application implements a comprehensive tiered log retention strategy using Grafana Loki to optimize storage costs while meeting operational and compliance requirements. This policy ensures efficient log management across different severity levels.
+
+**Retention Periods by Log Level:**
+- **Error Logs**: 28 days (4 weeks) - Essential for incident investigation, root cause analysis, and regulatory compliance
+- **Warning Logs**: 28 days (4 weeks) - Critical for proactive monitoring, capacity planning, and preventing service degradation
+- **Info Logs**: 14 days (2 weeks) - Provides operational visibility, business metrics, and supports sprint-based development cycles
+- **Debug Logs**: 7 days (1 week) - Enables rapid troubleshooting of recent issues while minimizing storage overhead
+
+**Automated Cleanup Schedule:**
+- **Daily at 02:00 UTC**: Remove debug logs exceeding 7-day retention (immediate deletion)
+- **Weekly on Sundays at 03:00 UTC**: Purge info logs beyond 14-day threshold (immediate deletion)
+- **Bi-weekly on 1st and 15th at 04:00 UTC**: Archive warning logs to cold storage before deletion at 28-day mark
+- **Bi-weekly on 1st and 15th at 05:00 UTC**: Archive error logs to cold storage before deletion at 28-day mark
+- **Every 6 hours**: Loki Compactor processes retention policies and optimizes storage efficiency
+
+**Deletion & Archival Strategy:**
+- **Debug/Info Logs**: Direct deletion due to high volume and limited long-term business value
+- **Warning/Error Logs**: Multi-tier approach: 7-day hot storage → cold storage archival → deletion after full retention period
+- **Post-Incident Archival**: Critical error logs are immediately archived to cold storage after issue resolution
+
+**Cold Storage Benefits:**
+- **Cost Optimization**: Reduces storage expenses by 90% compared to hot storage while maintaining full accessibility
+- **Compliance Support**: Satisfies regulatory audit requirements for historical log preservation beyond active retention
+- **Forensic Analysis**: Enables comprehensive post-incident investigation and pattern recognition for recurring issues
+- **Legal Protection**: Maintains complete audit trail for potential disputes, security investigations, or compliance reviews
+- **Operational Intelligence**: Historical warning/error patterns support predictive maintenance and capacity planning
+
+**Decision Rationale:**
+- **7-day debug retention**: Sufficient for immediate troubleshooting while minimizing storage overhead
+- **14-day info retention**: Covers typical sprint cycles and operational reporting needs
+- **28-day warning/error retention**: Balances incident analysis requirements with storage costs
+- **Archival for critical logs**: Maintains compliance while reducing active storage costs
+- **Off-peak cleanup scheduling**: Minimizes impact on application performance during business hours
+
+## Alerts
+
+The monitoring strategy focuses on critical system health, performance degradation, and business logic failures to ensure reliable service delivery.
+
+**Critical System Alerts:**
+- **Service Availability**: Monitor uptime and detect service failures within 30 seconds
+- **High Error Rate**: Track error percentage across services (threshold: >5% over 5 minutes)
+
+**Performance Alerts:**
+- **Memory Usage**: Monitor process memory consumption (threshold: >512MB)
+- **CPU Usage**: Track sustained high CPU utilization (threshold: >80% over 5 minutes)
+- **Event Loop Lag**: Detect Node.js blocking operations (threshold: >100ms)
+- **HTTP Response Time**: Monitor API gateway response times (threshold: >2s p95)
+- **Database Query Time**: Track database operation performance (threshold: >500ms p95)
+- **Weather API Response Time**: Monitor external weather service latency (threshold: >3s p95)
+- **High Request Rate**: Monitor unexpected traffic spikes (threshold: >500 requests/minute per service)
+- **System Load Average**: Track server load exceeding capacity (threshold: >2.0 on 1-minute average)
+
+**Dependency Alerts:**
+- **Database Connections**: Alert on PostgreSQL connectivity issues within 1 minute
+- **Database Memory Usage**: Monitor PostgreSQL memory consumption to prevent write failures (threshold: >80% available memory)
+- **Kafka Consumer Lag**: Monitor email notification queue delays (threshold: >100 messages)
+- **Redis Issues**: Track cache connectivity and operation failures
+- **Redis Memory Usage**: Monitor Redis memory usage to prevent data eviction and write failures (threshold: >75% maxmemory)
+
+**Business Logic Alerts:**
+- **Email Service**: Monitor cache hit rates and delivery success (threshold: <30% cache hits)
+- **Weather API**: Track external API error rates and response times (threshold: >10% errors)
+- **Weather Cache Misses**: Monitor high cache miss rates indicating potential performance degradation (threshold: >70% misses over 10 minutes)
+- **Subscription Processing**: Monitor creation and confirmation delays (threshold: >30 seconds p95)
+
+**Infrastructure Alerts:**
+- **Graceful Shutdown**: Detect timeout failures during service termination
+- **Disk Usage**: Monitor filesystem capacity across nodes (threshold: >85%)
